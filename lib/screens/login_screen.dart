@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
+import '../services/firebase_notification_service.dart';
 import 'main_navigation.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -45,6 +46,14 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result['success']) {
       // Save user data
       await StorageService.saveUser(result['user']);
+
+      // Save FCM token to backend
+      try {
+        await FirebaseNotificationService().saveTokenToBackend();
+      } catch (e) {
+        print('Error saving FCM token: $e');
+        // Don't block login if FCM fails
+      }
 
       // Navigate to main screen
       if (mounted) {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "950824660207",
+    "project_id": "dolphin-99b00",
+    "storage_bucket": "dolphin-99b00.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:950824660207:android:f674d21b7c0f3d92e03f1a",
+        "android_client_info": {
+          "package_name": "dolphin.shipping.erbil.dolphin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfGdarbsj1tddy6Pi54S4AgF64KXY8LFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

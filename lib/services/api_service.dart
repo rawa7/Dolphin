@@ -408,5 +408,91 @@ class ApiService {
       };
     }
   }
+
+  // Save FCM token to backend
+  static Future<Map<String, dynamic>> saveFCMToken({
+    required String token,
+    required String customerId,
+    String? platform,
+    String? deviceId,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/save_fcm.php');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Customer-Id': customerId,
+        },
+        body: jsonEncode({
+          'token': token,
+          'customer_id': int.tryParse(customerId),
+          'platform': platform,
+          'device_id': deviceId,
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'message': data['message'] ?? 'Token saved successfully',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Failed to save token',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Delete/Deactivate FCM token from backend
+  static Future<Map<String, dynamic>> deleteFCMToken({
+    String? token,
+    String? customerId,
+    String? deviceId,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/delete_fcm.php');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (customerId != null) 'Customer-Id': customerId,
+        },
+        body: jsonEncode({
+          if (token != null) 'token': token,
+          if (customerId != null) 'customer_id': int.tryParse(customerId),
+          if (deviceId != null) 'device_id': deviceId,
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'message': data['message'] ?? 'Token deleted successfully',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Failed to delete token',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
 }
 

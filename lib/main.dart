@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'services/storage_service.dart';
+import 'services/firebase_notification_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_navigation.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase
+  await Firebase.initializeApp();
+  
+  // Set up background message handler
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  
+  // Initialize Firebase Notification Service
+  await FirebaseNotificationService().initialize();
+  
   runApp(const MyApp());
 }
 

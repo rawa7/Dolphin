@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../models/profile_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
+import '../services/firebase_notification_service.dart';
 import 'login_screen.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -83,7 +84,17 @@ class _AccountScreenState extends State<AccountScreen> {
     );
 
     if (confirm == true) {
+      // Delete FCM token from backend
+      try {
+        await FirebaseNotificationService().deleteTokenFromBackend();
+      } catch (e) {
+        print('Error deleting FCM token: $e');
+        // Don't block logout if FCM deletion fails
+      }
+
+      // Clear user data
       await StorageService.clearUser();
+      
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
