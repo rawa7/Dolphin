@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/shop_item_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
+import '../constants/app_colors.dart';
 import 'product_detail_screen.dart';
 import 'add_order_screen.dart';
 
@@ -187,46 +188,6 @@ class _StoreScreenState extends State<StoreScreen> {
                 ),
                 titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
               ),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Notifications coming soon!'),
-                      ),
-                    );
-                  },
-                  icon: Stack(
-                    children: [
-                      const Icon(Icons.notifications_outlined, color: Colors.black87),
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: const Text(
-                            '2',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ),
 
             // Brand Filters
@@ -247,11 +208,8 @@ class _StoreScreenState extends State<StoreScreen> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              const Color(0xFF9C1B5E),
-                              const Color(0xFFB91B72),
-                            ],
+                          gradient: const LinearGradient(
+                            colors: AppColors.primaryGradient,
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -385,10 +343,10 @@ class _StoreScreenState extends State<StoreScreen> {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF9C1B5E).withOpacity(0.1) : Colors.white,
+                color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected ? const Color(0xFF9C1B5E) : Colors.grey[300]!,
+                  color: isSelected ? AppColors.primary : Colors.grey[300]!,
                   width: isSelected ? 2 : 1,
                 ),
               ),
@@ -412,7 +370,7 @@ class _StoreScreenState extends State<StoreScreen> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? const Color(0xFF9C1B5E) : Colors.black87,
+                color: isSelected ? AppColors.primary : Colors.black87,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -616,7 +574,7 @@ class _StoreScreenState extends State<StoreScreen> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF9C1B5E),
+                            color: AppColors.primary,
                           ),
                         ),
                       ],
@@ -629,8 +587,8 @@ class _StoreScreenState extends State<StoreScreen> {
                     child: ElevatedButton(
                       onPressed: () => _orderItem(item),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF9C1B5E),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.white,
                         padding: const EdgeInsets.symmetric(vertical: 5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),

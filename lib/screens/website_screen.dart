@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/website_model.dart';
+import '../constants/app_colors.dart';
 import 'webview_screen.dart';
 
 class WebsiteScreen extends StatefulWidget {
@@ -104,55 +105,47 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
     final sortedCountries = groupedWebsites.keys.toList()..sort();
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         title: Image.asset(
           'assets/logo.png',
           height: 40,
           errorBuilder: (context, error, stackTrace) {
-            return Text(
+            return const Text(
               'Dolphin Shipping',
               style: TextStyle(
-                color: Colors.pink[700],
+                color: AppColors.primary,
                 fontWeight: FontWeight.bold,
               ),
             );
           },
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications_outlined, color: Colors.grey[800]),
-            onPressed: () {
-              // Handle notifications
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
           // Search bar
           Container(
-            color: Colors.white,
+            color: AppColors.white,
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: AppColors.shadow,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TextField(
                       controller: _searchController,
                       onChanged: _filterWebsites,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'Search',
-                        hintStyle: TextStyle(color: Colors.grey[400]),
-                        prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                        hintStyle: TextStyle(color: AppColors.textHint),
+                        prefixIcon: Icon(Icons.search, color: AppColors.textHint),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
+                        contentPadding: EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 12,
                         ),
@@ -163,11 +156,11 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                 const SizedBox(width: 12),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                    color: AppColors.shadow,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: IconButton(
-                    icon: Icon(Icons.tune, color: Colors.grey[600]),
+                    icon: const Icon(Icons.tune, color: AppColors.gray),
                     onPressed: () {
                       // Handle filter
                     },
@@ -180,27 +173,27 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
           // Websites list
           Expanded(
             child: _isLoading
-                ? Center(
+                ? const Center(
                     child: CircularProgressIndicator(
-                      color: Colors.pink[700],
+                      color: AppColors.primary,
                     ),
                   )
                 : _filteredWebsites.isEmpty
-                    ? Center(
+                    ? const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.language,
                               size: 80,
-                              color: Colors.grey[300],
+                              color: AppColors.lightGray,
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
                             Text(
                               'No websites found',
                               style: TextStyle(
                                 fontSize: 18,
-                                color: Colors.grey[600],
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ],
@@ -208,7 +201,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                       )
                     : RefreshIndicator(
                         onRefresh: _loadWebsites,
-                        color: Colors.pink[700],
+                        color: AppColors.primary,
                         child: ListView.builder(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           itemCount: sortedCountries.length,
@@ -233,7 +226,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                                           width: 4,
                                           height: 20,
                                           decoration: BoxDecoration(
-                                            color: Colors.pink[700],
+                                            color: AppColors.primary,
                                             borderRadius:
                                                 BorderRadius.circular(2),
                                           ),
@@ -245,6 +238,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
                                             letterSpacing: 0.5,
+                                            color: AppColors.textPrimary,
                                           ),
                                         ),
                                       ],
@@ -290,11 +284,11 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
       onTap: () => _openWebsite(website),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: AppColors.shadow,
               spreadRadius: 1,
               blurRadius: 4,
               offset: const Offset(0, 2),
@@ -323,7 +317,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                                   loadingProgress.expectedTotalBytes!
                               : null,
                           strokeWidth: 2,
-                          color: Colors.pink[300],
+                          color: AppColors.secondary,
                         ),
                       );
                     },

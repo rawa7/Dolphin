@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 import '../models/user_model.dart';
 import '../models/banner_model.dart';
 import '../models/website_model.dart';
+import '../constants/app_colors.dart';
 import 'add_order_screen.dart';
 import 'webview_screen.dart';
 
@@ -134,11 +135,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // Header with Logo and Notification
+            // Header with Logo
             SliverToBoxAdapter(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -159,42 +160,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       },
-                    ),
-                    // Notification Bell
-                    Stack(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.notifications_outlined, size: 28),
-                          onPressed: () {
-                            // Handle notification click
-                          },
-                        ),
-                        Positioned(
-                          right: 8,
-                          top: 8,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 18,
-                              minHeight: 18,
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '2',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),
@@ -286,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         fit: BoxFit.cover,
                                         errorBuilder: (context, error, stackTrace) {
                                           return Container(
-                                            color: Colors.grey[300],
+                                            color: AppColors.lightGray,
                                             child: const Center(
                                               child: Icon(Icons.image_not_supported),
                                             ),
@@ -469,11 +434,11 @@ class _HomeScreenState extends State<HomeScreen> {
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.15),
+              color: AppColors.shadow,
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -490,7 +455,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   website.imageUrl ?? '',
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.language, size: 40, color: Colors.grey);
+                    return const Icon(Icons.language, size: 40, color: AppColors.gray);
                   },
                 ),
               ),

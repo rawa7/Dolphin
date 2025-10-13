@@ -5,6 +5,7 @@ import 'services/storage_service.dart';
 import 'services/firebase_notification_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_navigation.dart';
+import 'constants/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,10 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Dolphin Shipping',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       home: const SplashScreen(),
     );
   }
@@ -73,15 +71,11 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.pink[300]!,
-              Colors.pink[100]!,
-              Colors.white,
-            ],
+            colors: AppColors.primaryGradient,
           ),
         ),
         child: Center(
@@ -92,27 +86,38 @@ class _SplashScreenState extends State<SplashScreen> {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8),
+                  color: AppColors.white.withOpacity(0.9),
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.shadowDark,
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
-                child: Icon(
-                  Icons.sailing,
-                  size: 60,
-                  color: Colors.pink[400],
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Image.asset(
+                    'assets/logo.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
-              Text(
+              const Text(
                 'Dolphin Shipping',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.pink[700],
+                  color: AppColors.white,
+                  letterSpacing: 1.2,
                 ),
               ),
               const SizedBox(height: 40),
-              CircularProgressIndicator(
-                color: Colors.pink[700],
+              const CircularProgressIndicator(
+                color: AppColors.white,
+                strokeWidth: 3,
               ),
             ],
           ),

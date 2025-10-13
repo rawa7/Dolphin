@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../models/order_model.dart';
+import '../constants/app_colors.dart';
 import 'order_detail_screen.dart';
 
 class MyOrdersScreen extends StatefulWidget {
@@ -153,10 +154,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     ),
                   ),
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.notifications_outlined),
-                    onPressed: () {},
-                  ),
                 ],
               ),
             ),
@@ -229,16 +226,16 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF9C1B5E) : Colors.white,
+          color: isSelected ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: isSelected ? const Color(0xFF9C1B5E) : Colors.grey[300]!,
+            color: isSelected ? AppColors.primary : Colors.grey[300]!,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
+            color: isSelected ? AppColors.white : AppColors.textPrimary,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -336,7 +333,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                         child: const Text(
                           'DETAILS',
                           style: TextStyle(
-                            color: Color(0xFF9C1B5E),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                             letterSpacing: 0.5,

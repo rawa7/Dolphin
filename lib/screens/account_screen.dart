@@ -4,6 +4,7 @@ import '../models/profile_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../services/firebase_notification_service.dart';
+import '../constants/app_colors.dart';
 import 'login_screen.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -170,10 +171,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFF2C3E50),
-                      const Color(0xFF34495E),
-                    ],
+                    colors: AppColors.primaryGradient,
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),

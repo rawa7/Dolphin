@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import '../constants/app_colors.dart';
 import 'add_order_screen.dart';
 
 class WebViewScreen extends StatefulWidget {
@@ -465,27 +466,27 @@ class _WebViewScreenState extends State<WebViewScreen> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.white,
           elevation: 1,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.grey[800]),
+            icon: const Icon(Icons.arrow_back, color: AppColors.primary),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             widget.title,
-            style: TextStyle(
-              color: Colors.grey[800],
+            style: const TextStyle(
+              color: AppColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.refresh, color: Colors.grey[800]),
+              icon: const Icon(Icons.refresh, color: AppColors.primary),
               onPressed: () => _controller.reload(),
             ),
             PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, color: Colors.grey[800]),
+              icon: const Icon(Icons.more_vert, color: AppColors.primary),
               onSelected: (value) async {
                 switch (value) {
                   case 'forward':
@@ -539,9 +540,9 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 right: 0,
                 child: LinearProgressIndicator(
                   value: _progress,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Colors.pink[700]!,
+                  backgroundColor: AppColors.lightGray,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppColors.primary,
                   ),
                 ),
               ),
@@ -549,21 +550,21 @@ class _WebViewScreenState extends State<WebViewScreen> {
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _isFetchingData ? null : _addToOrder,
-          backgroundColor: _isFetchingData ? Colors.grey : Colors.pink[700],
+          backgroundColor: _isFetchingData ? AppColors.gray : AppColors.primary,
           icon: _isFetchingData
               ? const SizedBox(
                   width: 20,
                   height: 20,
                   child: CircularProgressIndicator(
-                    color: Colors.white,
+                    color: AppColors.white,
                     strokeWidth: 2,
                   ),
                 )
-              : const Icon(Icons.add_shopping_cart, color: Colors.white),
+              : const Icon(Icons.add_shopping_cart, color: AppColors.white),
           label: Text(
             _isFetchingData ? 'Fetching...' : 'Add to Order',
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColors.white,
               fontWeight: FontWeight.w600,
             ),
           ),

@@ -4,6 +4,7 @@ import 'store_screen.dart';
 import 'website_screen.dart';
 import 'my_orders_screen.dart';
 import 'account_screen.dart';
+import '../constants/app_colors.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -41,9 +42,12 @@ class _MainNavigationState extends State<MainNavigation> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.pink[700],
-        unselectedItemColor: Colors.grey,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        backgroundColor: AppColors.white,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.gray,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        unselectedLabelStyle: const TextStyle(fontSize: 11),
+        elevation: 8,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
