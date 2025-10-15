@@ -7,6 +7,7 @@ import '../models/shop_item_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../constants/app_colors.dart';
+import '../generated/app_localizations.dart';
 import 'product_detail_screen.dart';
 import 'add_order_screen.dart';
 
@@ -123,6 +124,8 @@ class _StoreScreenState extends State<StoreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     if (_isLoading) {
       return const Scaffold(
         body: Center(
@@ -147,7 +150,7 @@ class _StoreScreenState extends State<StoreScreen> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _loadShopItems,
-                child: const Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -174,9 +177,9 @@ class _StoreScreenState extends State<StoreScreen> {
                       'assets/logo.png',
                       height: 30,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Text(
-                          'Dolphin Shop',
-                          style: TextStyle(
+                        return Text(
+                          l10n.dolphinShop,
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
@@ -188,6 +191,46 @@ class _StoreScreenState extends State<StoreScreen> {
                 ),
                 titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
               ),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.notificationsComingSoon),
+                      ),
+                    );
+                  },
+                  icon: Stack(
+                    children: [
+                      const Icon(Icons.notifications_outlined, color: Colors.black87),
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: const Text(
+                            '2',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
 
             // Brand Filters
@@ -202,7 +245,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     // All Brands
                     _buildBrandFilter(
                       isSelected: _selectedBrandId == null,
-                      brandName: 'All Brands',
+                      brandName: l10n.allBrands,
                       onTap: () => _filterByBrand(null),
                       child: Container(
                         width: 60,
@@ -250,7 +293,7 @@ class _StoreScreenState extends State<StoreScreen> {
                         controller: _searchController,
                         onChanged: (value) => _applySearch(),
                         decoration: InputDecoration(
-                          hintText: 'Search products...',
+                          hintText: l10n.searchProducts,
                           prefixIcon: const Icon(Icons.search, color: Colors.grey),
                           filled: true,
                           fillColor: Colors.grey[100],
@@ -271,8 +314,8 @@ class _StoreScreenState extends State<StoreScreen> {
                       child: IconButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Advanced filter coming soon!'),
+                            SnackBar(
+                              content: Text(l10n.advancedFilterComingSoon),
                             ),
                           );
                         },
@@ -290,12 +333,12 @@ class _StoreScreenState extends State<StoreScreen> {
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
+                        children: [
+                          const Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey),
+                          const SizedBox(height: 16),
                           Text(
-                            'No products found',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                            l10n.noProductsFound,
+                            style: const TextStyle(fontSize: 16, color: Colors.grey),
                           ),
                         ],
                       ),

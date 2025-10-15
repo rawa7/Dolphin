@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../generated/app_localizations.dart';
 import '../models/profile_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../services/firebase_notification_service.dart';
 import '../constants/app_colors.dart';
 import 'login_screen.dart';
+import 'language_selector_screen.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -62,15 +64,16 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Future<void> _logout() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(l10n.logout),
+        content: Text(l10n.areYouSureLogout),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -78,7 +81,7 @@ class _AccountScreenState extends State<AccountScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Logout'),
+            child: Text(l10n.logout),
           ),
         ],
       ),
@@ -121,6 +124,8 @@ class _AccountScreenState extends State<AccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     if (_isLoading) {
       return const Scaffold(
         body: Center(
@@ -145,7 +150,7 @@ class _AccountScreenState extends State<AccountScreen> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _loadProfile,
-                child: const Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -303,8 +308,8 @@ class _AccountScreenState extends State<AccountScreen> {
                     IconButton(
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Edit profile coming soon!'),
+                          SnackBar(
+                            content: Text('${l10n.edit} ${l10n.profile} coming soon!'),
                           ),
                         );
                       },
@@ -372,9 +377,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  const Text(
-                                    'Wallet',
-                                    style: TextStyle(
+                                  Text(
+                                    l10n.wallet,
+                                    style: const TextStyle(
                                       fontSize: 14,
                                       color: Colors.white70,
                                     ),
@@ -438,9 +443,9 @@ class _AccountScreenState extends State<AccountScreen> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'Owed Amount',
-                                    style: TextStyle(
+                                  Text(
+                                    l10n.owedAmount,
+                                    style: const TextStyle(
                                       fontSize: 14,
                                       color: Colors.white70,
                                     ),
@@ -491,9 +496,9 @@ class _AccountScreenState extends State<AccountScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Order Statistics',
-                            style: TextStyle(
+                          Text(
+                            l10n.orderStatistics,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
@@ -504,25 +509,25 @@ class _AccountScreenState extends State<AccountScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               _buildStatItem(
-                                'Total Items',
+                                l10n.totalItems,
                                 summary.totalItems.toString(),
                                 Icons.inventory_2_outlined,
                                 const Color(0xFF5B7FE8),
                               ),
                               _buildStatItem(
-                                'Active',
+                                l10n.active,
                                 summary.activeItems.toString(),
                                 Icons.shopping_bag_outlined,
                                 const Color(0xFF4CAF50),
                               ),
                               _buildStatItem(
-                                'Paid',
+                                l10n.paid,
                                 summary.totalPaidItems.toString(),
                                 Icons.check_circle_outline,
                                 const Color(0xFF2196F3),
                               ),
                               _buildStatItem(
-                                'Excluded',
+                                l10n.excluded,
                                 summary.excludedItems.toString(),
                                 Icons.remove_circle_outline,
                                 const Color(0xFFF44336),
@@ -536,9 +541,9 @@ class _AccountScreenState extends State<AccountScreen> {
                     // Contact Information Section (only if email or address exists)
                     if (profile.email.isNotEmpty || profile.address.isNotEmpty) ...[
                       const SizedBox(height: 24),
-                      const Text(
-                        'Contact Information',
-                        style: TextStyle(
+                      Text(
+                        l10n.contactInformation,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
@@ -885,9 +890,9 @@ class _AccountScreenState extends State<AccountScreen> {
                     const SizedBox(height: 32),
 
                     // DR Shipping Section
-                    const Text(
-                      'DR Shipping',
-                      style: TextStyle(
+                    Text(
+                      l10n.drShipping,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -895,28 +900,14 @@ class _AccountScreenState extends State<AccountScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // App Language
-                    _buildSettingItem(
-                      icon: Icons.language,
-                      title: 'App Language',
-                      trailing: 'English',
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Language selection coming soon!'),
-                          ),
-                        );
-                      },
-                    ),
-
                     // Contact Us
                     _buildSettingItem(
                       icon: Icons.headset_mic,
-                      title: 'Contact us',
+                      title: l10n.contactSupport,
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Contact form coming soon!'),
+                          SnackBar(
+                            content: Text(l10n.contactFormComingSoon),
                           ),
                         );
                       },
@@ -925,11 +916,25 @@ class _AccountScreenState extends State<AccountScreen> {
                     // Rate Our App
                     _buildSettingItem(
                       icon: Icons.star_border,
-                      title: 'Rate our app',
+                      title: l10n.rateOurApp,
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Rating coming soon!'),
+                          SnackBar(
+                            content: Text(l10n.ratingComingSoon),
+                          ),
+                        );
+                      },
+                    ),
+
+                    // Language
+                    _buildSettingItem(
+                      icon: Icons.language,
+                      title: l10n.language,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LanguageSelectorScreen(),
                           ),
                         );
                       },
@@ -938,7 +943,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     // Logout
                     _buildSettingItem(
                       icon: Icons.logout,
-                      title: 'Logout',
+                      title: l10n.logout,
                       titleColor: Colors.red,
                       onTap: _logout,
                     ),

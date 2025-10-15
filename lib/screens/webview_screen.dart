@@ -42,54 +42,13 @@ class _WebViewScreenState extends State<WebViewScreen> {
       // Get current URL
       final currentUrl = await _controller.currentUrl() ?? widget.url;
       
-      // Extract data directly from the current WebView using JavaScript
-      final extractedData = await _extractDataFromWebView();
-
       setState(() {
         _isFetchingData = false;
       });
 
-      if (extractedData != null && extractedData.isNotEmpty) {
-        // Navigate to Add Order screen with pre-filled data
-        if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddOrderScreen(
-                initialUrl: currentUrl,
-                initialData: extractedData,
-              ),
-            ),
-          );
-        }
-      } else {
-        // If extraction failed, navigate anyway with just the URL
-        if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddOrderScreen(
-                initialUrl: currentUrl,
-              ),
-            ),
-          );
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Could not extract product details automatically. Please fill manually.'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      setState(() {
-        _isFetchingData = false;
-      });
-      
+      // Navigate to Add Order screen with just the URL
+      // Let the Add Order screen handle data fetching (same as "Get Data" button)
       if (mounted) {
-        // Navigate with just URL even if extraction fails
-        final currentUrl = await _controller.currentUrl() ?? widget.url;
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -98,11 +57,17 @@ class _WebViewScreenState extends State<WebViewScreen> {
             ),
           ),
         );
-        
+      }
+    } catch (e) {
+      setState(() {
+        _isFetchingData = false;
+      });
+      
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not extract product details. Please fill manually.'),
-            backgroundColor: Colors.orange,
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
           ),
         );
       }

@@ -8,6 +8,7 @@ import '../services/storage_service.dart';
 import '../services/web_scraper_service.dart';
 import '../services/webview_scraper_service.dart';
 import '../models/currency_model.dart';
+import '../generated/app_localizations.dart';
 
 class AddOrderScreen extends StatefulWidget {
   final String? initialUrl;
@@ -140,9 +141,21 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     }
     // Apply initial data if provided (before adding listener)
     else if (widget.initialUrl != null) {
-      _isApplyingInitialData = true;
       _linkController.text = widget.initialUrl!;
       _previousUrl = widget.initialUrl!;
+      
+      // If no initialData is provided, trigger auto-fetch after a short delay
+      // This happens when coming from WebView "Add to Order" button
+      if (widget.initialData == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            // Auto-fetch product details
+            _fetchProductDetails();
+          }
+        });
+      } else {
+        _isApplyingInitialData = true;
+      }
     }
     
     if (widget.initialData != null) {
@@ -499,6 +512,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   }
 
   Future<void> _pickImage() async {
+    final l10n = AppLocalizations.of(context)!;
     final ImagePicker picker = ImagePicker();
     
     showModalBottomSheet(
@@ -509,7 +523,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_camera),
-                title: const Text('Take Photo'),
+                title: Text(l10n.takePhoto),
                 onTap: () async {
                   Navigator.pop(context);
                   final XFile? image = await picker.pickImage(
@@ -527,7 +541,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library),
-                title: const Text('Choose from Gallery'),
+                title: Text(l10n.chooseFromGallery),
                 onTap: () async {
                   Navigator.pop(context);
                   final XFile? image = await picker.pickImage(
@@ -640,6 +654,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -650,7 +666,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Place order',
+          l10n.placeOrder,
           style: TextStyle(
             color: Colors.grey[800],
             fontSize: 20,
@@ -672,9 +688,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             // Link field with paste/clear buttons
-            const Text(
-              'Link',
-              style: TextStyle(
+            Text(
+              l10n.link,
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey,
@@ -690,7 +706,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               child: TextFormField(
                 controller: _linkController,
                 decoration: InputDecoration(
-                  hintText: 'Paste product URL here...',
+                  hintText: l10n.pasteProductLink,
                   hintStyle: const TextStyle(color: Colors.grey),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.all(16),
@@ -706,7 +722,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                               _linkController.clear();
                             });
                           },
-                          tooltip: 'Clear',
+                          tooltip: l10n.close,
                         ),
                       // Paste button
                       IconButton(

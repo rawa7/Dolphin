@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/order_model.dart';
 import '../services/api_service.dart';
+import '../generated/app_localizations.dart';
 import 'webview_screen.dart';
 
 class OrderDetailScreen extends StatefulWidget {
@@ -21,23 +22,25 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   bool _isProcessing = false;
 
   Future<void> _acceptOrder() async {
+    final l10n = AppLocalizations.of(context)!;
+    
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Accept Order'),
-        content: const Text('Are you sure you want to accept this order?'),
+        title: Text(l10n.confirmAccept),
+        content: Text(l10n.areYouSureAccept),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
             ),
-            child: const Text('Accept'),
+            child: Text(l10n.accept),
           ),
         ],
       ),
@@ -73,23 +76,25 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Future<void> _rejectOrder() async {
+    final l10n = AppLocalizations.of(context)!;
+    
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reject Order'),
-        content: const Text('Are you sure you want to reject this order?'),
+        title: Text(l10n.confirmReject),
+        content: Text(l10n.areYouSureReject),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Reject'),
+            child: Text(l10n.reject),
           ),
         ],
       ),
@@ -193,6 +198,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final price = double.tryParse(widget.order.totalPrice) ?? 0.0;
     final itemPrice = double.tryParse(widget.order.itemPrice) ?? 0.0;
     final shipping = double.tryParse(widget.order.shippingPrice) ?? 0.0;
@@ -210,9 +216,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Order details',
-          style: TextStyle(
+        title: Text(
+          l10n.orderDetails,
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
@@ -255,9 +261,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Order details',
-                        style: TextStyle(
+                      Text(
+                        l10n.orderDetails,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -266,7 +272,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       ElevatedButton.icon(
                         onPressed: _isProcessing ? null : _reorderProduct,
                         icon: const Icon(Icons.refresh, size: 18),
-                        label: const Text('Reorder'),
+                        label: Text(l10n.reorder),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF9C1B5E),
                           foregroundColor: Colors.white,
@@ -280,7 +286,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   const SizedBox(height: 16),
 
                   // ID
-                  _buildDetailRow('ID', widget.order.serial),
+                  _buildDetailRow(l10n.serialNumber, widget.order.serial),
                   const Divider(height: 1),
 
                   // Status
@@ -289,9 +295,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Status',
-                          style: TextStyle(
+                        Text(
+                          l10n.status,
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black54,
                           ),
@@ -325,9 +331,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Link',
-                          style: TextStyle(
+                        Text(
+                          l10n.link,
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black54,
                           ),
@@ -355,43 +361,38 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
                   // Brand
                   if (widget.order.country.isNotEmpty)
-                    _buildDetailRow('Brand', widget.order.country),
+                    _buildDetailRow(l10n.brand, widget.order.country),
                   if (widget.order.country.isNotEmpty) const Divider(height: 1),
 
                   // Size
-                  _buildDetailRow('Size', widget.order.size.isNotEmpty ? widget.order.size : 'None'),
+                  _buildDetailRow(l10n.size, widget.order.size.isNotEmpty ? widget.order.size : l10n.none),
                   const Divider(height: 1),
 
                   // Quantity
-                  _buildDetailRow('Quantity', widget.order.qty),
+                  _buildDetailRow(l10n.quantity, widget.order.qty),
                   const Divider(height: 1),
 
                   // Item Price
                   _buildDetailRow(
-                    'Item Price',
+                    l10n.itemPrice,
                     '${widget.order.currencySymbol ?? ''}${itemPrice.toStringAsFixed(2)}',
                   ),
                   const Divider(height: 1),
 
-                  // Item Price (IQD) - only show if different currency
-                  if (widget.order.currencyId != '1')
-                    _buildDetailRow('Item Price (IQD)', '${itemPrice.toStringAsFixed(2)} IQD'),
-                  if (widget.order.currencyId != '1') const Divider(height: 1),
-
-                  // Shipping (IQD)
-                  _buildDetailRow('Shipping (IQD)', '${shipping.toStringAsFixed(2)} IQD'),
+                  // Shipping (always USD)
+                  _buildDetailRow(l10n.shipping, '\$${shipping.toStringAsFixed(2)}'),
                   const Divider(height: 1),
 
-                  // Internal Shipping (IQD)
-                  _buildDetailRow('Internal Shipping (IQD)', '${internalShipping.toStringAsFixed(2)} IQD'),
+                  // Internal Shipping (Cargo) (always USD)
+                  _buildDetailRow(l10n.cargo, '\$${internalShipping.toStringAsFixed(2)}'),
                   const Divider(height: 1),
 
-                  // Commission (IQD)
-                  _buildDetailRow('Commission (IQD)', '${commission.toStringAsFixed(2)} IQD'),
+                  // Commission (always USD)
+                  _buildDetailRow(l10n.commission, '\$${commission.toStringAsFixed(2)}'),
                   const Divider(height: 1),
 
-                  // Tax
-                  _buildDetailRow('Tax', '${tax.toStringAsFixed(2)} IQD'),
+                  // Tax (always USD)
+                  _buildDetailRow(l10n.tax, '\$${tax.toStringAsFixed(2)}'),
                   
                   const SizedBox(height: 24),
 
@@ -419,9 +420,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    'Reject',
-                                    style: TextStyle(
+                                : Text(
+                                    l10n.reject,
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -449,9 +450,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    'Accept',
-                                    style: TextStyle(
+                                : Text(
+                                    l10n.accept,
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),

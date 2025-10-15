@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../generated/app_localizations.dart';
 import 'home_screen.dart';
 import 'store_screen.dart';
 import 'website_screen.dart';
@@ -32,6 +33,8 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -48,26 +51,26 @@ class _MainNavigationState extends State<MainNavigation> {
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         unselectedLabelStyle: const TextStyle(fontSize: 11),
         elevation: 8,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: const Icon(Icons.home),
+            label: l10n.home,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.store),
-            label: 'Store',
+            icon: const Icon(Icons.store),
+            label: l10n.store,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.language),
-            label: 'Websites',
+            icon: const Icon(Icons.language),
+            label: l10n.websites,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: 'My Orders',
+            icon: const Icon(Icons.shopping_bag),
+            label: l10n.myOrders,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Account',
+            icon: const Icon(Icons.person),
+            label: l10n.account,
           ),
         ],
       ),

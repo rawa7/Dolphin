@@ -3,6 +3,7 @@ import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../models/order_model.dart';
 import '../constants/app_colors.dart';
+import '../generated/app_localizations.dart';
 import 'order_detail_screen.dart';
 
 class MyOrdersScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   List<OrderStatus> _statuses = [];
   AccountInfo? _accountInfo;
   bool _isLoading = true;
-  String _selectedFilter = 'All orders';
+  String _selectedFilter = 'all';
   int? _customerId;
 
   @override
@@ -67,22 +68,22 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     }
   }
 
-  void _filterOrders(String filter) {
+  void _filterOrders(String filterKey) {
     setState(() {
-      _selectedFilter = filter;
-      if (filter == 'All orders') {
+      _selectedFilter = filterKey;
+      if (filterKey == 'all') {
         _filteredOrders = _allOrders;
-      } else if (filter == 'Processed') {
+      } else if (filterKey == 'processed') {
         // Status 2 = Processing, 3 = Approved, 4 = In Transit, etc.
         _filteredOrders = _allOrders.where((order) => 
           ['2', '3', '4', '16', '17', '19'].contains(order.status)
         ).toList();
-      } else if (filter == 'Waiting') {
+      } else if (filterKey == 'waiting') {
         // Status 1 = Created, 13 = Pending
         _filteredOrders = _allOrders.where((order) => 
           ['1', '13'].contains(order.status)
         ).toList();
-      } else if (filter == 'Delivered') {
+      } else if (filterKey == 'delivered') {
         // Status -2 = Complete, -1 = delivered to erbil
         _filteredOrders = _allOrders.where((order) => 
           ['-2', '-1', '18'].contains(order.status)
@@ -125,6 +126,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -145,9 +148,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             child: SafeArea(
               child: Row(
                 children: [
-                  const Text(
-                    'My orders',
-                    style: TextStyle(
+                  Text(
+                    l10n.myOrders,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -166,13 +169,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _buildFilterChip('All orders'),
+                _buildFilterChip('all', l10n.allOrders),
                 const SizedBox(width: 8),
-                _buildFilterChip('Processed'),
+                _buildFilterChip('processed', l10n.processed),
                 const SizedBox(width: 8),
-                _buildFilterChip('Waiting'),
+                _buildFilterChip('waiting', l10n.waiting),
                 const SizedBox(width: 8),
-                _buildFilterChip('Delivered'),
+                _buildFilterChip('delivered', l10n.delivered),
               ],
             ),
           ),
@@ -193,7 +196,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No orders found',
+                              l10n.noOrdersFound,
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.grey[600],
@@ -219,10 +222,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label) {
-    final isSelected = _selectedFilter == label;
+  Widget _buildFilterChip(String filterKey, String label) {
+    final isSelected = _selectedFilter == filterKey;
     return GestureDetector(
-      onTap: () => _filterOrders(label),
+      onTap: () => _filterOrders(filterKey),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
@@ -244,11 +247,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Widget _buildOrderCard(Order order) {
+    final l10n = AppLocalizations.of(context)!;
     final statusColor = _getStatusColor(order.status);
     final price = double.tryParse(order.totalPrice) ?? 0.0;
+    final currencySymbol = order.currencySymbol ?? '\$';
     final priceDisplay = price > 0 
-        ? '${price.toStringAsFixed(2)} IQD' 
-        : (order.itemPrice != '0' ? (order.itemPrice + ' ' + (order.currencyName ?? 'IQD')) : '-');
+        ? '${currencySymbol}${price.toStringAsFixed(2)}' 
+        : (order.itemPrice != '0' ? ('${order.currencySymbol ?? '\$'}${order.itemPrice}') : '-');
     
     final canManageOrder = order.status == '2' || order.status == '13';
 
@@ -299,7 +304,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                       Row(
                         children: [
                           Text(
-                            'ID',
+                            l10n.serialNumber,
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 13,
@@ -330,9 +335,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                             _loadOrders();
                           }
                         },
-                        child: const Text(
-                          'DETAILS',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.viewDetails.toUpperCase(),
+                          style: const TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
@@ -348,7 +353,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   Row(
                     children: [
                       Text(
-                        'Price',
+                        l10n.price,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 13,
@@ -370,7 +375,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   Row(
                     children: [
                       Text(
-                        'QTY',
+                        l10n.qty,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 13,
@@ -392,7 +397,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   Row(
                     children: [
                       Text(
-                        'Size',
+                        l10n.size,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 13,
@@ -401,7 +406,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
-                          ': ${order.size.isNotEmpty ? order.size : "None"}',
+                          ': ${order.size.isNotEmpty ? order.size : l10n.none}',
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
@@ -449,7 +454,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                             vertical: 5,
                           ),
                           child: Text(
-                            'Processing order',
+                            l10n.processingOrder,
                             style: TextStyle(
                               color: Colors.orange[700],
                               fontSize: 10,
@@ -478,9 +483,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                                 ),
                                 padding: const EdgeInsets.symmetric(horizontal: 8),
                               ),
-                              child: const Text(
-                                'Reject',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.reject,
+                                style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -503,9 +508,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                                 ),
                                 padding: const EdgeInsets.symmetric(horizontal: 8),
                               ),
-                              child: const Text(
-                                'Accept',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.accept,
+                                style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -526,23 +531,24 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Future<void> _showAcceptConfirmation(Order order) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Accept Order'),
-        content: Text('Accept order #${order.serial}?'),
+        title: Text(l10n.confirmAccept),
+        content: Text('${l10n.accept} ${l10n.order} #${order.serial}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
             ),
-            child: const Text('Accept'),
+            child: Text(l10n.accept),
           ),
         ],
       ),
@@ -570,23 +576,24 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Future<void> _showRejectConfirmation(Order order) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Reject Order'),
-        content: Text('Reject order #${order.serial}?'),
+        title: Text(l10n.confirmReject),
+        content: Text('${l10n.reject} ${l10n.order} #${order.serial}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Reject'),
+            child: Text(l10n.reject),
           ),
         ],
       ),

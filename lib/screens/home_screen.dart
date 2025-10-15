@@ -5,6 +5,7 @@ import '../models/user_model.dart';
 import '../models/banner_model.dart';
 import '../models/website_model.dart';
 import '../constants/app_colors.dart';
+import '../generated/app_localizations.dart';
 import 'add_order_screen.dart';
 import 'webview_screen.dart';
 
@@ -117,15 +118,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showHelp() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Help & Support'),
-        content: const Text('For assistance, please contact our support team.\n\nPhone: +964 750 774 6088\nEmail: support@dolphinshipping.com'),
+        title: Text(l10n.helpAndSupport),
+        content: Text(l10n.helpMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
@@ -134,6 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -151,9 +155,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       'https://dolphinshippingiq.com/uploads/2649.jpg',
                       height: 40,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Text(
-                          'Goldenprizma',
-                          style: TextStyle(
+                        return Text(
+                          l10n.goldenprizma,
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF9C1B5E),
@@ -171,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
-                  _user != null ? 'Hello, ${_user!.name ?? "User"}!' : 'Hello!',
+                  _user != null ? l10n.helloUser(_user!.name ?? "User") : '${l10n.hello}!',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -189,28 +193,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     _buildQuickActionButton(
                       icon: Icons.shopping_bag_outlined,
-                      label: 'New order',
+                      label: l10n.newOrder,
                       color: const Color(0xFFFFE5F0),
                       iconColor: const Color(0xFF9C1B5E),
                       onTap: _navigateToAddOrder,
                     ),
                     _buildQuickActionButton(
                       icon: Icons.description_outlined,
-                      label: 'My orders',
+                      label: l10n.myOrders,
                       color: const Color(0xFFFFF4E5),
                       iconColor: const Color(0xFFFF9800),
                       onTap: _navigateToMyOrders,
                     ),
                     _buildQuickActionButton(
                       icon: Icons.language,
-                      label: 'Websites',
+                      label: l10n.websites,
                       color: const Color(0xFFE5F4FF),
                       iconColor: const Color(0xFF2196F3),
                       onTap: _navigateToWebsites,
                     ),
                     _buildQuickActionButton(
                       icon: Icons.help_outline,
-                      label: 'Help',
+                      label: l10n.help,
                       color: const Color(0xFFE8F5E9),
                       iconColor: const Color(0xFF4CAF50),
                       onTap: _showHelp,
@@ -291,9 +295,9 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-                child: const Text(
-                  'Hot Deals For You',
-                  style: TextStyle(
+                child: Text(
+                  l10n.hotDeals,
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
@@ -312,11 +316,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   )
                 : _websites.isEmpty
-                    ? const SliverToBoxAdapter(
+                    ? SliverToBoxAdapter(
                         child: Center(
                           child: Padding(
-                            padding: EdgeInsets.all(24.0),
-                            child: Text('No websites available'),
+                            padding: const EdgeInsets.all(24.0),
+                            child: Text(l10n.noWebsitesAvailable),
                           ),
                         ),
                       )
