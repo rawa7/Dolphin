@@ -8,6 +8,9 @@ import '../constants/app_colors.dart';
 import '../generated/app_localizations.dart';
 import 'add_order_screen.dart';
 import 'webview_screen.dart';
+import 'website_screen.dart';
+import 'notifications_screen.dart';
+import '../models/notification_model.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int)? onTabChange;
@@ -25,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoadingBanners = true;
   bool _isLoadingWebsites = true;
   int _currentBannerIndex = 0;
+  int _unreadNotificationCount = 0;
   final PageController _bannerController = PageController();
 
   @override
@@ -33,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadUser();
     _loadBanners();
     _loadWebsites();
+    _loadNotificationCount();
   }
 
   @override
@@ -46,6 +51,19 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _user = user;
     });
+  }
+
+  Future<void> _loadNotificationCount() async {
+    final user = await StorageService.getUser();
+    if (user != null) {
+      final result = await ApiService.getNotifications(customerId: user.id);
+      if (result['success'] && mounted) {
+        final notificationData = result['data'] as NotificationData;
+        setState(() {
+          _unreadNotificationCount = notificationData.unreadCount;
+        });
+      }
+    }
   }
 
   Future<void> _loadBanners() async {
@@ -111,28 +129,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _navigateToWebsites() {
-    // Tab index 2 is Websites
-    if (widget.onTabChange != null) {
-      widget.onTabChange!(2);
-    }
-  }
-
-  void _showHelp() {
-    final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.helpAndSupport),
-        content: Text(l10n.helpMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.ok),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const WebsiteScreen(),
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -147,23 +151,84 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverToBoxAdapter(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.shadow,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Logo
-                    Image.network(
-                      'https://dolphinshippingiq.com/uploads/2649.jpg',
-                      height: 40,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Text(
-                          l10n.goldenprizma,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF9C1B5E),
+                    // Dolphin Shipping Text
+                    const Text(
+                      'Dolphin Shipping',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    // Notification Icon
+                    IconButton(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotificationsScreen(),
                           ),
                         );
+                        // Reload notification count when returning
+                        if (result == true || result == null) {
+                          _loadNotificationCount();
+                        }
+                        // Handle navigation to specific tab
+                        if (result is Map && result['action'] == 'navigate' && widget.onTabChange != null) {
+                          widget.onTabChange!(result['tab'] as int);
+                        }
                       },
+                      icon: Stack(
+                        children: [
+                          const Icon(
+                            Icons.notifications_outlined,
+                            color: AppColors.primary,
+                            size: 28,
+                          ),
+                          // Notification badge
+                          if (_unreadNotificationCount > 0)
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.error,
+                                  shape: BoxShape.circle,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 18,
+                                  minHeight: 18,
+                                ),
+                                child: Text(
+                                  _unreadNotificationCount > 99 
+                                      ? '99+' 
+                                      : _unreadNotificationCount.toString(),
+                                  style: const TextStyle(
+                                    color: AppColors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -184,40 +249,41 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Quick Action Buttons
+            // Quick Action Buttons - 3 in a row
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildQuickActionButton(
-                      icon: Icons.shopping_bag_outlined,
-                      label: l10n.newOrder,
-                      color: const Color(0xFFFFE5F0),
-                      iconColor: const Color(0xFF9C1B5E),
-                      onTap: _navigateToAddOrder,
+                    Expanded(
+                      child: _buildQuickActionButton(
+                        icon: Icons.add_shopping_cart,
+                        label: l10n.newOrder,
+                        color: const Color(0xFFFFE5F0),
+                        iconColor: const Color(0xFFE91E63),
+                        onTap: _navigateToAddOrder,
+                      ),
                     ),
-                    _buildQuickActionButton(
-                      icon: Icons.description_outlined,
-                      label: l10n.myOrders,
-                      color: const Color(0xFFFFF4E5),
-                      iconColor: const Color(0xFFFF9800),
-                      onTap: _navigateToMyOrders,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildQuickActionButton(
+                        icon: Icons.receipt_long,
+                        label: l10n.myOrders,
+                        color: const Color(0xFFFFF4E5),
+                        iconColor: const Color(0xFFFF9800),
+                        onTap: _navigateToMyOrders,
+                      ),
                     ),
-                    _buildQuickActionButton(
-                      icon: Icons.language,
-                      label: l10n.websites,
-                      color: const Color(0xFFE5F4FF),
-                      iconColor: const Color(0xFF2196F3),
-                      onTap: _navigateToWebsites,
-                    ),
-                    _buildQuickActionButton(
-                      icon: Icons.help_outline,
-                      label: l10n.help,
-                      color: const Color(0xFFE8F5E9),
-                      iconColor: const Color(0xFF4CAF50),
-                      onTap: _showHelp,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildQuickActionButton(
+                        icon: Icons.language,
+                        label: l10n.websites,
+                        color: const Color(0xFFE5F4FF),
+                        iconColor: const Color(0xFF2196F3),
+                        onTap: _navigateToWebsites,
+                      ),
                     ),
                   ],
                 ),
@@ -394,30 +460,48 @@ class _HomeScreenState extends State<HomeScreen> {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
-      child: Column(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: iconColor.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 28,
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 28,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: iconColor,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -469,7 +553,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFF9C1B5E).withOpacity(0.1),
+                color: AppColors.primary.withOpacity(0.1),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(12),
                   bottomRight: Radius.circular(12),
@@ -481,7 +565,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF9C1B5E),
+                  color: AppColors.primary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

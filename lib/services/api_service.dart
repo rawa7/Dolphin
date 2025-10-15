@@ -7,6 +7,8 @@ import '../models/order_model.dart';
 import '../models/currency_model.dart';
 import '../models/profile_model.dart';
 import '../models/shop_item_model.dart';
+import '../models/notification_model.dart';
+import '../models/size_model.dart';
 
 class ApiService {
   static const String baseUrl = 'https://dolphinshippingiq.com/api';
@@ -136,6 +138,42 @@ class ApiService {
         return {
           'success': false,
           'message': data['message'] ?? 'Failed to fetch currencies',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error. Please check your connection.',
+      };
+    }
+  }
+
+  // Get Sizes
+  static Future<Map<String, dynamic>> getSizes() async {
+    try {
+      final url = Uri.parse('$baseUrl/sizes.php');
+      final response = await http.get(url);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final sizesList = data['data']['sizes'] as List;
+        // Filter out sizes with empty names
+        final sizes = sizesList
+            .map((size) => Size.fromJson(size))
+            .where((size) => size.name.trim().isNotEmpty)
+            .toList();
+        
+        return {
+          'success': true,
+          'sizes': sizes,
+          'count': sizes.length,
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Failed to fetch sizes',
         };
       }
     } catch (e) {
@@ -487,6 +525,108 @@ class ApiService {
           'message': data['message'] ?? 'Failed to delete token',
         };
       }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Get Notifications
+  static Future<Map<String, dynamic>> getNotifications({
+    required int customerId,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/notifications.php?customer_id=$customerId&limit=$limit&offset=$offset');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['success'] == true && data['data'] != null) {
+          try {
+            final notificationData = NotificationData.fromJson(data['data']);
+            
+            return {
+              'success': true,
+              'data': notificationData,
+              'message': data['message'] ?? 'Notifications retrieved successfully',
+            };
+          } catch (parseError) {
+            return {
+              'success': false,
+              'message': 'Error parsing notifications: $parseError',
+            };
+          }
+        } else {
+          return {
+            'success': false,
+            'message': data['message'] ?? 'Failed to fetch notifications',
+          };
+        }
+      } else {
+        return {
+          'success': false,
+          'message': 'Server error: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Mark Notification as Read
+  static Future<Map<String, dynamic>> markNotificationAsRead({
+    required int customerId,
+    required int notificationId,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/notifications.php?customer_id=$customerId');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'notification_id': notificationId.toString(),
+          'action': 'mark_read',
+        },
+      );
+
+      final data = jsonDecode(response.body);
+
+      return {
+        'success': data['success'] ?? false,
+        'message': data['message'] ?? 'Failed to mark notification as read',
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Mark All Notifications as Read
+  static Future<Map<String, dynamic>> markAllNotificationsAsRead({
+    required int customerId,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/notifications.php?customer_id=$customerId&mark_all_read=1');
+      final response = await http.get(url);
+
+      final data = jsonDecode(response.body);
+
+      return {
+        'success': data['success'] ?? false,
+        'message': data['message'] ?? 'All notifications marked as read',
+      };
     } catch (e) {
       return {
         'success': false,

@@ -59,12 +59,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     // Download image
     final imageFile = await _downloadImage(widget.item.imagePath);
-    
-    setState(() {
-      _isOrdering = false;
-    });
 
     if (imageFile == null) {
+      setState(() {
+        _isOrdering = false;
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -78,19 +77,26 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     // Navigate to Add Order screen with pre-filled data
     if (mounted) {
-      Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => AddOrderScreen(
             prefilledImage: imageFile,
             prefilledPrice: widget.item.price.toString(),
-            prefilledNote: 'shop item - ${widget.item.itemDescription}',
+            prefilledNote: null, // Keep description empty
             prefilledCountry: 'Iraq',
             prefilledLink: 'http://dolphin.com',
             prefilledSize: 'Free Size',
           ),
         ),
       );
+      
+      // Reset loading state after returning from AddOrderScreen
+      if (mounted) {
+        setState(() {
+          _isOrdering = false;
+        });
+      }
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../generated/app_localizations.dart';
 import 'home_screen.dart';
 import 'store_screen.dart';
+import 'add_order_screen.dart';
 import 'website_screen.dart';
 import 'my_orders_screen.dart';
 import 'account_screen.dart';
@@ -38,11 +39,22 @@ class _MainNavigationState extends State<MainNavigation> {
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
+        currentIndex: _currentIndex > 2 ? _currentIndex : _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          // If New Order (index 2) is tapped, open as a new screen
+          if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddOrderScreen(),
+              ),
+            );
+            // Don't change the current index, keep it on whatever tab was selected
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
         },
         type: BottomNavigationBarType.fixed,
         backgroundColor: AppColors.white,
@@ -61,8 +73,8 @@ class _MainNavigationState extends State<MainNavigation> {
             label: l10n.store,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.language),
-            label: l10n.websites,
+            icon: const Icon(Icons.add_shopping_cart),
+            label: l10n.newOrder,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.shopping_bag),

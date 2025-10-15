@@ -8,6 +8,7 @@ import '../services/storage_service.dart';
 import '../services/web_scraper_service.dart';
 import '../services/webview_scraper_service.dart';
 import '../models/currency_model.dart';
+import '../models/size_model.dart';
 import '../generated/app_localizations.dart';
 
 class AddOrderScreen extends StatefulWidget {
@@ -58,6 +59,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   Currency? _selectedCurrency;
   bool _isLoadingCurrencies = false;
   
+  // Size state
+  List<Size> _sizes = [];
+  bool _isLoadingSizes = false;
+  
   // For detecting paste operations
   String _previousUrl = '';
   bool _isApplyingInitialData = false;
@@ -74,17 +79,6 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     'China',
   ];
 
-  final List<String> _sizes = [
-    'XS',
-    'S',
-    'M',
-    'L',
-    'XL',
-    'XXL',
-    '3XL',
-    'Free Size',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -92,6 +86,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       setState(() {}); // Update character count dynamically
     });
     _fetchCurrencies();
+    _fetchSizes();
     
     // Apply prefilled data from store if provided
     if (widget.prefilledImage != null) {
@@ -307,6 +302,173 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     }
   }
 
+  String _extractUrlFromText(String text) {
+    // Regular expression to match URLs
+    final urlPattern = RegExp(
+      r'https?://[^\s]+',
+      caseSensitive: false,
+    );
+    
+    final match = urlPattern.firstMatch(text);
+    if (match != null) {
+      return match.group(0)!;
+    }
+    
+    // If no http/https URL found, return the original text
+    return text.trim();
+  }
+
+  Future<void> _fetchSizes() async {
+    setState(() {
+      _isLoadingSizes = true;
+    });
+
+    final result = await ApiService.getSizes();
+
+    if (mounted) {
+      setState(() {
+        _isLoadingSizes = false;
+      });
+
+      if (result['success']) {
+        setState(() {
+          _sizes = result['sizes'] as List<Size>;
+        });
+      } else {
+        _showMessage('Failed to load sizes: ${result['message']}', isError: true);
+      }
+    }
+  }
+
+  Future<void> _showSizeSearchDialog() async {
+    if (_sizes.isEmpty) return;
+
+    final TextEditingController searchController = TextEditingController();
+    
+    final selectedSize = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        List<Size> filteredSizes = List.from(_sizes);
+        bool hasSearchText = false;
+        
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Select Size', style: TextStyle(fontSize: 16)),
+              contentPadding: const EdgeInsets.all(16),
+              content: SizedBox(
+                width: double.maxFinite,
+                height: 400,
+                child: Column(
+                  children: [
+                    // Search field
+                    TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search size...',
+                        hintStyle: const TextStyle(fontSize: 12),
+                        prefixIcon: const Icon(Icons.search, size: 20),
+                        suffixIcon: hasSearchText
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 20),
+                                onPressed: () {
+                                  searchController.clear();
+                                  setDialogState(() {
+                                    filteredSizes = List.from(_sizes);
+                                    hasSearchText = false;
+                                  });
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      style: const TextStyle(fontSize: 12),
+                      onChanged: (value) {
+                        setDialogState(() {
+                          hasSearchText = value.isNotEmpty;
+                          if (value.isEmpty) {
+                            filteredSizes = List.from(_sizes);
+                          } else {
+                            filteredSizes = _sizes
+                                .where((size) => size.name
+                                    .toLowerCase()
+                                    .contains(value.toLowerCase()))
+                                .toList();
+                          }
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    // Size list
+                    Expanded(
+                      child: filteredSizes.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'No sizes found',
+                                style: TextStyle(color: Colors.grey, fontSize: 12),
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: filteredSizes.length,
+                              itemBuilder: (context, index) {
+                                final size = filteredSizes[index];
+                                final isSelected = _selectedSize == size.name;
+                                return ListTile(
+                                  dense: true,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                                  title: Text(
+                                    size.name,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected ? Colors.pink[700] : Colors.black,
+                                    ),
+                                  ),
+                                  trailing: isSelected
+                                      ? Icon(Icons.check_circle, color: Colors.pink[700], size: 20)
+                                      : null,
+                                  onTap: () {
+                                    // Unfocus text field first to avoid conflicts
+                                    FocusScope.of(context).unfocus();
+                                    // Small delay to ensure unfocus completes
+                                    Future.delayed(const Duration(milliseconds: 50), () {
+                                      if (context.mounted) {
+                                        Navigator.pop(context, size.name);
+                                      }
+                                    });
+                                  },
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel', style: TextStyle(fontSize: 12)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    searchController.dispose();
+    
+    // Update the selected size after dialog is closed
+    if (selectedSize != null && mounted) {
+      setState(() {
+        _selectedSize = selectedSize;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _linkController.removeListener(_onUrlChanged);
@@ -472,17 +634,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         _showMessage('No product image found. Please take a screenshot or upload manually.', isError: true);
       }
 
-      // Auto-fill description with fetched data (now only title and description)
-      if (data['title'] != null || data['description'] != null) {
-        String description = '';
-        if (data['title'] != null) {
-          description += '${data['title']}\n';
-        }
-        if (data['description'] != null && data['description'].toString().length < 300) {
-          description += '\n${data['description']}';
-        }
-        _noteController.text = description.trim();
-      }
+      // Don't auto-fill description - user requested to keep it empty
+      // The description field will remain blank for user to fill manually
 
       _showMessage('Product details fetched successfully!', isError: false);
     } else {
@@ -685,18 +838,18 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           children: [
             // Link field with paste/clear buttons
             Text(
               l10n.link,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -705,11 +858,25 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               ),
               child: TextFormField(
                 controller: _linkController,
+                onChanged: (value) {
+                  // Auto-extract URL when user pastes directly into the field
+                  if (value.isNotEmpty && value.contains(' ')) {
+                    final extractedUrl = _extractUrlFromText(value);
+                    if (extractedUrl != value) {
+                      // Only update if extraction found a different URL
+                      _linkController.value = TextEditingValue(
+                        text: extractedUrl,
+                        selection: TextSelection.collapsed(offset: extractedUrl.length),
+                      );
+                    }
+                  }
+                  setState(() {}); // Refresh to show/hide clear button
+                },
                 decoration: InputDecoration(
                   hintText: l10n.pasteProductLink,
-                  hintStyle: const TextStyle(color: Colors.grey),
+                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 12),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
+                  contentPadding: const EdgeInsets.all(12),
                   suffixIcon: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -730,8 +897,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                         onPressed: () async {
                           final data = await Clipboard.getData(Clipboard.kTextPlain);
                           if (data != null && data.text != null) {
+                            // Extract only the URL from the text
+                            final extractedUrl = _extractUrlFromText(data.text!);
                             setState(() {
-                              _linkController.text = data.text!;
+                              _linkController.text = extractedUrl;
                             });
                             _onUrlPasted();
                           }
@@ -753,23 +922,23 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             // Loading indicator when fetching
             if (_isFetchingDetails)
               Padding(
-                padding: const EdgeInsets.only(top: 12),
+                padding: const EdgeInsets.only(top: 8),
                 child: Row(
                   children: [
                     SizedBox(
-                      width: 20,
-                      height: 20,
+                      width: 16,
+                      height: 16,
                       child: CircularProgressIndicator(
                         color: Colors.pink[700],
                         strokeWidth: 2,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     Text(
                       'Fetching product details...',
                       style: TextStyle(
                         color: Colors.pink[700],
-                        fontSize: 14,
+                        fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -777,7 +946,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 ),
               ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
 
             // Price Display (Read-only, Optional) - Hidden but working in background
             Visibility(
@@ -806,9 +975,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                       readOnly: true,
                       decoration: InputDecoration(
                         hintText: 'Price will be detected automatically',
-                        hintStyle: TextStyle(color: Colors.grey[500]),
+                        hintStyle: TextStyle(color: Colors.grey[500], fontSize: 12),
                         border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
+                  contentPadding: const EdgeInsets.all(12),
                   suffixIcon: _extractedPrice != null
                       ? const Icon(Icons.check_circle, color: Colors.green)
                       : const Icon(Icons.info_outline, color: Colors.grey),
@@ -830,12 +999,12 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             const Text(
               'Country (Optional)',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -846,9 +1015,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 value: _selectedCountry,
                 decoration: const InputDecoration(
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
-                hint: const Text('Select country'),
+                hint: const Text('Select country', style: TextStyle(fontSize: 12)),
                 items: _countries.map((String country) {
                   return DropdownMenuItem<String>(
                     value: country,
@@ -863,7 +1032,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
 
             // Currency dropdown (Optional) - Hidden but working in background
             Visibility(
@@ -892,11 +1061,11 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                       value: _selectedCurrency,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
                       hint: _isLoadingCurrencies
-                          ? const Text('Loading currencies...')
-                          : const Text('Select currency'),
+                          ? const Text('Loading currencies...', style: TextStyle(fontSize: 12))
+                          : const Text('Select currency', style: TextStyle(fontSize: 12)),
                       items: _currencies.map((Currency currency) {
                         return DropdownMenuItem<Currency>(
                           value: currency,
@@ -938,56 +1107,56 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Size dropdown
+                      // Size dropdown (searchable)
                       const Text(
                         'Size',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey[300]!),
-                        ),
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedSize,
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      const SizedBox(height: 6),
+                      InkWell(
+                        onTap: _isLoadingSizes ? null : _showSizeSearchDialog,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey[300]!),
                           ),
-                          hint: const Text('Select'),
-                          items: _sizes.map((String size) {
-                            return DropdownMenuItem<String>(
-                              value: size,
-                              child: Text(size),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedSize = newValue;
-                            });
-                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _selectedSize ?? (_isLoadingSizes ? 'Loading...' : 'Select'),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _selectedSize != null ? Colors.black : Colors.grey,
+                                  ),
+                                ),
+                              ),
+                              Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
+                            ],
+                          ),
                         ),
                       ),
                       
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
                       
                       // Quantity
                       const Text(
                         'Quantity',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
@@ -1009,7 +1178,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                             Text(
                               _quantity.toString(),
                               style: const TextStyle(
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -1025,18 +1194,18 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                         ),
                       ),
                       
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
                       
                       // Color field
                       const Text(
                         'Color (Optional)',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -1067,16 +1236,16 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                       const Text(
                         'Image',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       GestureDetector(
                         onTap: _pickImage,
                         child: Container(
-                          height: 280,
+                          height: 150,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
@@ -1092,15 +1261,15 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                   children: [
                                     Icon(
                                       Icons.cloud_upload_outlined,
-                                      size: 50,
+                                      size: 36,
                                       color: Colors.grey[400],
                                     ),
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: 8),
                                     Text(
                                       'Upload image',
                                       style: TextStyle(
                                         color: Colors.grey[600],
-                                        fontSize: 14,
+                                        fontSize: 12,
                                       ),
                                     ),
                                   ],
@@ -1148,18 +1317,18 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
 
             // Description
             const Text(
               'Description',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -1170,7 +1339,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 children: [
                   TextFormField(
                     controller: _noteController,
-                    maxLines: 5,
+                    maxLines: 3,
                     maxLength: 500,
                     buildCounter: (context,
                         {required currentLength,
@@ -1180,20 +1349,21 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                     },
                     decoration: const InputDecoration(
                       hintText: 'Add any additional notes here...',
-                      hintStyle: TextStyle(color: Colors.grey),
+                      hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(16),
+                      contentPadding: EdgeInsets.all(12),
                     ),
+                    style: const TextStyle(fontSize: 12),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(right: 16, bottom: 8),
+                    padding: const EdgeInsets.only(right: 12, bottom: 6),
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: Text(
                         '${_noteController.text.length}/500',
                         style: TextStyle(
                           color: Colors.grey[600],
-                          fontSize: 12,
+                          fontSize: 10,
                         ),
                       ),
                     ),
@@ -1202,11 +1372,11 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               ),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
 
             // Place order button
             SizedBox(
-              height: 56,
+              height: 48,
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _submitOrder,
                 style: ElevatedButton.styleFrom(
@@ -1217,11 +1387,18 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                   elevation: 2,
                 ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
                     : const Text(
                         'Place order',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
@@ -1229,7 +1406,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
 
             // Cancel button
             TextButton(
@@ -1237,14 +1414,14 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.pink[700],
                 ),
               ),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
           ],
         ),
       ),

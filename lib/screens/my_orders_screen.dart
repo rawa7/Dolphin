@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../models/order_model.dart';
@@ -19,7 +20,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   List<OrderStatus> _statuses = [];
   AccountInfo? _accountInfo;
   bool _isLoading = true;
-  String _selectedFilter = 'all';
+  String? _selectedStatusId;
   int? _customerId;
 
   @override
@@ -68,28 +69,24 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     }
   }
 
-  void _filterOrders(String filterKey) {
+  void _filterOrders(String? statusId) {
     setState(() {
-      _selectedFilter = filterKey;
-      if (filterKey == 'all') {
+      _selectedStatusId = statusId;
+      if (statusId == null) {
         _filteredOrders = _allOrders;
-      } else if (filterKey == 'processed') {
-        // Status 2 = Processing, 3 = Approved, 4 = In Transit, etc.
-        _filteredOrders = _allOrders.where((order) => 
-          ['2', '3', '4', '16', '17', '19'].contains(order.status)
-        ).toList();
-      } else if (filterKey == 'waiting') {
-        // Status 1 = Created, 13 = Pending
-        _filteredOrders = _allOrders.where((order) => 
-          ['1', '13'].contains(order.status)
-        ).toList();
-      } else if (filterKey == 'delivered') {
-        // Status -2 = Complete, -1 = delivered to erbil
-        _filteredOrders = _allOrders.where((order) => 
-          ['-2', '-1', '18'].contains(order.status)
-        ).toList();
+      } else {
+        _filteredOrders = _allOrders.where((order) => order.status == statusId).toList();
       }
     });
+  }
+
+  OrderStatus? get _selectedStatus {
+    if (_selectedStatusId == null) return null;
+    try {
+      return _statuses.firstWhere((status) => status.id == _selectedStatusId);
+    } catch (e) {
+      return null;
+    }
   }
 
   Color _getStatusColor(String status) {
@@ -162,23 +159,29 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
           ),
 
-          // Filter Tabs
+          // Status Tabs
           Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            height: 70,
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: ListView(
               scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                _buildFilterChip('all', l10n.allOrders),
+                _buildStatusTab(null, l10n.allOrders, _allOrders.length),
                 const SizedBox(width: 8),
-                _buildFilterChip('processed', l10n.processed),
-                const SizedBox(width: 8),
-                _buildFilterChip('waiting', l10n.waiting),
-                const SizedBox(width: 8),
-                _buildFilterChip('delivered', l10n.delivered),
+                ..._statuses.where((status) => status.count > 0).map((status) => 
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: _buildStatusTab(status.id, status.name, status.count),
+                  )
+                ),
               ],
             ),
           ),
+
+          // Summary Box (when status is selected)
+          if (_selectedStatus != null)
+            _buildSummaryBox(),
 
           // Orders List
           Expanded(
@@ -222,26 +225,158 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 
-  Widget _buildFilterChip(String filterKey, String label) {
-    final isSelected = _selectedFilter == filterKey;
+  Widget _buildStatusTab(String? statusId, String label, int count) {
+    final isSelected = _selectedStatusId == statusId;
     return GestureDetector(
-      onTap: () => _filterOrders(filterKey),
+      onTap: () => _filterOrders(statusId),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(25),
+          gradient: isSelected
+              ? const LinearGradient(
+                  colors: [AppColors.primary, Color(0xFF2B4A6F)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isSelected ? null : Colors.white,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? AppColors.white : AppColors.textPrimary,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppColors.textPrimary,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.white.withOpacity(0.3) : AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                count.toString(),
+                style: TextStyle(
+                  color: isSelected ? Colors.white : AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryBox() {
+    final status = _selectedStatus!;
+    final formattedTotal = NumberFormat('#,##0.00').format(status.total);
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary.withOpacity(0.1),
+            AppColors.secondary.withOpacity(0.1),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.primary.withOpacity(0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          // Icon
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.inventory_2,
+              color: AppColors.primary,
+              size: 28,
+            ),
           ),
-        ),
+          const SizedBox(width: 16),
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  status.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.shopping_bag,
+                      size: 16,
+                      color: Colors.grey[600],
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${status.count} items',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Icon(
+                      Icons.attach_money,
+                      size: 16,
+                      color: Colors.grey[600],
+                    ),
+                    Text(
+                      '\$$formattedTotal',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -349,28 +484,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  // Price
-                  Row(
-                    children: [
-                      Text(
-                        l10n.price,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        ': $priceDisplay',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-
                   // QTY
                   Row(
                     children: [
@@ -463,6 +576,41 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           ),
                         ),
                     ],
+                  ),
+
+                  // Price (moved to bottom, bold and bigger)
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppColors.primary.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          l10n.price,
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          priceDisplay,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
 
                   // Accept/Reject buttons (only for manageable orders)

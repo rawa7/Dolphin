@@ -480,13 +480,13 @@ class _StoreScreenState extends State<StoreScreen> {
 
     // Navigate to Add Order screen with pre-filled data
     if (mounted) {
-      Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => AddOrderScreen(
             prefilledImage: imageFile,
             prefilledPrice: item.price.toString(),
-            prefilledNote: 'shop item - ${item.itemDescription}',
+            prefilledNote: null, // Keep description empty
             prefilledCountry: 'Iraq',
             prefilledLink: 'http://dolphin.com',
             prefilledSize: 'Free Size',
