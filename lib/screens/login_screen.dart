@@ -4,6 +4,7 @@ import '../services/storage_service.dart';
 import '../services/firebase_notification_service.dart';
 import '../constants/app_colors.dart';
 import 'main_navigation.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -114,18 +115,17 @@ class _LoginScreenState extends State<LoginScreen> {
               // Logo
               const SizedBox(height: 20),
               Container(
-                width: 120,
-                height: 120,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
                   color: AppColors.white.withOpacity(0.9),
                   shape: BoxShape.circle,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Icon(
-                    Icons.sailing,
-                    size: 60,
-                    color: AppColors.primary,
+                  padding: const EdgeInsets.all(15.0),
+                  child: Image.asset(
+                    'assets/logo.png',
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
@@ -180,64 +180,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ],
                           ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 16),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 32,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: AppColors.lightGray),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Expanded(
-                                            child: Container(
-                                              color: AppColors.error,
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Container(
-                                              color: AppColors.white,
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Container(
-                                              color: AppColors.textPrimary,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    const Text(
-                                      '+964',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: TextField(
-                                  controller: _phoneController,
-                                  keyboardType: TextInputType.phone,
-                                  decoration: InputDecoration(
-                                    hintText: '7xx-xxx-xxxx',
-                                    hintStyle: const TextStyle(color: AppColors.textHint),
-                                    border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 16),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          child: TextField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            decoration: InputDecoration(
+                              hintText: '07xx-xxx-xxxx',
+                          
+                              hintStyle: const TextStyle(color: AppColors.textHint),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 16),
+                              prefixIcon: const Icon(Icons.phone_android, color: AppColors.textHint),
+                            ),
                           ),
                         ),
 
@@ -299,26 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 16),
-
-                        // Forget password
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              // Handle forget password
-                            },
-                            child: Text(
-                              'Forget password',
-                              style: TextStyle(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
 
                         // Sign in button
                         SizedBox(
@@ -355,57 +290,44 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 24),
 
                         // Sign up link
                         Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.shadow,
-                                  spreadRadius: 1,
-                                  blurRadius: 10,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "Don't have an account? ",
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 13,
                                 ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  "Don't have an account? ",
-                                  style: const TextStyle(color: AppColors.textSecondary),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    // Handle sign up navigation
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'Sign Up',
-                                        style: TextStyle(
-                                          color: AppColors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.arrow_forward_rounded,
-                                        color: AppColors.white,
-                                        size: 20,
-                                      ),
-                                    ],
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const SignupScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Sign Up',
+                                  style: TextStyle(
+                                    color: AppColors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColors.white,
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
+
                         const SizedBox(height: 40),
                       ],
                     ),

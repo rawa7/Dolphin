@@ -164,73 +164,32 @@ class _StoreScreenState extends State<StoreScreen> {
         onRefresh: _loadShopItems,
         child: CustomScrollView(
           slivers: [
-            // App Bar
-            SliverAppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              pinned: true,
-              expandedHeight: 60,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Row(
-                  children: [
-                    Image.asset(
-                      'assets/logo.png',
-                      height: 30,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Text(
-                          l10n.dolphinShop,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        );
-                      },
+            // Store Header
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              ),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.notificationsComingSoon),
-                      ),
-                    );
-                  },
-                  icon: Stack(
-                    children: [
-                      const Icon(Icons.notifications_outlined, color: Colors.black87),
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: const Text(
-                            '2',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
+                child: SafeArea(
+                  bottom: false,
+                  child: Text(
+                    l10n.store,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
 
             // Brand Filters

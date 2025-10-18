@@ -286,7 +286,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   const SizedBox(height: 16),
 
                   // ID
-                  _buildDetailRow(l10n.serialNumber, widget.order.serial),
+                  _buildDetailRow(l10n.serialNumber, widget.order.id),
                   const Divider(height: 1),
 
                   // Status
@@ -359,9 +359,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   ),
                   const Divider(height: 1),
 
-                  // Brand
+                  // Country
                   if (widget.order.country.isNotEmpty)
-                    _buildDetailRow(l10n.brand, widget.order.country),
+                    _buildDetailRow(l10n.country, widget.order.country),
                   if (widget.order.country.isNotEmpty) const Divider(height: 1),
 
                   // Size
@@ -383,16 +383,33 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   _buildDetailRow(l10n.shipping, '\$${shipping.toStringAsFixed(2)}'),
                   const Divider(height: 1),
 
-                  // Internal Shipping (Cargo) (always USD)
-                  _buildDetailRow(l10n.cargo, '\$${internalShipping.toStringAsFixed(2)}'),
+                  // Internal Shipping (Cargo) - same currency as item price
+                  _buildDetailRow(
+                    l10n.cargo,
+                    '${widget.order.currencySymbol ?? ''}${internalShipping.toStringAsFixed(2)}',
+                  ),
                   const Divider(height: 1),
 
-                  // Commission (always USD)
-                  _buildDetailRow(l10n.commission, '\$${commission.toStringAsFixed(2)}'),
+                  // Commission - same currency as item price
+                  _buildDetailRow(
+                    l10n.commission,
+                    '${widget.order.currencySymbol ?? ''}${commission.toStringAsFixed(2)}',
+                  ),
                   const Divider(height: 1),
 
-                  // Tax (always USD)
-                  _buildDetailRow(l10n.tax, '\$${tax.toStringAsFixed(2)}'),
+                  // Tax - same currency as item price
+                  _buildDetailRow(
+                    l10n.tax,
+                    '${widget.order.currencySymbol ?? ''}${tax.toStringAsFixed(2)}',
+                  ),
+                  const Divider(height: 1),
+
+                  // Total Price (always USD)
+                  _buildDetailRow(
+                    l10n.totalPrice,
+                    '\$${price.toStringAsFixed(2)}',
+                    isTotal: true,
+                  ),
                   
                   const SizedBox(height: 24),
 
@@ -472,24 +489,26 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value, {bool isTotal = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.symmetric(vertical: isTotal ? 16 : 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
+            style: TextStyle(
+              fontSize: isTotal ? 16 : 14,
+              color: isTotal ? Colors.black87 : Colors.black54,
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+            style: TextStyle(
+              fontSize: isTotal ? 18 : 14,
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.w600,
+              color: isTotal ? Colors.green[700] : Colors.black87,
             ),
           ),
         ],

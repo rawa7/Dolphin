@@ -32,59 +32,98 @@ class _MainNavigationState extends State<MainNavigation> {
     const AccountScreen(),
   ];
 
+  void _openAddOrder() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddOrderScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
       body: _screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex > 2 ? _currentIndex : _currentIndex,
-        onTap: (index) {
-          // If New Order (index 2) is tapped, open as a new screen
-          if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AddOrderScreen(),
+      floatingActionButton: _currentIndex == 3
+          ? null // Hide floating button on My Orders screen
+          : FloatingActionButton(
+              onPressed: _openAddOrder,
+              backgroundColor: AppColors.primary,
+              elevation: 6,
+              child: const Icon(Icons.add_shopping_cart, color: Colors.white, size: 28),
+            ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex > 2 ? _currentIndex : _currentIndex,
+          onTap: (index) {
+            // If New Order (index 2) is tapped, open as a new screen
+            if (index == 2) {
+              _openAddOrder();
+              // Don't change the current index, keep it on whatever tab was selected
+            } else {
+              setState(() {
+                _currentIndex = index;
+              });
+            }
+          },
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: AppColors.white,
+          selectedItemColor: AppColors.primary,
+          unselectedItemColor: AppColors.gray,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          unselectedLabelStyle: const TextStyle(fontSize: 11),
+          elevation: 0,
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.home, size: 26),
+              label: l10n.home,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.store, size: 26),
+              label: l10n.store,
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.add_shopping_cart,
+                  color: Colors.white,
+                  size: 28,
+                ),
               ),
-            );
-            // Don't change the current index, keep it on whatever tab was selected
-          } else {
-            setState(() {
-              _currentIndex = index;
-            });
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppColors.white,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.gray,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-        unselectedLabelStyle: const TextStyle(fontSize: 11),
-        elevation: 8,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home),
-            label: l10n.home,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.store),
-            label: l10n.store,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.add_shopping_cart),
-            label: l10n.newOrder,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.shopping_bag),
-            label: l10n.myOrders,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
-            label: l10n.account,
-          ),
-        ],
+              label: l10n.newOrder,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.shopping_bag, size: 26),
+              label: l10n.myOrders,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.person, size: 26),
+              label: l10n.account,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -6,6 +6,7 @@ import '../models/order_model.dart';
 import '../constants/app_colors.dart';
 import '../generated/app_localizations.dart';
 import 'order_detail_screen.dart';
+import 'add_order_screen.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   const MyOrdersScreen({super.key});
@@ -89,6 +90,19 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     }
   }
 
+  // Calculate total for "All Orders" excluding rejected (6), canceled (14), -2, and -3
+  double _calculateAllOrdersTotal() {
+    double total = 0.0;
+    for (var order in _allOrders) {
+      // Exclude rejected (6), canceled (14), -2, and -3
+      if (order.status != '6' && order.status != '14' && order.status != '-2' && order.status != '-3') {
+        final price = double.tryParse(order.totalPrice) ?? 0.0;
+        total += price;
+      }
+    }
+    return total;
+  }
+
   Color _getStatusColor(String status) {
     // Map statuses to colors
     switch (status) {
@@ -154,6 +168,27 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     ),
                   ),
                   const Spacer(),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddOrderScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add, size: 20),
+                    label: Text(l10n.newOrder),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      elevation: 2,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -179,8 +214,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
           ),
 
-          // Summary Box (when status is selected)
-          if (_selectedStatus != null)
+          // Summary Box (when status is selected OR when All is selected)
+          if (_selectedStatus != null || _selectedStatusId == null)
             _buildSummaryBox(),
 
           // Orders List
@@ -289,8 +324,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Widget _buildSummaryBox() {
-    final status = _selectedStatus!;
-    final formattedTotal = NumberFormat('#,##0.00').format(status.total);
+    // If "All Orders" is selected (no specific status)
+    final isAllOrders = _selectedStatusId == null;
+    final statusName = isAllOrders ? 'All Orders' : _selectedStatus!.name;
+    final total = isAllOrders ? _calculateAllOrdersTotal() : _selectedStatus!.total;
+    final count = isAllOrders 
+        ? _allOrders.where((order) => order.status != '6' && order.status != '14' && order.status != '-2' && order.status != '-3').length
+        : _selectedStatus!.count;
+    
+    final formattedTotal = NumberFormat('#,##0.00').format(total);
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -333,7 +375,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  status.name,
+                  statusName,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -350,7 +392,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${status.count} items',
+                      '$count items',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[700],
@@ -385,10 +427,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     final l10n = AppLocalizations.of(context)!;
     final statusColor = _getStatusColor(order.status);
     final price = double.tryParse(order.totalPrice) ?? 0.0;
-    final currencySymbol = order.currencySymbol ?? '\$';
-    final priceDisplay = price > 0 
-        ? '${currencySymbol}${price.toStringAsFixed(2)}' 
-        : (order.itemPrice != '0' ? ('${order.currencySymbol ?? '\$'}${order.itemPrice}') : '-');
+    // All prices are in USD
+    final priceDisplay = '\$${price.toStringAsFixed(2)}';
     
     final canManageOrder = order.status == '2' || order.status == '13';
 
@@ -447,7 +487,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            ': ${order.serial}',
+                            ': ${order.id}',
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
@@ -685,7 +725,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(l10n.confirmAccept),
-        content: Text('${l10n.accept} ${l10n.order} #${order.serial}?'),
+        content: Text('${l10n.accept} ${l10n.order} #${order.id}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -730,7 +770,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(l10n.confirmReject),
-        content: Text('${l10n.reject} ${l10n.order} #${order.serial}?'),
+        content: Text('${l10n.reject} ${l10n.order} #${order.id}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

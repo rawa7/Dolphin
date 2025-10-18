@@ -9,6 +9,7 @@ import '../services/web_scraper_service.dart';
 import '../services/webview_scraper_service.dart';
 import '../models/currency_model.dart';
 import '../models/size_model.dart';
+import '../models/currency_rate_model.dart';
 import '../generated/app_localizations.dart';
 
 class AddOrderScreen extends StatefulWidget {
@@ -63,6 +64,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   List<Size> _sizes = [];
   bool _isLoadingSizes = false;
   
+  // Currency rates state
+  List<CurrencyRate> _currencyRates = [];
+  bool _isLoadingCurrencyRates = false;
+  
   // For detecting paste operations
   String _previousUrl = '';
   bool _isApplyingInitialData = false;
@@ -87,6 +92,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     });
     _fetchCurrencies();
     _fetchSizes();
+    _fetchCurrencyRates();
     
     // Apply prefilled data from store if provided
     if (widget.prefilledImage != null) {
@@ -337,6 +343,58 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       } else {
         _showMessage('Failed to load sizes: ${result['message']}', isError: true);
       }
+    }
+  }
+
+  Future<void> _fetchCurrencyRates() async {
+    setState(() {
+      _isLoadingCurrencyRates = true;
+    });
+
+    final result = await ApiService.getCurrencyRates();
+
+    if (mounted) {
+      setState(() {
+        _isLoadingCurrencyRates = false;
+      });
+
+      if (result['success']) {
+        final currencyRatesData = result['data'] as CurrencyRatesData;
+        setState(() {
+          _currencyRates = currencyRatesData.currencies;
+        });
+      }
+    }
+  }
+
+  String _getCurrencyCodeForCountry(String country) {
+    switch (country) {
+      case 'Turkey':
+        return 'TRY';
+      case 'UAE':
+        return 'AED';
+      case 'UK':
+        return 'GBP';
+      case 'Germany':
+      case 'France':
+        return 'EUR';
+      case 'USA':
+      case 'Iraq':
+      case 'Shein':
+      case 'China':
+      default:
+        return 'USD';
+    }
+  }
+
+  CurrencyRate? _getCurrencyRateForCountry(String? country) {
+    if (country == null || _currencyRates.isEmpty) return null;
+    
+    final currencyCode = _getCurrencyCodeForCountry(country);
+    try {
+      return _currencyRates.firstWhere((rate) => rate.code == currencyCode);
+    } catch (e) {
+      return null;
     }
   }
 
@@ -718,17 +776,22 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   }
 
   Future<void> _submitOrder() async {
+    print('🟢 SUBMIT ORDER - Starting...');
+    
     if (!_formKey.currentState!.validate()) {
+      print('❌ SUBMIT ORDER - Form validation failed');
       return;
     }
 
     // Required fields validation
     if (_selectedSize == null) {
+      print('❌ SUBMIT ORDER - Size not selected');
       _showMessage('Please select a size', isError: true);
       return;
     }
 
     if (_selectedImage == null) {
+      print('❌ SUBMIT ORDER - Image not selected');
       _showMessage('Please upload a product image', isError: true);
       return;
     }
@@ -740,6 +803,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     // Get customer ID from storage
     final user = await StorageService.getUser();
     if (user == null) {
+      print('❌ SUBMIT ORDER - User not found');
       setState(() {
         _isLoading = false;
       });
@@ -747,12 +811,16 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       return;
     }
 
+    print('🟢 SUBMIT ORDER - User ID: ${user.id}');
+
     // Parse price to double (optional)
     double? price;
     if (_extractedPrice != null && _extractedPrice!.isNotEmpty) {
       try {
         price = double.parse(_extractedPrice!);
+        print('🟢 SUBMIT ORDER - Price: $price');
       } catch (e) {
+        print('❌ SUBMIT ORDER - Invalid price format: $e');
         setState(() {
           _isLoading = false;
         });
@@ -760,6 +828,16 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         return;
       }
     }
+
+    print('🟢 SUBMIT ORDER - Calling API with:');
+    print('   - Link: ${_linkController.text}');
+    print('   - Size: $_selectedSize');
+    print('   - Quantity: $_quantity');
+    print('   - Country: $_selectedCountry');
+    print('   - Currency ID: ${_selectedCurrency?.id}');
+    print('   - Color: ${_colorController.text}');
+    print('   - Note: ${_noteController.text.length} chars');
+    print('   - Image: ${_selectedImage!.path}');
 
     final result = await ApiService.addOrder(
       customerId: user.id,
@@ -774,11 +852,15 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       note: _noteController.text.isNotEmpty ? _noteController.text : null,
     );
 
+    print('🟢 SUBMIT ORDER - API Result: ${result['success']}');
+    print('🟢 SUBMIT ORDER - API Message: ${result['message']}');
+
     setState(() {
       _isLoading = false;
     });
 
     if (result['success']) {
+      print('✅ SUBMIT ORDER - Success!');
       _showMessage(result['message'], isError: false);
       // Navigate back after 1 second
       Future.delayed(const Duration(seconds: 1), () {
@@ -787,6 +869,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         }
       });
     } else {
+      print('❌ SUBMIT ORDER - Failed');
       String errorMessage = result['message'];
       if (result['errors'] != null && result['errors'].isNotEmpty) {
         errorMessage += '\n' + result['errors'].join('\n');
@@ -1031,6 +1114,20 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 },
               ),
             ),
+
+            // Currency conversion rate info
+            if (_selectedCountry != null && _getCurrencyRateForCountry(_selectedCountry) != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4, left: 12),
+                child: Text(
+                  'Currency: ${_getCurrencyRateForCountry(_selectedCountry)!.name} (${_getCurrencyRateForCountry(_selectedCountry)!.symbol}) - Rate: ${_getCurrencyRateForCountry(_selectedCountry)!.conversionRate.toStringAsFixed(2)} to USD',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
 
             const SizedBox(height: 12),
 

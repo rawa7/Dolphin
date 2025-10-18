@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../generated/app_localizations.dart';
 import '../models/profile_model.dart';
+import '../models/order_model.dart';
+import '../models/delivery_status_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../services/firebase_notification_service.dart';
 import '../constants/app_colors.dart';
 import 'login_screen.dart';
 import 'language_selector_screen.dart';
+import 'customer_statement_screen.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -18,13 +21,18 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   ProfileData? _profileData;
+  List<Order> _orders = [];
+  double _calculatedTotalPurchases = 0.0;
   bool _isLoading = true;
   String _errorMessage = '';
+  DeliveryStatus? _deliveryStatus;
+  bool _isUpdatingDelivery = false;
 
   @override
   void initState() {
     super.initState();
     _loadProfile();
+    _loadDeliveryStatus();
   }
 
   Future<void> _loadProfile() async {
@@ -36,16 +44,32 @@ class _AccountScreenState extends State<AccountScreen> {
     try {
       final user = await StorageService.getUser();
       if (user != null) {
-        final result = await ApiService.getProfile(customerId: user.id);
+        // Fetch profile and orders in parallel
+        final profileResult = await ApiService.getProfile(customerId: user.id);
+        final ordersResult = await ApiService.getOrders(user.id);
         
-        if (result['success']) {
+        if (profileResult['success']) {
+          // Calculate total purchases for status -2 only
+          double totalPurchases = 0.0;
+          if (ordersResult['success']) {
+            final orders = ordersResult['orders'] as List<Order>;
+            for (var order in orders) {
+              if (order.status == '-2') {
+                final price = double.tryParse(order.totalPrice) ?? 0.0;
+                totalPurchases += price;
+              }
+            }
+            _orders = orders;
+          }
+          
           setState(() {
-            _profileData = result['data'] as ProfileData;
+            _profileData = profileResult['data'] as ProfileData;
+            _calculatedTotalPurchases = totalPurchases;
             _isLoading = false;
           });
         } else {
           setState(() {
-            _errorMessage = result['message'] ?? 'Failed to load profile';
+            _errorMessage = profileResult['message'] ?? 'Failed to load profile';
             _isLoading = false;
           });
         }
@@ -60,6 +84,83 @@ class _AccountScreenState extends State<AccountScreen> {
         _errorMessage = 'An error occurred: $e';
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _loadDeliveryStatus() async {
+    try {
+      final user = await StorageService.getUser();
+      if (user != null) {
+        final result = await ApiService.getDeliveryStatus(customerId: user.id);
+        
+        if (result['success'] && mounted) {
+          setState(() {
+            _deliveryStatus = result['data'] as DeliveryStatus;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error loading delivery status: $e');
+    }
+  }
+
+  Future<void> _updateDeliveryStatus(bool enabled) async {
+    if (_isUpdatingDelivery) return;
+
+    setState(() {
+      _isUpdatingDelivery = true;
+    });
+
+    try {
+      final user = await StorageService.getUser();
+      if (user != null) {
+        final result = await ApiService.updateDeliveryStatus(
+          customerId: user.id,
+          deliveryStatus: enabled ? 1 : 0,
+        );
+
+        if (mounted) {
+          setState(() {
+            _isUpdatingDelivery = false;
+          });
+
+          if (result['success']) {
+            // Reload delivery status to get updated data
+            await _loadDeliveryStatus();
+            
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(enabled ? 'Delivery enabled' : 'Delivery disabled'),
+                  backgroundColor: AppColors.primary,
+                ),
+              );
+            }
+          } else {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(result['message'] ?? 'Failed to update delivery status'),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isUpdatingDelivery = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
@@ -337,6 +438,174 @@ class _AccountScreenState extends State<AccountScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Financial Summary Section
+                    const Text(
+                      'Financial Summary',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Owed Amount Card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2C2C2E),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.owedAmount,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${NumberFormat('#,##0.00').format(accountInfo.ordersAwaitingPayment)} USD',
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Icon(
+                                Icons.arrow_forward_ios,
+                                color: Colors.white54,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Updated at ${DateFormat('hh:mm a MM/dd/yyyy').format(DateTime.now())}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+                    
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFF5B7FE8),
+                                  const Color(0xFF7B9FFF),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.shopping_cart,
+                                  color: Colors.white70,
+                                  size: 28,
+                                ),
+                                const SizedBox(height: 12),
+                                const Text(
+                                  'Total Purchases',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${NumberFormat('#,##0.00').format(_calculatedTotalPurchases)} USD',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFF4CAF50),
+                                  const Color(0xFF66BB6A),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.payment,
+                                  color: Colors.white70,
+                                  size: 28,
+                                ),
+                                const SizedBox(height: 12),
+                                const Text(
+                                  'Total Payments',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${NumberFormat('#,##0.00').format(summary.totalPayments)} USD',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
                     // Wallet Card
                     Container(
                       width: double.infinity,
@@ -417,126 +686,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 24),
-
-                    // Owed Amount Card
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2C2C2E),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.owedAmount,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '${NumberFormat('#,##0.00').format(accountInfo.ordersAwaitingPayment)} USD',
-                                    style: const TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Icon(
-                                Icons.arrow_forward_ios,
-                                color: Colors.white54,
-                                size: 20,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Updated at ${DateFormat('hh:mm a MM/dd/yyyy').format(DateTime.now())}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white54,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
                     const SizedBox(height: 32),
-
-                    // Order Summary Stats
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.grey.shade200,
-                          width: 1,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.orderStatistics,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _buildStatItem(
-                                l10n.totalItems,
-                                summary.totalItems.toString(),
-                                Icons.inventory_2_outlined,
-                                const Color(0xFF5B7FE8),
-                              ),
-                              _buildStatItem(
-                                l10n.active,
-                                summary.activeItems.toString(),
-                                Icons.shopping_bag_outlined,
-                                const Color(0xFF4CAF50),
-                              ),
-                              _buildStatItem(
-                                l10n.paid,
-                                summary.totalPaidItems.toString(),
-                                Icons.check_circle_outline,
-                                const Color(0xFF2196F3),
-                              ),
-                              _buildStatItem(
-                                l10n.excluded,
-                                summary.excludedItems.toString(),
-                                Icons.remove_circle_outline,
-                                const Color(0xFFF44336),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
 
                     // Contact Information Section (only if email or address exists)
                     if (profile.email.isNotEmpty || profile.address.isNotEmpty) ...[
@@ -782,11 +932,90 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
 
-                    // Financial Summary Section
+                    // Delivery Request Toggle
+                    if (_deliveryStatus != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: (_deliveryStatus?.deliveryEnabled ?? false)
+                                    ? Colors.green.withOpacity(0.1)
+                                    : Colors.grey.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.local_shipping,
+                                color: (_deliveryStatus?.deliveryEnabled ?? false)
+                                    ? Colors.green
+                                    : Colors.grey,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Delivery Request',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _deliveryStatus?.deliveryText ?? '',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (_isUpdatingDelivery)
+                              const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            else
+                              Switch(
+                                value: _deliveryStatus?.deliveryEnabled ?? false,
+                                onChanged: (value) {
+                                  _updateDeliveryStatus(value);
+                                },
+                                activeColor: AppColors.primary,
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // Quick Links Section
                     const Text(
-                      'Financial Summary',
+                      'Quick Links',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -794,111 +1023,20 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  const Color(0xFF5B7FE8),
-                                  const Color(0xFF7B9FFF),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.shopping_cart,
-                                  color: Colors.white70,
-                                  size: 28,
-                                ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  'Total Purchases',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${NumberFormat('#,##0.00').format(summary.totalPurchases)} USD',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  const Color(0xFF4CAF50),
-                                  const Color(0xFF66BB6A),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.payment,
-                                  color: Colors.white70,
-                                  size: 28,
-                                ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  'Total Payments',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${NumberFormat('#,##0.00').format(summary.totalPayments)} USD',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
 
-                    const SizedBox(height: 32),
-
-                    // DR Shipping Section
-                    Text(
-                      l10n.drShipping,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
+                    // Account Statement
+                    _buildSettingItem(
+                      icon: Icons.receipt_long,
+                      title: 'Account Statement',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CustomerStatementScreen(),
+                          ),
+                        );
+                      },
                     ),
-                    const SizedBox(height: 12),
 
                     // Contact Us
                     _buildSettingItem(

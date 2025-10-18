@@ -9,6 +9,9 @@ import '../models/profile_model.dart';
 import '../models/shop_item_model.dart';
 import '../models/notification_model.dart';
 import '../models/size_model.dart';
+import '../models/currency_rate_model.dart';
+import '../models/customer_statement_model.dart';
+import '../models/delivery_status_model.dart';
 
 class ApiService {
   static const String baseUrl = 'https://dolphinshippingiq.com/api';
@@ -42,6 +45,66 @@ class ApiService {
         return {
           'success': false,
           'message': data['message'] ?? 'Login failed',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error. Please check your connection.',
+      };
+    }
+  }
+
+  // Signup API call
+  static Future<Map<String, dynamic>> signup({
+    required String name,
+    required String phone,
+    required String address,
+    required String password,
+    String? email,
+    String? instagram,
+    String? facebook,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/signup.php');
+      final requestBody = {
+        'name': name,
+        'phone': phone,
+        'address': address,
+        'password': password,
+      };
+      
+      // Add optional fields if provided
+      if (email != null && email.isNotEmpty) {
+        requestBody['email'] = email;
+      }
+      if (instagram != null && instagram.isNotEmpty) {
+        requestBody['instagram'] = instagram;
+      }
+      if (facebook != null && facebook.isNotEmpty) {
+        requestBody['facebook'] = facebook;
+      }
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if ((response.statusCode == 201 || response.statusCode == 200) && data['success'] == true) {
+        return {
+          'success': true,
+          'message': data['message'],
+          'data': data['data'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Signup failed',
         };
       }
     } catch (e) {
@@ -184,6 +247,142 @@ class ApiService {
     }
   }
 
+  // Get currency rates
+  static Future<Map<String, dynamic>> getCurrencyRates() async {
+    try {
+      final url = Uri.parse('$baseUrl/currency_rates.php');
+      final response = await http.get(url);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final currencyRatesData = CurrencyRatesData.fromJson(data['data']);
+        
+        return {
+          'success': true,
+          'data': currencyRatesData,
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Failed to fetch currency rates',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error. Please check your connection.',
+      };
+    }
+  }
+
+  // Get customer statement
+  static Future<Map<String, dynamic>> getCustomerStatement({
+    required int customerId,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/customer_statement.php?customer_id=$customerId');
+      final response = await http.get(url);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final statementData = CustomerStatementData.fromJson(data['data']);
+        
+        return {
+          'success': true,
+          'data': statementData,
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Failed to fetch customer statement',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error. Please check your connection.',
+      };
+    }
+  }
+
+  // Get delivery status
+  static Future<Map<String, dynamic>> getDeliveryStatus({
+    required int customerId,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/delivery_status.php?customer_id=$customerId');
+      final response = await http.get(url);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final deliveryStatus = DeliveryStatus.fromJson(data['data']);
+        
+        return {
+          'success': true,
+          'data': deliveryStatus,
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Failed to fetch delivery status',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error. Please check your connection.',
+      };
+    }
+  }
+
+  // Update delivery status
+  static Future<Map<String, dynamic>> updateDeliveryStatus({
+    required int customerId,
+    required int deliveryStatus,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/delivery_status.php');
+      final requestBody = {
+        'customer_id': customerId,
+        'delivery_status': deliveryStatus,
+      };
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if ((response.statusCode == 200 || response.statusCode == 201) && data['success'] == true) {
+        return {
+          'success': true,
+          'data': data['data'] != null ? DeliveryStatus.fromJson(data['data']) : null,
+          'message': data['message'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Failed to update delivery status',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error. Please check your connection.',
+      };
+    }
+  }
+
   // Add order API call
   static Future<Map<String, dynamic>> addOrder({
     required int customerId,
@@ -199,6 +398,8 @@ class ApiService {
   }) async {
     try {
       final url = Uri.parse('$baseUrl/add_order.php');
+      print('🔵 ADD ORDER - URL: $url');
+      
       var request = http.MultipartRequest('POST', url);
 
       // Add required fields
@@ -224,6 +425,8 @@ class ApiService {
         request.fields['note'] = note;
       }
 
+      print('🔵 ADD ORDER - Request Fields: ${request.fields}');
+
       // Add image file
       var imageStream = http.ByteStream(imageFile.openRead());
       var imageLength = await imageFile.length();
@@ -234,13 +437,20 @@ class ApiService {
         filename: imageFile.path.split('/').last,
       );
       request.files.add(multipartFile);
+      print('🔵 ADD ORDER - Image File: ${imageFile.path.split('/').last}, Size: $imageLength bytes');
 
       // Send request
+      print('🔵 ADD ORDER - Sending request...');
       var streamedResponse = await request.send();
+      print('🔵 ADD ORDER - Response Status Code: ${streamedResponse.statusCode}');
+      
       var response = await http.Response.fromStream(streamedResponse);
+      print('🔵 ADD ORDER - Response Body: ${response.body}');
+      
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 201 && data['success'] == true) {
+        print('✅ ADD ORDER - Success!');
         final order = Order.fromJson(data['data']['order']);
         return {
           'success': true,
@@ -249,16 +459,19 @@ class ApiService {
           'message': data['message'],
         };
       } else {
+        print('❌ ADD ORDER - Failed: ${data['message']}');
         return {
           'success': false,
           'message': data['message'] ?? 'Failed to add order',
           'errors': data['errors'] ?? [],
         };
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ ADD ORDER - Exception: $e');
+      print('❌ ADD ORDER - Stack Trace: $stackTrace');
       return {
         'success': false,
-        'message': 'Network error. Please check your connection.',
+        'message': 'Network error: $e',
       };
     }
   }

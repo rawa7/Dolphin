@@ -164,15 +164,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Dolphin Shipping Text
-                    const Text(
-                      'Dolphin Shipping',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                        letterSpacing: 0.5,
-                      ),
+                    // Logo and Dolphin Shipping Text
+                    Row(
+                      children: [
+                        Image.asset(
+                          'assets/logo.png',
+                          height: 35,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.sailing,
+                              size: 35,
+                              color: AppColors.primary,
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Dolphin Shipping',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
                     ),
                     // Notification Icon
                     IconButton(
