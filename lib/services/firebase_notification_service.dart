@@ -153,10 +153,46 @@ class FirebaseNotificationService {
   // Get FCM token
   Future<void> _getFCMToken() async {
     try {
+      // For iOS, we need to ensure APNS token is available first
+      if (Platform.isIOS) {
+        if (kDebugMode) {
+          print('iOS: Waiting for APNS token...');
+        }
+        
+        // Try to get APNS token with retry logic
+        String? apnsToken;
+        int retries = 0;
+        const maxRetries = 5;
+        
+        while (apnsToken == null && retries < maxRetries) {
+          apnsToken = await _firebaseMessaging.getAPNSToken();
+          if (apnsToken == null) {
+            if (kDebugMode) {
+              print('APNS token not available yet, retrying in 1 second... (${retries + 1}/$maxRetries)');
+            }
+            await Future.delayed(const Duration(seconds: 1));
+            retries++;
+          } else {
+            if (kDebugMode) {
+              print('APNS token obtained: $apnsToken');
+            }
+          }
+        }
+        
+        if (apnsToken == null) {
+          if (kDebugMode) {
+            print('Failed to get APNS token after $maxRetries retries');
+          }
+          return;
+        }
+      }
+      
+      // Now get the FCM token
       _fcmToken = await _firebaseMessaging.getToken();
       if (kDebugMode) {
         print('FCM Token: $_fcmToken');
       }
+      
       // Save token to backend
       if (_fcmToken != null) {
         await _saveTokenToBackend(_fcmToken!);
