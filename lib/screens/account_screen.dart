@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../generated/app_localizations.dart';
 import '../models/profile_model.dart';
 import '../models/order_model.dart';
@@ -223,6 +224,73 @@ class _AccountScreenState extends State<AccountScreen> {
     }
   }
 
+  Future<void> _openWhatsApp(String phoneNumber) async {
+    // Remove any spaces, dashes, plus signs, or special characters (only keep digits)
+    final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+    final url = Uri.parse('https://wa.me/$cleanNumber');
+    
+    try {
+      final canLaunch = await canLaunchUrl(url);
+      if (canLaunch) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        // Try alternative WhatsApp URL scheme
+        final whatsappUrl = Uri.parse('whatsapp://send?phone=$cleanNumber');
+        if (await canLaunchUrl(whatsappUrl)) {
+          await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Could not open WhatsApp. Please make sure WhatsApp is installed.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error opening WhatsApp: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _openGoogleMaps(double latitude, double longitude) async {
+    try {
+      // Try Google Maps app first (Android & iOS)
+      final googleMapsUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$latitude,$longitude');
+      
+      // Alternative: Direct geo URL for native maps apps
+      final geoUrl = Uri.parse('geo:$latitude,$longitude?q=$latitude,$longitude');
+      
+      // Try launching with Google Maps URL
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      } else if (await canLaunchUrl(geoUrl)) {
+        // Fall back to geo URL (opens default maps app)
+        await launchUrl(geoUrl, mode: LaunchMode.externalApplication);
+      } else {
+        // Last resort: Open in browser
+        await launchUrl(googleMapsUrl, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error opening Maps: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -439,9 +507,9 @@ class _AccountScreenState extends State<AccountScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Financial Summary Section
-                    const Text(
-                      'Financial Summary',
-                      style: TextStyle(
+                    Text(
+                      l10n.financialSummaryText,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -537,9 +605,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                   size: 28,
                                 ),
                                 const SizedBox(height: 12),
-                                const Text(
-                                  'Total Purchases',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.totalPurchases,
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.white70,
                                   ),
@@ -581,9 +649,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                   size: 28,
                                 ),
                                 const SizedBox(height: 12),
-                                const Text(
-                                  'Total Payments',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.totalPayments,
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.white70,
                                   ),
@@ -814,9 +882,9 @@ class _AccountScreenState extends State<AccountScreen> {
                     const SizedBox(height: 24),
 
                     // Account Limits Section
-                    const Text(
-                      'Account Limits',
-                      style: TextStyle(
+                    Text(
+                      l10n.accountLimitsText,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -855,9 +923,9 @@ class _AccountScreenState extends State<AccountScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Debt Limit',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.debtLimitText,
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey,
                                   ),
@@ -909,9 +977,9 @@ class _AccountScreenState extends State<AccountScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Available Capacity',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.availableCapacityText,
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey,
                                   ),
@@ -934,78 +1002,164 @@ class _AccountScreenState extends State<AccountScreen> {
 
                     const SizedBox(height: 32),
 
-                    // Delivery Request Toggle
+                    // Delivery Request Button
                     if (_deliveryStatus != null) ...[
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          gradient: LinearGradient(
+                            colors: (_deliveryStatus?.deliveryEnabled ?? false)
+                                ? [
+                                    const Color(0xFF4CAF50),
+                                    const Color(0xFF66BB6A),
+                                  ]
+                                : [
+                                    const Color(0xFF5B7FE8),
+                                    const Color(0xFF7B9FFF),
+                                  ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                              color: ((_deliveryStatus?.deliveryEnabled ?? false)
+                                      ? const Color(0xFF4CAF50)
+                                      : const Color(0xFF5B7FE8))
+                                  .withOpacity(0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
                             ),
                           ],
                         ),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: (_deliveryStatus?.deliveryEnabled ?? false)
-                                    ? Colors.green.withOpacity(0.1)
-                                    : Colors.grey.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.local_shipping,
-                                color: (_deliveryStatus?.deliveryEnabled ?? false)
-                                    ? Colors.green
-                                    : Colors.grey,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Delivery Request',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
-                                    ),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _deliveryStatus?.deliveryText ?? '',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey[600],
-                                    ),
+                                  child: const Icon(
+                                    Icons.local_shipping,
+                                    color: Colors.white,
+                                    size: 32,
                                   ),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.deliveryRequest,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
-                            if (_isUpdatingDelivery)
-                              const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+                          ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _deliveryStatus?.deliveryText ?? '',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            // Show button or message based on delivery status
+                            if (_deliveryStatus?.deliveryEnabled ?? false)
+                              // Message when delivery is already requested
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                      child: Text(
+                        '${l10n.youRequestedDelivery}\n${l10n.youWillGetItASAP}',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                          height: 1.4,
+                        ),
+                      ),
+                                    ),
+                                  ],
                                 ),
                               )
                             else
-                              Switch(
-                                value: _deliveryStatus?.deliveryEnabled ?? false,
-                                onChanged: (value) {
-                                  _updateDeliveryStatus(value);
-                                },
-                                activeColor: AppColors.primary,
+                              // Button when delivery not requested
+                              SizedBox(
+                                width: double.infinity,
+                                child: _isUpdatingDelivery
+                                    ? Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: const Center(
+                                          child: SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : ElevatedButton(
+                                        onPressed: () {
+                                          _updateDeliveryStatus(true);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: const Color(0xFF5B7FE8),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 32,
+                                            vertical: 16,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          elevation: 0,
+                                        ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.add_circle_outline, size: 22),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.requestDelivery,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                                      ),
                               ),
                           ],
                         ),
@@ -1014,9 +1168,9 @@ class _AccountScreenState extends State<AccountScreen> {
                     ],
 
                     // Quick Links Section
-                    const Text(
-                      'Quick Links',
-                      style: TextStyle(
+                    Text(
+                      l10n.quickLinks,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -1027,7 +1181,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     // Account Statement
                     _buildSettingItem(
                       icon: Icons.receipt_long,
-                      title: 'Account Statement',
+                      title: l10n.accountStatement,
                       onTap: () {
                         Navigator.push(
                           context,
@@ -1038,31 +1192,57 @@ class _AccountScreenState extends State<AccountScreen> {
                       },
                     ),
 
-                    // Contact Us
-                    _buildSettingItem(
-                      icon: Icons.headset_mic,
-                      title: l10n.contactSupport,
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.contactFormComingSoon),
-                          ),
-                        );
-                      },
+                    // Contact Support Section
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.contactSupportText,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // WhatsApp Contact 1
+                    _buildContactItem(
+                      icon: Icons.chat,
+                      iconColor: const Color(0xFF25D366),
+                      title: '${l10n.whatsappSupport} 1',
+                      subtitle: '+964 750 654 0095',
+                      onTap: () => _openWhatsApp('+9647506540095'),
                     ),
 
-                    // Rate Our App
-                    _buildSettingItem(
-                      icon: Icons.star_border,
-                      title: l10n.rateOurApp,
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.ratingComingSoon),
-                          ),
-                        );
-                      },
+                    // WhatsApp Contact 2
+                    _buildContactItem(
+                      icon: Icons.chat,
+                      iconColor: const Color(0xFF25D366),
+                      title: '${l10n.whatsappSupport} 2',
+                      subtitle: '+964 750 642 0095',
+                      onTap: () => _openWhatsApp('+9647506420095'),
                     ),
+
+                    // Location/Map
+                    _buildContactItem(
+                      icon: Icons.location_on,
+                      iconColor: const Color(0xFFEA4335),
+                      title: l10n.ourLocation,
+                      subtitle: 'Erbil, Iraq',
+                      onTap: () => _openGoogleMaps(36.2024189, 44.0210844),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Other Quick Links
+                    Text(
+                      l10n.moreOptions,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
 
                     // Language
                     _buildSettingItem(
@@ -1157,6 +1337,76 @@ class _AccountScreenState extends State<AccountScreen> {
               Icons.arrow_forward_ios,
               size: 16,
               color: titleColor ?? Colors.grey,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactItem({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.grey.shade200,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey[400],
             ),
           ],
         ),

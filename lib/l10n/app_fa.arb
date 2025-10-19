@@ -160,6 +160,24 @@
   "active": "چالاک",
   "paid": "پارەدراو",
   "excluded": "دەرهێنراو",
-  "updatedAt": "نوێکراوەتەوە لە"
+  "updatedAt": "نوێکراوەتەوە لە",
+  "website": "ماڵپەڕ",
+  "deliveryRequest": "داواکاری گەیاندن",
+  "requestDelivery": "داواکاری گەیاندن",
+  "youRequestedDelivery": "داواکاری گەیاندنت کرد",
+  "youWillGetItASAP": "زوو بەدەستت دەگات",
+  "whatsappSupport": "پشتگیری واتساپ",
+  "ourLocation": "شوێنمان",
+  "moreOptions": "بژاردەی زیاتر",
+  "accountStatement": "ڕاپۆرتی هەژمار",
+  "deliveredToErbil": "گەیەندرا بۆ هەولێر",
+  "financialSummaryText": "پوختەی دارایی",
+  "accountLimitsText": "سنوورەکانی هەژمار",
+  "debtLimitText": "سنووری قەرز",
+  "availableCapacityText": "توانای بەردەست",
+  "totalPurchases": "کۆی کڕینەکان",
+  "totalPayments": "کۆی پارەدانەکان",
+  "contactSupportText": "پەیوەندی بە پشتگیری",
+  "quickLinks": "بەستەرە خێراکان"
 }
 

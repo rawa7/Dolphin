@@ -1327,6 +1327,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
 
                 // Right side - Image upload
                 Expanded(
+                  flex: 2,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1342,7 +1343,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                       GestureDetector(
                         onTap: _pickImage,
                         child: Container(
-                          height: 150,
+                          height: 240,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),

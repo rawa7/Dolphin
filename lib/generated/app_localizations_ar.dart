@@ -493,4 +493,58 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get updatedAt => 'آخر تحديث في';
+
+  @override
+  String get website => 'موقع إلكتروني';
+
+  @override
+  String get deliveryRequest => 'طلب التوصيل';
+
+  @override
+  String get requestDelivery => 'طلب التوصيل';
+
+  @override
+  String get youRequestedDelivery => 'لقد طلبت التوصيل';
+
+  @override
+  String get youWillGetItASAP => 'سوف تحصل عليه في أقرب وقت';
+
+  @override
+  String get whatsappSupport => 'دعم واتساب';
+
+  @override
+  String get ourLocation => 'موقعنا';
+
+  @override
+  String get moreOptions => 'خيارات أخرى';
+
+  @override
+  String get accountStatement => 'كشف الحساب';
+
+  @override
+  String get deliveredToErbil => 'تم التوصيل إلى أربيل';
+
+  @override
+  String get financialSummaryText => 'الملخص المالي';
+
+  @override
+  String get accountLimitsText => 'حدود الحساب';
+
+  @override
+  String get debtLimitText => 'حد الدين';
+
+  @override
+  String get availableCapacityText => 'السعة المتاحة';
+
+  @override
+  String get totalPurchases => 'إجمالي المشتريات';
+
+  @override
+  String get totalPayments => 'إجمالي المدفوعات';
+
+  @override
+  String get contactSupportText => 'الاتصال بالدعم';
+
+  @override
+  String get quickLinks => 'روابط سريعة';
 }

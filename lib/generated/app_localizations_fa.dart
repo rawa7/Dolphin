@@ -493,4 +493,58 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get updatedAt => 'نوێکراوەتەوە لە';
+
+  @override
+  String get website => 'ماڵپەڕ';
+
+  @override
+  String get deliveryRequest => 'داواکاری گەیاندن';
+
+  @override
+  String get requestDelivery => 'داواکاری گەیاندن';
+
+  @override
+  String get youRequestedDelivery => 'داواکاری گەیاندنت کرد';
+
+  @override
+  String get youWillGetItASAP => 'زوو بەدەستت دەگات';
+
+  @override
+  String get whatsappSupport => 'پشتگیری واتساپ';
+
+  @override
+  String get ourLocation => 'شوێنمان';
+
+  @override
+  String get moreOptions => 'بژاردەی زیاتر';
+
+  @override
+  String get accountStatement => 'ڕاپۆرتی هەژمار';
+
+  @override
+  String get deliveredToErbil => 'گەیەندرا بۆ هەولێر';
+
+  @override
+  String get financialSummaryText => 'پوختەی دارایی';
+
+  @override
+  String get accountLimitsText => 'سنوورەکانی هەژمار';
+
+  @override
+  String get debtLimitText => 'سنووری قەرز';
+
+  @override
+  String get availableCapacityText => 'توانای بەردەست';
+
+  @override
+  String get totalPurchases => 'کۆی کڕینەکان';
+
+  @override
+  String get totalPayments => 'کۆی پارەدانەکان';
+
+  @override
+  String get contactSupportText => 'پەیوەندی بە پشتگیری';
+
+  @override
+  String get quickLinks => 'بەستەرە خێراکان';
 }

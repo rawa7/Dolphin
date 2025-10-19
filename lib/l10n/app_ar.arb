@@ -160,6 +160,24 @@
   "active": "نشط",
   "paid": "مدفوع",
   "excluded": "مستبعد",
-  "updatedAt": "آخر تحديث في"
+  "updatedAt": "آخر تحديث في",
+  "website": "موقع إلكتروني",
+  "deliveryRequest": "طلب التوصيل",
+  "requestDelivery": "طلب التوصيل",
+  "youRequestedDelivery": "لقد طلبت التوصيل",
+  "youWillGetItASAP": "سوف تحصل عليه في أقرب وقت",
+  "whatsappSupport": "دعم واتساب",
+  "ourLocation": "موقعنا",
+  "moreOptions": "خيارات أخرى",
+  "accountStatement": "كشف الحساب",
+  "deliveredToErbil": "تم التوصيل إلى أربيل",
+  "financialSummaryText": "الملخص المالي",
+  "accountLimitsText": "حدود الحساب",
+  "debtLimitText": "حد الدين",
+  "availableCapacityText": "السعة المتاحة",
+  "totalPurchases": "إجمالي المشتريات",
+  "totalPayments": "إجمالي المدفوعات",
+  "contactSupportText": "الاتصال بالدعم",
+  "quickLinks": "روابط سريعة"
 }
 

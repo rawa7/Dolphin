@@ -493,4 +493,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updatedAt => 'Updated at';
+
+  @override
+  String get website => 'Website';
+
+  @override
+  String get deliveryRequest => 'Delivery Request';
+
+  @override
+  String get requestDelivery => 'Request Delivery';
+
+  @override
+  String get youRequestedDelivery => 'You requested delivery';
+
+  @override
+  String get youWillGetItASAP => 'You will get it ASAP';
+
+  @override
+  String get whatsappSupport => 'WhatsApp Support';
+
+  @override
+  String get ourLocation => 'Our Location';
+
+  @override
+  String get moreOptions => 'More Options';
+
+  @override
+  String get accountStatement => 'Account Statement';
+
+  @override
+  String get deliveredToErbil => 'Delivered to Erbil';
+
+  @override
+  String get financialSummaryText => 'Financial Summary';
+
+  @override
+  String get accountLimitsText => 'Account Limits';
+
+  @override
+  String get debtLimitText => 'Debt Limit';
+
+  @override
+  String get availableCapacityText => 'Available Capacity';
+
+  @override
+  String get totalPurchases => 'Total Purchases';
+
+  @override
+  String get totalPayments => 'Total Payments';
+
+  @override
+  String get contactSupportText => 'Contact Support';
+
+  @override
+  String get quickLinks => 'Quick Links';
 }

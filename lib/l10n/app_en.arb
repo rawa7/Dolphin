@@ -169,6 +169,24 @@
   "active": "Active",
   "paid": "Paid",
   "excluded": "Excluded",
-  "updatedAt": "Updated at"
+  "updatedAt": "Updated at",
+  "website": "Website",
+  "deliveryRequest": "Delivery Request",
+  "requestDelivery": "Request Delivery",
+  "youRequestedDelivery": "You requested delivery",
+  "youWillGetItASAP": "You will get it ASAP",
+  "whatsappSupport": "WhatsApp Support",
+  "ourLocation": "Our Location",
+  "moreOptions": "More Options",
+  "accountStatement": "Account Statement",
+  "deliveredToErbil": "Delivered to Erbil",
+  "financialSummaryText": "Financial Summary",
+  "accountLimitsText": "Account Limits",
+  "debtLimitText": "Debt Limit",
+  "availableCapacityText": "Available Capacity",
+  "totalPurchases": "Total Purchases",
+  "totalPayments": "Total Payments",
+  "contactSupportText": "Contact Support",
+  "quickLinks": "Quick Links"
 }
 

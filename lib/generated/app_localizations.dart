@@ -1065,6 +1065,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Updated at'**
   String get updatedAt;
+
+  /// No description provided for @website.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get website;
+
+  /// No description provided for @deliveryRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Request'**
+  String get deliveryRequest;
+
+  /// No description provided for @requestDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Delivery'**
+  String get requestDelivery;
+
+  /// No description provided for @youRequestedDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'You requested delivery'**
+  String get youRequestedDelivery;
+
+  /// No description provided for @youWillGetItASAP.
+  ///
+  /// In en, this message translates to:
+  /// **'You will get it ASAP'**
+  String get youWillGetItASAP;
+
+  /// No description provided for @whatsappSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp Support'**
+  String get whatsappSupport;
+
+  /// No description provided for @ourLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Our Location'**
+  String get ourLocation;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More Options'**
+  String get moreOptions;
+
+  /// No description provided for @accountStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Statement'**
+  String get accountStatement;
+
+  /// No description provided for @deliveredToErbil.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered to Erbil'**
+  String get deliveredToErbil;
+
+  /// No description provided for @financialSummaryText.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Summary'**
+  String get financialSummaryText;
+
+  /// No description provided for @accountLimitsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Limits'**
+  String get accountLimitsText;
+
+  /// No description provided for @debtLimitText.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt Limit'**
+  String get debtLimitText;
+
+  /// No description provided for @availableCapacityText.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Capacity'**
+  String get availableCapacityText;
+
+  /// No description provided for @totalPurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Purchases'**
+  String get totalPurchases;
+
+  /// No description provided for @totalPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Payments'**
+  String get totalPayments;
+
+  /// No description provided for @contactSupportText.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Support'**
+  String get contactSupportText;
+
+  /// No description provided for @quickLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Links'**
+  String get quickLinks;
 }
 
 class _AppLocalizationsDelegate

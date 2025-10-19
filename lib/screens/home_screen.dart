@@ -265,48 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Quick Action Buttons - 3 in a row
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: _buildQuickActionButton(
-                        icon: Icons.add_shopping_cart,
-                        label: l10n.newOrder,
-                        color: const Color(0xFFFFE5F0),
-                        iconColor: const Color(0xFFE91E63),
-                        onTap: _navigateToAddOrder,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildQuickActionButton(
-                        icon: Icons.receipt_long,
-                        label: l10n.myOrders,
-                        color: const Color(0xFFFFF4E5),
-                        iconColor: const Color(0xFFFF9800),
-                        onTap: _navigateToMyOrders,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildQuickActionButton(
-                        icon: Icons.language,
-                        label: l10n.websites,
-                        color: const Color(0xFFE5F4FF),
-                        iconColor: const Color(0xFF2196F3),
-                        onTap: _navigateToWebsites,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Banner Carousel
+            // Banner Carousel (moved to top)
             SliverToBoxAdapter(
               child: _isLoadingBanners
                   ? const SizedBox(
@@ -373,12 +332,54 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
             ),
 
-            // Hot Deals Section Title
+            // Quick Action Buttons - 3 in a row (moved below banner)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: _buildQuickActionButton(
+                        icon: Icons.add_shopping_cart,
+                        label: l10n.newOrder,
+                        color: const Color(0xFFFFE5F0),
+                        iconColor: const Color(0xFFE91E63),
+                        onTap: _navigateToAddOrder,
+                        isGradient: true,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildQuickActionButton(
+                        icon: Icons.receipt_long,
+                        label: l10n.myOrders,
+                        color: const Color(0xFFFFF4E5),
+                        iconColor: const Color(0xFFFF9800),
+                        onTap: _navigateToMyOrders,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildQuickActionButton(
+                        icon: Icons.language,
+                        label: l10n.websites,
+                        color: const Color(0xFFE5F4FF),
+                        iconColor: const Color(0xFF2196F3),
+                        onTap: _navigateToWebsites,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Website Section Title
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
                 child: Text(
-                  l10n.hotDeals,
+                  l10n.website,
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -472,6 +473,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required Color color,
     required Color iconColor,
     required VoidCallback onTap,
+    bool isGradient = false,
   }) {
     return InkWell(
       onTap: onTap,
@@ -479,13 +481,20 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
-          color: color,
+          gradient: isGradient
+              ? const LinearGradient(
+                  colors: AppColors.primaryGradient,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isGradient ? null : color,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: iconColor.withOpacity(0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: iconColor.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -495,12 +504,12 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.white.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: iconColor,
+                color: isGradient ? const Color(0xFF9C1B5E) : iconColor,
                 size: 28,
               ),
             ),
@@ -511,7 +520,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: iconColor,
+                color: isGradient ? Colors.white : iconColor,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

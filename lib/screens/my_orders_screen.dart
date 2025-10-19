@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../models/order_model.dart';
+import '../models/delivery_status_model.dart';
 import '../constants/app_colors.dart';
 import '../generated/app_localizations.dart';
 import 'order_detail_screen.dart';
@@ -23,11 +24,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   bool _isLoading = true;
   String? _selectedStatusId;
   int? _customerId;
+  DeliveryStatus? _deliveryStatus;
+  bool _isUpdatingDelivery = false;
 
   @override
   void initState() {
     super.initState();
     _loadOrders();
+    _loadDeliveryStatus();
   }
 
   Future<void> _loadOrders() async {
@@ -74,11 +78,94 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     setState(() {
       _selectedStatusId = statusId;
       if (statusId == null) {
-        _filteredOrders = _allOrders;
+        // For "All Orders", exclude rejected (6), canceled (14), complete (-2), and refunded (-3)
+        _filteredOrders = _allOrders.where((order) => 
+          order.status != '6' && 
+          order.status != '14' && 
+          order.status != '-2' && 
+          order.status != '-3'
+        ).toList();
       } else {
         _filteredOrders = _allOrders.where((order) => order.status == statusId).toList();
       }
     });
+  }
+
+  Future<void> _loadDeliveryStatus() async {
+    try {
+      final user = await StorageService.getUser();
+      if (user != null) {
+        final result = await ApiService.getDeliveryStatus(customerId: user.id);
+        
+        if (result['success'] && mounted) {
+          setState(() {
+            _deliveryStatus = result['data'] as DeliveryStatus;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error loading delivery status: $e');
+    }
+  }
+
+  Future<void> _updateDeliveryStatus(bool enabled) async {
+    if (_isUpdatingDelivery) return;
+
+    setState(() {
+      _isUpdatingDelivery = true;
+    });
+
+    try {
+      final user = await StorageService.getUser();
+      if (user != null) {
+        final result = await ApiService.updateDeliveryStatus(
+          customerId: user.id,
+          deliveryStatus: enabled ? 1 : 0,
+        );
+
+        if (mounted) {
+          setState(() {
+            _isUpdatingDelivery = false;
+          });
+
+          if (result['success']) {
+            // Reload delivery status to get updated data
+            await _loadDeliveryStatus();
+            
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(enabled ? 'Delivery requested successfully!' : 'Delivery request cancelled'),
+                  backgroundColor: AppColors.primary,
+                ),
+              );
+            }
+          } else {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(result['message'] ?? 'Failed to update delivery status'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isUpdatingDelivery = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   OrderStatus? get _selectedStatus {
@@ -202,7 +289,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                _buildStatusTab(null, l10n.allOrders, _allOrders.length),
+                _buildStatusTabWithoutCount(null, l10n.allOrders),
                 const SizedBox(width: 8),
                 ..._statuses.where((status) => status.count > 0).map((status) => 
                   Padding(
@@ -214,8 +301,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
           ),
 
-          // Summary Box (when status is selected OR when All is selected)
-          if (_selectedStatus != null || _selectedStatusId == null)
+          // Summary Box (only when a specific status is selected, NOT for "All Orders")
+          if (_selectedStatus != null)
             _buildSummaryBox(),
 
           // Orders List
@@ -256,6 +343,48 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                       ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStatusTabWithoutCount(String? statusId, String label) {
+    final isSelected = _selectedStatusId == statusId;
+    return GestureDetector(
+      onTap: () => _filterOrders(statusId),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? const LinearGradient(
+                  colors: [AppColors.primary, Color(0xFF2B4A6F)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isSelected ? null : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppColors.textPrimary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+            fontSize: 14,
+          ),
+        ),
       ),
     );
   }
@@ -324,6 +453,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   }
 
   Widget _buildSummaryBox() {
+    final l10n = AppLocalizations.of(context)!;
+    
     // If "All Orders" is selected (no specific status)
     final isAllOrders = _selectedStatusId == null;
     final statusName = isAllOrders ? 'All Orders' : _selectedStatus!.name;
@@ -334,92 +465,263 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     
     final formattedTotal = NumberFormat('#,##0.00').format(total);
     
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary.withOpacity(0.1),
-            AppColors.secondary.withOpacity(0.1),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.primary.withOpacity(0.3),
-          width: 1.5,
-        ),
-      ),
-      child: Row(
-        children: [
-          // Icon
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
+    // Check if we're viewing "delivered to erbil" status (-1)
+    final isDeliveredToErbil = _selectedStatusId == '-1';
+    
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.primary.withOpacity(0.1),
+                AppColors.secondary.withOpacity(0.1),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            child: Icon(
-              Icons.inventory_2,
-              color: AppColors.primary,
-              size: 28,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.primary.withOpacity(0.3),
+              width: 1.5,
             ),
           ),
-          const SizedBox(width: 16),
-          // Info
-          Expanded(
+          child: Row(
+            children: [
+              // Icon
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.inventory_2,
+                  color: AppColors.primary,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      statusName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.shopping_bag,
+                          size: 16,
+                          color: Colors.grey[600],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$count items',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Icon(
+                          Icons.attach_money,
+                          size: 16,
+                          color: Colors.grey[600],
+                        ),
+                        Text(
+                          '\$$formattedTotal',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // Delivery Request Button (only for "delivered to erbil" status)
+        if (isDeliveredToErbil && _deliveryStatus != null)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: (_deliveryStatus?.deliveryEnabled ?? false)
+                    ? [
+                        const Color(0xFF4CAF50),
+                        const Color(0xFF66BB6A),
+                      ]
+                    : [
+                        const Color(0xFF5B7FE8),
+                        const Color(0xFF7B9FFF),
+                      ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: ((_deliveryStatus?.deliveryEnabled ?? false)
+                          ? const Color(0xFF4CAF50)
+                          : const Color(0xFF5B7FE8))
+                      .withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  statusName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(
-                      Icons.shopping_bag,
-                      size: 16,
-                      color: Colors.grey[600],
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$count items',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.w500,
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.local_shipping,
+                        color: Colors.white,
+                        size: 32,
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Icon(
-                      Icons.attach_money,
-                      size: 16,
-                      color: Colors.grey[600],
-                    ),
-                    Text(
-                      '\$$formattedTotal',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.deliveryRequest,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _deliveryStatus?.deliveryText ?? '',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 20),
+                // Show button or message based on delivery status
+                if (_deliveryStatus?.deliveryEnabled ?? false)
+                  // Message when delivery is already requested
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                      child: Text(
+                        '${l10n.youRequestedDelivery}\n${l10n.youWillGetItASAP}',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                          height: 1.4,
+                        ),
+                      ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  // Button when delivery not requested
+                  SizedBox(
+                    width: double.infinity,
+                    child: _isUpdatingDelivery
+                        ? Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Center(
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              ),
+                            ),
+                          )
+                        : ElevatedButton(
+                            onPressed: () {
+                              _updateDeliveryStatus(true);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: const Color(0xFF5B7FE8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 32,
+                                vertical: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.add_circle_outline, size: 22),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.requestDelivery,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                  ),
               ],
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
 
