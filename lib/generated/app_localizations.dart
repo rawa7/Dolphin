@@ -1173,6 +1173,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quick Links'**
   String get quickLinks;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account?'**
+  String get deleteAccountConfirmTitle;
+
+  /// No description provided for @deleteAccountConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you absolutely sure you want to delete your account? This action cannot be undone.'**
+  String get deleteAccountConfirmMessage;
+
+  /// No description provided for @deleteAccountFinalConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Final Warning!'**
+  String get deleteAccountFinalConfirmTitle;
+
+  /// No description provided for @deleteAccountFinalConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your last chance! Once you delete your account, all your data will be permanently removed. Are you sure?'**
+  String get deleteAccountFinalConfirmMessage;
+
+  /// No description provided for @yesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, Delete'**
+  String get yesDelete;
+
+  /// No description provided for @noCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'No, Cancel'**
+  String get noCancel;
+
+  /// No description provided for @accountDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Deleted'**
+  String get accountDeleted;
+
+  /// No description provided for @accountDeletedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been successfully deleted. Contact support if you need to reactivate it.'**
+  String get accountDeletedMessage;
+
+  /// No description provided for @accountDeletionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Deletion Failed'**
+  String get accountDeletionFailed;
+
+  /// No description provided for @enterPasswordToDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password to confirm deletion'**
+  String get enterPasswordToDelete;
+
+  /// No description provided for @pleaseLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Please Login'**
+  String get pleaseLogin;
+
+  /// No description provided for @loginRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'You need to login to access this feature'**
+  String get loginRequired;
+
+  /// No description provided for @loginNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Now'**
+  String get loginNow;
+
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get continueAsGuest;
 }
 
 class _AppLocalizationsDelegate

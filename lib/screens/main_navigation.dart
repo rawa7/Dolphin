@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../generated/app_localizations.dart';
+import '../utils/auth_helper.dart';
 import 'home_screen.dart';
 import 'store_screen.dart';
 import 'add_order_screen.dart';
@@ -32,13 +33,19 @@ class _MainNavigationState extends State<MainNavigation> {
     const AccountScreen(),
   ];
 
-  void _openAddOrder() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AddOrderScreen(),
-      ),
-    );
+  void _openAddOrder() async {
+    // Check authentication first
+    final isAuthenticated = await AuthHelper.requireAuth(context);
+    if (!isAuthenticated) return;
+    
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddOrderScreen(),
+        ),
+      );
+    }
   }
 
   @override
@@ -68,11 +75,19 @@ class _MainNavigationState extends State<MainNavigation> {
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex > 2 ? _currentIndex : _currentIndex,
-          onTap: (index) {
+          onTap: (index) async {
             // If New Order (index 2) is tapped, open as a new screen
             if (index == 2) {
               _openAddOrder();
               // Don't change the current index, keep it on whatever tab was selected
+            } else if (index == 3 || index == 4) {
+              // My Orders (index 3) and Account (index 4) require authentication
+              final isAuthenticated = await AuthHelper.requireAuth(context);
+              if (!isAuthenticated) return;
+              
+              setState(() {
+                _currentIndex = index;
+              });
             } else {
               setState(() {
                 _currentIndex = index;

@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android Keystore - KEEP THESE SECURE!
+*.jks
+*.keystore
+key.properties
+/android/key.properties
+/android/*.jks
+/android/*.keystore

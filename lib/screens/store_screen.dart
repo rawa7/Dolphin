@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/shop_item_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
+import '../utils/auth_helper.dart';
 import '../constants/app_colors.dart';
 import '../generated/app_localizations.dart';
 import 'product_detail_screen.dart';
@@ -47,36 +48,35 @@ class _StoreScreenState extends State<StoreScreen> {
 
     try {
       final user = await StorageService.getUser();
-      if (user != null) {
-        final result = await ApiService.getShopItems(customerId: user.id);
+      // Allow guests to view store, pass null as customerId for guests
+      final result = await ApiService.getShopItems(customerId: user?.id);
 
-        if (result['success']) {
-          final items = result['data'] as List<ShopItem>;
-          
-          // Extract unique brands
-          final Map<String, Brand> brandMap = {};
-          for (var item in items) {
-            if (!brandMap.containsKey(item.brandId)) {
-              brandMap[item.brandId] = Brand(
-                brandId: item.brandId,
-                brandName: item.brandName,
-                brandImageUrl: item.brandImageUrl,
-              );
-            }
+      if (result['success']) {
+        final items = result['data'] as List<ShopItem>;
+        
+        // Extract unique brands
+        final Map<String, Brand> brandMap = {};
+        for (var item in items) {
+          if (!brandMap.containsKey(item.brandId)) {
+            brandMap[item.brandId] = Brand(
+              brandId: item.brandId,
+              brandName: item.brandName,
+              brandImageUrl: item.brandImageUrl,
+            );
           }
-
-          setState(() {
-            _allItems = items;
-            _filteredItems = items;
-            _brands = brandMap.values.toList();
-            _isLoading = false;
-          });
-        } else {
-          setState(() {
-            _errorMessage = result['message'] ?? 'Failed to load products';
-            _isLoading = false;
-          });
         }
+
+        setState(() {
+          _allItems = items;
+          _filteredItems = items;
+          _brands = brandMap.values.toList();
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = result['message'] ?? 'Failed to load products';
+          _isLoading = false;
+        });
       }
     } catch (e) {
       setState(() {
@@ -119,6 +119,21 @@ class _StoreScreenState extends State<StoreScreen> {
                 item.itemDescription.toLowerCase().contains(query))
             .toList();
       });
+    }
+  }
+
+  Future<void> _navigateToProductDetail(ShopItem item) async {
+    // Check authentication first - user needs to login to view product details and add to cart
+    final isAuthenticated = await AuthHelper.requireAuth(context);
+    if (!isAuthenticated) return;
+    
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProductDetailScreen(item: item),
+        ),
+      );
     }
   }
 
@@ -474,14 +489,7 @@ class _StoreScreenState extends State<StoreScreen> {
         children: [
           // Product Image - Clickable
           GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProductDetailScreen(item: item),
-                ),
-              );
-            },
+            onTap: () => _navigateToProductDetail(item),
             child: Container(
               height: 140,
               decoration: BoxDecoration(
@@ -538,17 +546,10 @@ class _StoreScreenState extends State<StoreScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Product Name - Clickable
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductDetailScreen(item: item),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      item.itemName,
+                    GestureDetector(
+                      onTap: () => _navigateToProductDetail(item),
+                      child: Text(
+                        item.itemName,
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -561,14 +562,7 @@ class _StoreScreenState extends State<StoreScreen> {
                   const Spacer(),
                   // Price - Clickable
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductDetailScreen(item: item),
-                        ),
-                      );
-                    },
+                    onTap: () => _navigateToProductDetail(item),
                     child: Row(
                       children: [
                         Text(

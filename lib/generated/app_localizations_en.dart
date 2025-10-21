@@ -547,4 +547,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quickLinks => 'Quick Links';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Delete Account?';
+
+  @override
+  String get deleteAccountConfirmMessage =>
+      'Are you absolutely sure you want to delete your account? This action cannot be undone.';
+
+  @override
+  String get deleteAccountFinalConfirmTitle => 'Final Warning!';
+
+  @override
+  String get deleteAccountFinalConfirmMessage =>
+      'This is your last chance! Once you delete your account, all your data will be permanently removed. Are you sure?';
+
+  @override
+  String get yesDelete => 'Yes, Delete';
+
+  @override
+  String get noCancel => 'No, Cancel';
+
+  @override
+  String get accountDeleted => 'Account Deleted';
+
+  @override
+  String get accountDeletedMessage =>
+      'Your account has been successfully deleted. Contact support if you need to reactivate it.';
+
+  @override
+  String get accountDeletionFailed => 'Account Deletion Failed';
+
+  @override
+  String get enterPasswordToDelete => 'Enter your password to confirm deletion';
+
+  @override
+  String get pleaseLogin => 'Please Login';
+
+  @override
+  String get loginRequired => 'You need to login to access this feature';
+
+  @override
+  String get loginNow => 'Login Now';
+
+  @override
+  String get continueAsGuest => 'Continue as Guest';
 }

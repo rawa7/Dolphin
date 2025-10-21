@@ -98,14 +98,13 @@ class _SplashScreenState extends State<SplashScreen> {
     // Add a small delay for splash effect
     await Future.delayed(const Duration(seconds: 1));
 
-    final isLoggedIn = await StorageService.isLoggedIn();
-
+    // Always go to home screen (MainNavigation)
+    // Users can browse as guests and will be prompted to login when needed
     if (mounted) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              isLoggedIn ? const MainNavigation() : const LoginScreen(),
+          builder: (context) => const MainNavigation(),
         ),
       );
     }

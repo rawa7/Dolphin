@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../generated/app_localizations.dart';
 import '../models/profile_model.dart';
@@ -206,6 +208,203 @@ class _AccountScreenState extends State<AccountScreen> {
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
           (route) => false,
+        );
+      }
+    }
+  }
+
+  Future<void> _showDeleteAccountDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // First confirmation
+    final firstConfirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          l10n.deleteAccountConfirmTitle,
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+        ),
+        content: Text(l10n.deleteAccountConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.noCancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.yesDelete),
+          ),
+        ],
+      ),
+    );
+
+    if (firstConfirm != true) return;
+
+    // Second confirmation with password input
+    final passwordController = TextEditingController();
+    final secondConfirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          l10n.deleteAccountFinalConfirmTitle,
+          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.deleteAccountFinalConfirmMessage,
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: l10n.enterPasswordToDelete,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.lock),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.noCancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (passwordController.text.isNotEmpty) {
+                Navigator.pop(context, true);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.enterPasswordToDelete),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[900],
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.yesDelete),
+          ),
+        ],
+      ),
+    );
+
+    if (secondConfirm == true && passwordController.text.isNotEmpty) {
+      await _deleteAccount(passwordController.text);
+    }
+  }
+
+  Future<void> _deleteAccount(String password) async {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      final user = await StorageService.getUser();
+      if (user == null || user.phone == null) {
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.accountDeletionFailed),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+      
+      final phone = user.phone!;
+      
+      final response = await http.post(
+        Uri.parse('https://dolphinshippingiq.com/api/deactivate_account.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'phone': phone,
+          'password': password,
+        }),
+      );
+
+      // Close loading dialog
+      if (mounted) Navigator.pop(context);
+
+      final data = json.decode(response.body);
+
+      if (data['success'] == true) {
+        // Delete FCM token
+        try {
+          await FirebaseNotificationService().deleteTokenFromBackend();
+        } catch (e) {
+          print('Error deleting FCM token: $e');
+        }
+
+        // Clear user data
+        await StorageService.clearUser();
+
+        if (mounted) {
+          // Show success message
+          await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(
+                l10n.accountDeleted,
+                style: const TextStyle(color: Colors.green),
+              ),
+              content: Text(l10n.accountDeletedMessage),
+              actions: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+
+          // Navigate to login
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(data['message'] ?? l10n.accountDeletionFailed),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${l10n.accountDeletionFailed}: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -1257,6 +1456,16 @@ class _AccountScreenState extends State<AccountScreen> {
                         );
                       },
                     ),
+
+                    // Delete Account
+                    _buildSettingItem(
+                      icon: Icons.delete_forever,
+                      title: l10n.deleteAccount,
+                      titleColor: Colors.red[700],
+                      onTap: _showDeleteAccountDialog,
+                    ),
+                    
+                    const SizedBox(height: 8),
 
                     // Logout
                     _buildSettingItem(

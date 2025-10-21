@@ -187,6 +187,21 @@
   "totalPurchases": "Total Purchases",
   "totalPayments": "Total Payments",
   "contactSupportText": "Contact Support",
-  "quickLinks": "Quick Links"
+  "quickLinks": "Quick Links",
+  "deleteAccount": "Delete Account",
+  "deleteAccountConfirmTitle": "Delete Account?",
+  "deleteAccountConfirmMessage": "Are you absolutely sure you want to delete your account? This action cannot be undone.",
+  "deleteAccountFinalConfirmTitle": "Final Warning!",
+  "deleteAccountFinalConfirmMessage": "This is your last chance! Once you delete your account, all your data will be permanently removed. Are you sure?",
+  "yesDelete": "Yes, Delete",
+  "noCancel": "No, Cancel",
+  "accountDeleted": "Account Deleted",
+  "accountDeletedMessage": "Your account has been successfully deleted. Contact support if you need to reactivate it.",
+  "accountDeletionFailed": "Account Deletion Failed",
+  "enterPasswordToDelete": "Enter your password to confirm deletion",
+  "pleaseLogin": "Please Login",
+  "loginRequired": "You need to login to access this feature",
+  "loginNow": "Login Now",
+  "continueAsGuest": "Continue as Guest"
 }
 

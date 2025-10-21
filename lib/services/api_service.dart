@@ -629,10 +629,12 @@ class ApiService {
 
   // Get shop items
   static Future<Map<String, dynamic>> getShopItems({
-    required int customerId,
+    int? customerId,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/shop.php?customer_id=$customerId');
+      // Use customer_id if provided, otherwise use 0 for guests
+      final custId = customerId ?? 0;
+      final url = Uri.parse('$baseUrl/shop.php?customer_id=$custId');
       final response = await http.get(url);
 
       final data = jsonDecode(response.body);

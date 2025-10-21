@@ -178,6 +178,21 @@
   "totalPurchases": "إجمالي المشتريات",
   "totalPayments": "إجمالي المدفوعات",
   "contactSupportText": "الاتصال بالدعم",
-  "quickLinks": "روابط سريعة"
+  "quickLinks": "روابط سريعة",
+  "deleteAccount": "حذف الحساب",
+  "deleteAccountConfirmTitle": "حذف الحساب؟",
+  "deleteAccountConfirmMessage": "هل أنت متأكد تماماً من رغبتك في حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه.",
+  "deleteAccountFinalConfirmTitle": "تحذير نهائي!",
+  "deleteAccountFinalConfirmMessage": "هذه فرصتك الأخيرة! بمجرد حذف حسابك، ستتم إزالة جميع بياناتك بشكل دائم. هل أنت متأكد؟",
+  "yesDelete": "نعم، احذف",
+  "noCancel": "لا، إلغاء",
+  "accountDeleted": "تم حذف الحساب",
+  "accountDeletedMessage": "تم حذف حسابك بنجاح. اتصل بالدعم إذا كنت بحاجة إلى إعادة تفعيله.",
+  "accountDeletionFailed": "فشل حذف الحساب",
+  "enterPasswordToDelete": "أدخل كلمة المرور لتأكيد الحذف",
+  "pleaseLogin": "الرجاء تسجيل الدخول",
+  "loginRequired": "تحتاج إلى تسجيل الدخول للوصول إلى هذه الميزة",
+  "loginNow": "تسجيل الدخول الآن",
+  "continueAsGuest": "متابعة كضيف"
 }
 

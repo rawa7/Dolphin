@@ -80,8 +80,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
+    return WillPopScope(
+      onWillPop: () async {
+        // Always navigate to home screen when back button is pressed
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MainNavigation(),
+          ),
+        );
+        return false; // Prevent default back navigation
+      },
+      child: Scaffold(
+        body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -105,7 +116,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back, color: AppColors.white),
                       onPressed: () {
-                        // Handle back navigation if needed
+                        // Always go back to home screen
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MainNavigation(),
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -337,6 +354,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

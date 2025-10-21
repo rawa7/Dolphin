@@ -547,4 +547,54 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get quickLinks => 'بەستەرە خێراکان';
+
+  @override
+  String get deleteAccount => 'سڕینەوەی هەژمار';
+
+  @override
+  String get deleteAccountConfirmTitle => 'سڕینەوەی هەژمار؟';
+
+  @override
+  String get deleteAccountConfirmMessage =>
+      'ئایا تۆ بە تەواوی دڵنیای کە دەتەوێت هەژمارەکەت بسڕیتەوە؟ ئەم کردارە ناگەڕێتەوە.';
+
+  @override
+  String get deleteAccountFinalConfirmTitle => 'ئاگاداری کۆتایی!';
+
+  @override
+  String get deleteAccountFinalConfirmMessage =>
+      'ئەمە دوا هەلی تۆیە! کاتێک هەژمارەکەت دەسڕیتەوە، هەموو زانیاریەکانت بە هەمیشەیی لادەبرێن. دڵنیای؟';
+
+  @override
+  String get yesDelete => 'بەڵێ، بیسڕەوە';
+
+  @override
+  String get noCancel => 'نەخێر، هەڵوەشاندنەوە';
+
+  @override
+  String get accountDeleted => 'هەژمار سڕایەوە';
+
+  @override
+  String get accountDeletedMessage =>
+      'هەژمارەکەت بە سەرکەوتوویی سڕایەوە. پەیوەندی بکە بە پشتیوانی ئەگەر پێویستە چالاکی بکەیتەوە.';
+
+  @override
+  String get accountDeletionFailed => 'سڕینەوەی هەژمار سەرکەوتوو نەبوو';
+
+  @override
+  String get enterPasswordToDelete =>
+      'وشەی نهێنی بنووسە بۆ پشتڕاستکردنەوەی سڕینەوە';
+
+  @override
+  String get pleaseLogin => 'تکایە چوونەژوورەوە';
+
+  @override
+  String get loginRequired =>
+      'پێویستە بچیتە ژوورەوە بۆ بەکارهێنانی ئەم تایبەتمەندییە';
+
+  @override
+  String get loginNow => 'ئێستا بچۆ ژوورەوە';
+
+  @override
+  String get continueAsGuest => 'وەک میوان بەردەوام بە';
 }

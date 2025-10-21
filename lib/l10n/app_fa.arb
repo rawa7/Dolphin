@@ -178,6 +178,21 @@
   "totalPurchases": "کۆی کڕینەکان",
   "totalPayments": "کۆی پارەدانەکان",
   "contactSupportText": "پەیوەندی بە پشتگیری",
-  "quickLinks": "بەستەرە خێراکان"
+  "quickLinks": "بەستەرە خێراکان",
+  "deleteAccount": "سڕینەوەی هەژمار",
+  "deleteAccountConfirmTitle": "سڕینەوەی هەژمار؟",
+  "deleteAccountConfirmMessage": "ئایا تۆ بە تەواوی دڵنیای کە دەتەوێت هەژمارەکەت بسڕیتەوە؟ ئەم کردارە ناگەڕێتەوە.",
+  "deleteAccountFinalConfirmTitle": "ئاگاداری کۆتایی!",
+  "deleteAccountFinalConfirmMessage": "ئەمە دوا هەلی تۆیە! کاتێک هەژمارەکەت دەسڕیتەوە، هەموو زانیاریەکانت بە هەمیشەیی لادەبرێن. دڵنیای؟",
+  "yesDelete": "بەڵێ، بیسڕەوە",
+  "noCancel": "نەخێر، هەڵوەشاندنەوە",
+  "accountDeleted": "هەژمار سڕایەوە",
+  "accountDeletedMessage": "هەژمارەکەت بە سەرکەوتوویی سڕایەوە. پەیوەندی بکە بە پشتیوانی ئەگەر پێویستە چالاکی بکەیتەوە.",
+  "accountDeletionFailed": "سڕینەوەی هەژمار سەرکەوتوو نەبوو",
+  "enterPasswordToDelete": "وشەی نهێنی بنووسە بۆ پشتڕاستکردنەوەی سڕینەوە",
+  "pleaseLogin": "تکایە چوونەژوورەوە",
+  "loginRequired": "پێویستە بچیتە ژوورەوە بۆ بەکارهێنانی ئەم تایبەتمەندییە",
+  "loginNow": "ئێستا بچۆ ژوورەوە",
+  "continueAsGuest": "وەک میوان بەردەوام بە"
 }
 

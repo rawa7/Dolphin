@@ -6,6 +6,7 @@ import '../models/banner_model.dart';
 import '../models/website_model.dart';
 import '../constants/app_colors.dart';
 import '../generated/app_localizations.dart';
+import '../utils/auth_helper.dart';
 import 'add_order_screen.dart';
 import 'webview_screen.dart';
 import 'website_screen.dart';
@@ -71,9 +72,11 @@ class _HomeScreenState extends State<HomeScreen> {
       _isLoadingBanners = true;
     });
 
-    final user = await StorageService.getUser();
-    if (user != null) {
-      final result = await ApiService.getBanners(user.id.toString());
+    try {
+      final user = await StorageService.getUser();
+      // Use customer id if available, otherwise use '0' for guests
+      final customerId = user?.id.toString() ?? '0';
+      final result = await ApiService.getBanners(customerId);
       
       if (result['success'] == true && mounted) {
         final bannersData = result['banners'] as List;
@@ -87,6 +90,12 @@ class _HomeScreenState extends State<HomeScreen> {
             _isLoadingBanners = false;
           });
         }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingBanners = false;
+        });
       }
     }
   }
@@ -113,15 +122,31 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _navigateToAddOrder() async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AddOrderScreen(),
-      ),
-    );
+    // Check authentication first
+    final isAuthenticated = await AuthHelper.requireAuth(context);
+    if (!isAuthenticated) return;
+    
+    // Reload user data if logged in
+    await _loadUser();
+    
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddOrderScreen(),
+        ),
+      );
+    }
   }
 
-  void _navigateToMyOrders() {
+  void _navigateToMyOrders() async {
+    // Check authentication first
+    final isAuthenticated = await AuthHelper.requireAuth(context);
+    if (!isAuthenticated) return;
+    
+    // Reload user data if logged in
+    await _loadUser();
+    
     // Tab index 3 is My Orders
     if (widget.onTabChange != null) {
       widget.onTabChange!(3);
@@ -287,21 +312,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                 },
                                 itemCount: _banners.length,
                                 itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.network(
-                                        _banners[index].image,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Container(
-                                            color: AppColors.lightGray,
-                                            child: const Center(
-                                              child: Icon(Icons.image_not_supported),
+                                  final banner = _banners[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      if (banner.link.isNotEmpty) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => WebViewScreen(
+                                              url: banner.link,
+                                              title: 'Banner',
                                             ),
-                                          );
-                                        },
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.network(
+                                          banner.image,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Container(
+                                              color: AppColors.lightGray,
+                                              child: const Center(
+                                                child: Icon(Icons.image_not_supported),
+                                              ),
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ),
                                   );

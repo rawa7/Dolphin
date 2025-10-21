@@ -547,4 +547,52 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quickLinks => 'روابط سريعة';
+
+  @override
+  String get deleteAccount => 'حذف الحساب';
+
+  @override
+  String get deleteAccountConfirmTitle => 'حذف الحساب؟';
+
+  @override
+  String get deleteAccountConfirmMessage =>
+      'هل أنت متأكد تماماً من رغبتك في حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه.';
+
+  @override
+  String get deleteAccountFinalConfirmTitle => 'تحذير نهائي!';
+
+  @override
+  String get deleteAccountFinalConfirmMessage =>
+      'هذه فرصتك الأخيرة! بمجرد حذف حسابك، ستتم إزالة جميع بياناتك بشكل دائم. هل أنت متأكد؟';
+
+  @override
+  String get yesDelete => 'نعم، احذف';
+
+  @override
+  String get noCancel => 'لا، إلغاء';
+
+  @override
+  String get accountDeleted => 'تم حذف الحساب';
+
+  @override
+  String get accountDeletedMessage =>
+      'تم حذف حسابك بنجاح. اتصل بالدعم إذا كنت بحاجة إلى إعادة تفعيله.';
+
+  @override
+  String get accountDeletionFailed => 'فشل حذف الحساب';
+
+  @override
+  String get enterPasswordToDelete => 'أدخل كلمة المرور لتأكيد الحذف';
+
+  @override
+  String get pleaseLogin => 'الرجاء تسجيل الدخول';
+
+  @override
+  String get loginRequired => 'تحتاج إلى تسجيل الدخول للوصول إلى هذه الميزة';
+
+  @override
+  String get loginNow => 'تسجيل الدخول الآن';
+
+  @override
+  String get continueAsGuest => 'متابعة كضيف';
 }

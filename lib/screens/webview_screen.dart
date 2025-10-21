@@ -5,6 +5,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import '../constants/app_colors.dart';
+import '../utils/auth_helper.dart';
 import 'add_order_screen.dart';
 
 class WebViewScreen extends StatefulWidget {
@@ -34,6 +35,12 @@ class _WebViewScreenState extends State<WebViewScreen> {
   }
   
   Future<void> _addToOrder() async {
+    // Check if user is logged in first
+    final isAuthenticated = await AuthHelper.requireAuth(context);
+    if (!isAuthenticated) {
+      return; // User cancelled or not logged in
+    }
+
     setState(() {
       _isFetchingData = true;
     });
