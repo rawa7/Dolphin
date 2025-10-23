@@ -1263,6 +1263,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue as Guest'**
   String get continueAsGuest;
+
+  /// No description provided for @serviceDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping & Delivery Service'**
+  String get serviceDisclaimer;
+
+  /// No description provided for @serviceDisclaimerLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Dolphin Shipping is an independent shopping and delivery service. We are not affiliated with or endorsed by any of the brands shown. We help you purchase products from international websites and deliver them to Iraq.'**
+  String get serviceDisclaimerLong;
+
+  /// No description provided for @notAffiliatedDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'We are NOT Amazon, Zara, Adidas, or any other brand. We are an independent shopping concierge service that purchases products on your behalf from official brand websites and delivers them to Iraq.'**
+  String get notAffiliatedDisclaimer;
+
+  /// No description provided for @howItWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get howItWorks;
+
+  /// No description provided for @howItWorksStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Find product on any international website'**
+  String get howItWorksStep1;
+
+  /// No description provided for @howItWorksStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'2. We purchase it for you from the official website'**
+  String get howItWorksStep2;
+
+  /// No description provided for @howItWorksStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'3. We ship it to Iraq and deliver to your home'**
+  String get howItWorksStep3;
+
+  /// No description provided for @independentService.
+  ///
+  /// In en, this message translates to:
+  /// **'Independent Shopping Service'**
+  String get independentService;
 }
 
 class _AppLocalizationsDelegate

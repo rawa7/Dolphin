@@ -116,50 +116,48 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              // Back button
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    // Back button
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 16, bottom: 8),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_back, color: AppColors.white),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
+                      ),
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: AppColors.white),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+
+                    const SizedBox(height: 20),
+
+                    // Sign up title
+                    const Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.white,
+                      ),
                     ),
-                  ),
-                ),
-              ),
 
-              // Sign up title
-              const Text(
-                'Sign Up',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
-                ),
-              ),
+                    const SizedBox(height: 30),
 
-              const SizedBox(height: 30),
-
-              // Form
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: SingleChildScrollView(
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                    // Form fields
                           // Name
                           _buildTextField(
                             controller: _nameController,
@@ -284,14 +282,11 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                           ),
 
-                          const SizedBox(height: 30),
-                        ],
-                      ),
-                    ),
-                  ),
+                    const SizedBox(height: 30),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

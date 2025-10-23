@@ -923,6 +923,49 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         child: ListView(
           padding: const EdgeInsets.all(12),
           children: [
+            // Disclaimer Banner - Makes it clear we're a shopping service
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue[200]!),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.shopping_bag_outlined, color: Colors.blue[700], size: 18),
+                      const SizedBox(width: 6),
+                      Text(
+                        l10n.howItWorks,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue[900],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    l10n.howItWorksStep1,
+                    style: TextStyle(fontSize: 10, color: Colors.blue[800]),
+                  ),
+                  Text(
+                    l10n.howItWorksStep2,
+                    style: TextStyle(fontSize: 10, color: Colors.blue[800]),
+                  ),
+                  Text(
+                    l10n.howItWorksStep3,
+                    style: TextStyle(fontSize: 10, color: Colors.blue[800]),
+                  ),
+                ],
+              ),
+            ),
+            
             // Link field with paste/clear buttons
             Text(
               l10n.link,

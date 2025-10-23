@@ -101,74 +101,70 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              // Back button
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Container(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  // Back button
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 16, bottom: 8),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back, color: AppColors.white),
+                          onPressed: () {
+                            // Always go back to home screen
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MainNavigation(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Logo
+                  const SizedBox(height: 20),
+                  Container(
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
-                      color: AppColors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.white.withOpacity(0.9),
+                      shape: BoxShape.circle,
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: AppColors.white),
-                      onPressed: () {
-                        // Always go back to home screen
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MainNavigation(),
-                          ),
-                        );
-                      },
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Image.asset(
+                        'assets/logo.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
-                ),
-              ),
 
-              // Logo
-              const SizedBox(height: 20),
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: AppColors.white.withOpacity(0.9),
-                  shape: BoxShape.circle,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Image.asset(
-                    'assets/logo.png',
-                    fit: BoxFit.contain,
+                  const SizedBox(height: 40),
+
+                  // Sign in text
+                  Text(
+                    'Sign in',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                    ),
                   ),
-                ),
-              ),
 
-              const SizedBox(height: 60),
+                  const SizedBox(height: 40),
 
-              // Sign in text
-              Text(
-                'Sign in',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              // Login form
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                  // Login form
                         // Phone Number
                         Row(
                           children: [
@@ -292,14 +288,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Icon(Icons.login, color: AppColors.white),
+                                      Icon(Icons.login, color: AppColors.white),
                                       SizedBox(width: 8),
                                       Text(
                                         'Sign in',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.white,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.white,
                                         ),
                                       ),
                                     ],
@@ -345,13 +341,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 40),
-                      ],
-                    ),
-                  ),
-                ),
+                  const SizedBox(height: 40),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

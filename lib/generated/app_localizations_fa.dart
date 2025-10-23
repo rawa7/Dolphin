@@ -597,4 +597,31 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get continueAsGuest => 'وەک میوان بەردەوام بە';
+
+  @override
+  String get serviceDisclaimer => 'خزمەتگوزاری کڕین و گەیاندن';
+
+  @override
+  String get serviceDisclaimerLong =>
+      'دۆلفین شیپینگ خزمەتگوزاریەکی سەربەخۆی کڕین و گەیاندنە. ئێمە پەیوەندیمان بە هیچ براندێک نیە. ئێمە یارمەتیت دەدەین کاڵا لە وێبسایتە نێودەوڵەتیەکانەوە بکڕیت و بیگەیەنین بۆ عێراق.';
+
+  @override
+  String get notAffiliatedDisclaimer =>
+      'ئێمە ئەمازۆن، زارا، ئەدیداس یان هیچ براندێکی تر نین. ئێمە خزمەتگوزاریەکی سەربەخۆی کڕینین کە کاڵا لە جیاتی تۆ لە وێبسایتە فەرمیەکانی براندەکان دەکڕین و دەیگەیەنین بۆ عێراق.';
+
+  @override
+  String get howItWorks => 'چۆن کاردەکات';
+
+  @override
+  String get howItWorksStep1 =>
+      '١. کاڵا لە هەر وێبسایتێکی نێودەوڵەتی بدۆزەرەوە';
+
+  @override
+  String get howItWorksStep2 => '٢. ئێمە لە جیاتی تۆ لە وێبسایتی فەرمی دەیکڕین';
+
+  @override
+  String get howItWorksStep3 => '٣. دەینێرین بۆ عێراق و دەگەیەنین بۆ ماڵەکەت';
+
+  @override
+  String get independentService => 'خزمەتگوزاری کڕینی سەربەخۆ';
 }

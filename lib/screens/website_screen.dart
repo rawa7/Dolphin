@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/website_model.dart';
 import '../constants/app_colors.dart';
+import '../generated/app_localizations.dart';
 import 'webview_screen.dart';
 
 class WebsiteScreen extends StatefulWidget {
@@ -101,6 +102,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final groupedWebsites = _groupWebsitesByCountry(_filteredWebsites);
     final sortedCountries = groupedWebsites.keys.toList()..sort();
 
@@ -164,6 +166,33 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
                     onPressed: () {
                       // Handle filter
                     },
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Disclaimer Banner - Makes it clear we're NOT these brands
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.orange[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.orange[200]!),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.orange[700], size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.notAffiliatedDisclaimer,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.orange[900],
+                      height: 1.3,
+                    ),
                   ),
                 ),
               ],

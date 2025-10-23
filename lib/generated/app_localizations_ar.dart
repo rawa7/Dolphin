@@ -595,4 +595,30 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get continueAsGuest => 'متابعة كضيف';
+
+  @override
+  String get serviceDisclaimer => 'خدمة التسوق والتوصيل';
+
+  @override
+  String get serviceDisclaimerLong =>
+      'دولفين شيبنج هي خدمة تسوق وتوصيل مستقلة. نحن غير منتسبين أو مؤيدين من قبل أي من العلامات التجارية المعروضة. نحن نساعدك في شراء المنتجات من المواقع الدولية وتوصيلها إلى العراق.';
+
+  @override
+  String get notAffiliatedDisclaimer =>
+      'نحن لسنا أمازون أو زارا أو أديداس أو أي علامة تجارية أخرى. نحن خدمة تسوق مستقلة نشتري المنتجات نيابة عنك من المواقع الرسمية للعلامات التجارية ونوصلها إلى العراق.';
+
+  @override
+  String get howItWorks => 'كيف يعمل';
+
+  @override
+  String get howItWorksStep1 => '١. ابحث عن المنتج في أي موقع دولي';
+
+  @override
+  String get howItWorksStep2 => '٢. نشتريه لك من الموقع الرسمي';
+
+  @override
+  String get howItWorksStep3 => '٣. نشحنه إلى العراق ونوصله إلى منزلك';
+
+  @override
+  String get independentService => 'خدمة تسوق مستقلة';
 }

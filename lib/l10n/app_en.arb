@@ -202,6 +202,14 @@
   "pleaseLogin": "Please Login",
   "loginRequired": "You need to login to access this feature",
   "loginNow": "Login Now",
-  "continueAsGuest": "Continue as Guest"
+  "continueAsGuest": "Continue as Guest",
+  "serviceDisclaimer": "Shopping & Delivery Service",
+  "serviceDisclaimerLong": "Dolphin Shipping is an independent shopping and delivery service. We are not affiliated with or endorsed by any of the brands shown. We help you purchase products from international websites and deliver them to Iraq.",
+  "notAffiliatedDisclaimer": "We are NOT Amazon, Zara, Adidas, or any other brand. We are an independent shopping concierge service that purchases products on your behalf from official brand websites and delivers them to Iraq.",
+  "howItWorks": "How it works",
+  "howItWorksStep1": "1. Find product on any international website",
+  "howItWorksStep2": "2. We purchase it for you from the official website",
+  "howItWorksStep3": "3. We ship it to Iraq and deliver to your home",
+  "independentService": "Independent Shopping Service"
 }
 

@@ -290,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Banner Carousel (moved to top)
+            // Banner Carousel
             SliverToBoxAdapter(
               child: _isLoadingBanners
                   ? const SizedBox(
@@ -497,6 +497,35 @@ class _HomeScreenState extends State<HomeScreen> {
                           childCount: _groupWebsitesByCountry().length,
                         ),
                       ),
+
+            // Disclaimer Banner - Makes it clear we're a shopping service (at bottom)
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l10n.serviceDisclaimerLong,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.blue[900],
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
             // Bottom Padding
             const SliverToBoxAdapter(

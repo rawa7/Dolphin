@@ -1,0 +1,66 @@
+Dear App Review Team,
+
+Thank you for your feedback regarding Guideline 5.2.2. I would like to clarify our business model to address your concerns:
+
+BUSINESS MODEL CLARIFICATION:
+
+Dolphin Shipping is NOT a retailer and does NOT sell products from Amazon, Adidas, Zara, or any other brands. We are a legitimate shopping concierge and international delivery service operating in Iraq.
+
+OUR SERVICE:
+
+1. We help customers in Iraq access international brands that do not ship to Iraq
+2. Customers find products they want on international websites (Amazon, Zara, etc.)
+3. We purchase the product on behalf of the customer from the official brand website
+4. We ship the product to Iraq and deliver it to the customer's home
+5. We charge for our shopping and delivery service (shipping fees, commission, taxes)
+
+IMPORTANT CLARIFICATION:
+
+- We do NOT claim to be these brands
+- We do NOT sell counterfeit products
+- We purchase all products legitimately from official brand websites
+- We are simply a shopping and delivery intermediary service
+- This is a common business model known as "personal shopping service" or "package forwarding"
+- Customers in Iraq cannot access these brands directly because they don't ship to Iraq
+
+COMPARABLE SERVICES:
+
+This is similar to how services like Aramex Shop & Ship, MyUS, Borderlinx, or Grabr operate - we help customers in regions where international brands don't deliver. These services are also available on the App Store.
+
+DISCLAIMERS ADDED:
+
+To make our role absolutely clear, we have now added prominent disclaimers throughout our app in all three supported languages (English, Arabic, Kurdish):
+
+Home Screen:
+"Dolphin Shipping is an independent shopping and delivery service. We are not affiliated with or endorsed by any of the brands shown. We help you purchase products from international websites and deliver them to Iraq."
+
+Website Browsing Screen:
+"We are NOT Amazon, Zara, Adidas, or any other brand. We are an independent shopping concierge service that purchases products on your behalf from official brand websites and delivers them to Iraq."
+
+Order Placement Screen:
+Clear "How it works" explanation showing the 3-step process of our service.
+
+LEGAL POSITION:
+
+We do NOT violate any trademark or intellectual property rights. We are not selling products - we are providing a service (shopping and delivery). Brand names and logos are used descriptively to help customers find products, similar to how Google Shopping or price comparison websites operate.
+
+GEOGRAPHIC CONTEXT:
+
+International brands like Amazon, Adidas, and Zara do NOT ship to Iraq. Our service provides a legal and legitimate way for Iraqi customers to access international products by purchasing from official brand websites and handling the complex international shipping and customs process.
+
+DOCUMENTATION AVAILABLE:
+
+If needed, we can provide:
+- Business registration in Iraq
+- Customs documentation showing legitimate import activities
+- Sample purchase receipts from brand websites
+- Customer agreements showing our terms of service
+- Shipping manifests
+
+We are happy to provide any additional clarification or documentation needed.
+
+Best regards,
+Dolphin Shipping Team
+support@dolphinshipping.com
++964 750 774 6088
+

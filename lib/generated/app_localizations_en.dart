@@ -595,4 +595,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get continueAsGuest => 'Continue as Guest';
+
+  @override
+  String get serviceDisclaimer => 'Shopping & Delivery Service';
+
+  @override
+  String get serviceDisclaimerLong =>
+      'Dolphin Shipping is an independent shopping and delivery service. We are not affiliated with or endorsed by any of the brands shown. We help you purchase products from international websites and deliver them to Iraq.';
+
+  @override
+  String get notAffiliatedDisclaimer =>
+      'We are NOT Amazon, Zara, Adidas, or any other brand. We are an independent shopping concierge service that purchases products on your behalf from official brand websites and delivers them to Iraq.';
+
+  @override
+  String get howItWorks => 'How it works';
+
+  @override
+  String get howItWorksStep1 => '1. Find product on any international website';
+
+  @override
+  String get howItWorksStep2 =>
+      '2. We purchase it for you from the official website';
+
+  @override
+  String get howItWorksStep3 =>
+      '3. We ship it to Iraq and deliver to your home';
+
+  @override
+  String get independentService => 'Independent Shopping Service';
 }
