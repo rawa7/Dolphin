@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../models/order_model.dart';
 import '../models/delivery_status_model.dart';
+import '../models/user_model.dart';
 import '../constants/app_colors.dart';
 import '../generated/app_localizations.dart';
 import 'order_detail_screen.dart';
@@ -26,6 +27,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   int? _customerId;
   DeliveryStatus? _deliveryStatus;
   bool _isUpdatingDelivery = false;
+  User? _user; // Track current user for account type checks
 
   @override
   void initState() {
@@ -43,11 +45,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     if (user == null) {
       setState(() {
         _isLoading = false;
+        _user = null;
       });
       return;
     }
 
     _customerId = user.id;
+    _user = user; // Store user for account type checks
 
     final result = await ApiService.getOrders(user.id);
 
@@ -255,27 +259,29 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     ),
                   ),
                   const Spacer(),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AddOrderScreen(),
+                  // Hide "Add Order" button for bronze accounts and guests
+                  if (_user != null && _user!.isBronzeAccount != true)
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AddOrderScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.add, size: 20),
+                      label: Text(l10n.newOrder),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        elevation: 2,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.add, size: 20),
-                    label: Text(l10n.newOrder),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      elevation: 2,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
