@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// App Colors based on Dolphin Shipping logo
+/// App Colors based on Dolphin logo
 /// Logo colors: Navy Blue (#1E3A5F) and White (#FFFFFF)
 class AppColors {
   // Primary Colors from Logo
