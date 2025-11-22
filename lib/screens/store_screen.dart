@@ -272,47 +272,24 @@ class _StoreScreenState extends State<StoreScreen> {
                 ),
               ),
 
-            // Search and Filter
+            // Search
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) => _applySearch(),
-                        decoration: InputDecoration(
-                          hintText: l10n.searchProducts,
-                          prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) => _applySearch(),
+                  decoration: InputDecoration(
+                    hintText: l10n.searchProducts,
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    const SizedBox(width: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.advancedFilterComingSoon),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.tune, color: Colors.black87),
-                      ),
-                    ),
-                  ],
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
                 ),
               ),
             ),
