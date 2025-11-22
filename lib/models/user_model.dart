@@ -6,6 +6,7 @@ class User {
   final String? address;
   final int isActive;
   final String? createdAt;
+  final String? usertype; // "5" = bronze, others = gold/silver/plat
 
   User({
     required this.id,
@@ -15,6 +16,7 @@ class User {
     this.address,
     required this.isActive,
     this.createdAt,
+    this.usertype,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class User {
       address: json['address'],
       isActive: int.parse(json['is_active'].toString()),
       createdAt: json['created_at'],
+      usertype: json['usertype']?.toString(),
     );
   }
 
@@ -38,7 +41,11 @@ class User {
       'address': address,
       'is_active': isActive,
       'created_at': createdAt,
+      'usertype': usertype,
     };
   }
+  
+  // Helper method to check if user has bronze account (usertype = "5")
+  bool get isBronzeAccount => usertype == '5';
 }
 

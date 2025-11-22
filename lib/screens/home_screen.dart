@@ -37,8 +37,20 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadUser();
     _loadBanners();
-    _loadWebsites();
+    _loadWebsitesIfAllowed();
     _loadNotificationCount();
+  }
+  
+  Future<void> _loadWebsitesIfAllowed() async {
+    final user = await StorageService.getUser();
+    // Only load websites if user is NOT bronze
+    if (user?.isBronzeAccount != true) {
+      _loadWebsites();
+    } else {
+      setState(() {
+        _isLoadingWebsites = false;
+      });
+    }
   }
 
   @override
@@ -374,23 +386,27 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             // Quick Action Buttons - 3 in a row (moved below banner)
+            // Hide New Order and Websites for bronze accounts
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: _buildQuickActionButton(
-                        icon: Icons.add_shopping_cart,
-                        label: l10n.newOrder,
-                        color: const Color(0xFFFFE5F0),
-                        iconColor: const Color(0xFFE91E63),
-                        onTap: _navigateToAddOrder,
-                        isGradient: true,
+                    // Hide New Order button for bronze accounts
+                    if (_user?.isBronzeAccount != true) ...[
+                      Expanded(
+                        child: _buildQuickActionButton(
+                          icon: Icons.add_shopping_cart,
+                          label: l10n.newOrder,
+                          color: const Color(0xFFFFE5F0),
+                          iconColor: const Color(0xFFE91E63),
+                          onTap: _navigateToAddOrder,
+                          isGradient: true,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
+                      const SizedBox(width: 12),
+                    ],
                     Expanded(
                       child: _buildQuickActionButton(
                         icon: Icons.receipt_long,
@@ -400,103 +416,109 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: _navigateToMyOrders,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildQuickActionButton(
-                        icon: Icons.language,
-                        label: l10n.websites,
-                        color: const Color(0xFFE5F4FF),
-                        iconColor: const Color(0xFF2196F3),
-                        onTap: _navigateToWebsites,
+                    // Hide Websites button for bronze accounts
+                    if (_user?.isBronzeAccount != true) ...[
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildQuickActionButton(
+                          icon: Icons.language,
+                          label: l10n.websites,
+                          color: const Color(0xFFE5F4FF),
+                          iconColor: const Color(0xFF2196F3),
+                          onTap: _navigateToWebsites,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
             ),
 
-            // Website Section Title
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-                child: Text(
-                  l10n.website,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+            // Website Section - Hide completely for bronze accounts
+            if (_user?.isBronzeAccount != true) ...[
+              // Website Section Title
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+                  child: Text(
+                    l10n.website,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // Websites List by Country
-            _isLoadingWebsites
-                ? const SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                  )
-                : _websites.isEmpty
-                    ? SliverToBoxAdapter(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Text(l10n.noWebsitesAvailable),
-                          ),
+              // Websites List by Country
+              _isLoadingWebsites
+                  ? const SliverToBoxAdapter(
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24.0),
+                          child: CircularProgressIndicator(),
                         ),
-                      )
-                    : SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final groupedWebsites = _groupWebsitesByCountry();
-                            final countries = groupedWebsites.keys.toList();
-                            final country = countries[index];
-                            final websites = groupedWebsites[country]!;
+                      ),
+                    )
+                  : _websites.isEmpty
+                      ? SliverToBoxAdapter(
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(l10n.noWebsitesAvailable),
+                            ),
+                          ),
+                        )
+                      : SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final groupedWebsites = _groupWebsitesByCountry();
+                              final countries = groupedWebsites.keys.toList();
+                              final country = countries[index];
+                              final websites = groupedWebsites[country]!;
 
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 24),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Country Header
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    child: Text(
-                                      country,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF9C1B5E),
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 24),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Country Header
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      child: Text(
+                                        country,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF9C1B5E),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  // Websites Grid
-                                  GridView.builder(
-                                    shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 12,
-                                      mainAxisSpacing: 12,
-                                      childAspectRatio: 1.0,
+                                    // Websites Grid
+                                    GridView.builder(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3,
+                                        crossAxisSpacing: 12,
+                                        mainAxisSpacing: 12,
+                                        childAspectRatio: 1.0,
+                                      ),
+                                      itemCount: websites.length,
+                                      itemBuilder: (context, websiteIndex) {
+                                        final website = websites[websiteIndex];
+                                        return _buildWebsiteCard(website);
+                                      },
                                     ),
-                                    itemCount: websites.length,
-                                    itemBuilder: (context, websiteIndex) {
-                                      final website = websites[websiteIndex];
-                                      return _buildWebsiteCard(website);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                          childCount: _groupWebsitesByCountry().length,
+                                  ],
+                                ),
+                              );
+                            },
+                            childCount: _groupWebsitesByCountry().length,
+                          ),
                         ),
-                      ),
+            ],
 
             // Bottom Padding
             const SliverToBoxAdapter(

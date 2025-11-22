@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../generated/app_localizations.dart';
 import '../utils/auth_helper.dart';
+import '../services/storage_service.dart';
+import '../models/user_model.dart';
 import 'home_screen.dart';
 import 'store_screen.dart';
 import 'add_order_screen.dart';
@@ -18,6 +20,22 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
+  User? _user;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final user = await StorageService.getUser();
+    setState(() {
+      _user = user;
+      _isLoading = false;
+    });
+  }
 
   void _changeTab(int index) {
     setState(() {
@@ -25,13 +43,32 @@ class _MainNavigationState extends State<MainNavigation> {
     });
   }
 
-  List<Widget> get _screens => [
-    HomeScreen(onTabChange: _changeTab),
-    const StoreScreen(),
-    const WebsiteScreen(),
-    const MyOrdersScreen(),
-    const AccountScreen(),
-  ];
+  // Dynamic screens list based on account type
+  List<Widget> get _screens {
+    final bool isBronze = _user?.isBronzeAccount == true;
+    
+    if (isBronze) {
+      // Bronze users: Home, Store, My Orders, Account (no Websites, no Add Order)
+      return [
+        HomeScreen(onTabChange: _changeTab),
+        const StoreScreen(),
+        const MyOrdersScreen(),
+        const AccountScreen(),
+      ];
+    } else {
+      // Regular users: All screens
+      return [
+        HomeScreen(onTabChange: _changeTab),
+        const StoreScreen(),
+        const WebsiteScreen(),
+        const MyOrdersScreen(),
+        const AccountScreen(),
+      ];
+    }
+  }
+  
+  // Get the correct My Orders index based on account type
+  int get _myOrdersIndex => _user?.isBronzeAccount == true ? 2 : 3;
 
   void _openAddOrder() async {
     // Check authentication first
@@ -52,10 +89,20 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     
+    // Show loading while checking user account type
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    
+    final bool isBronze = _user?.isBronzeAccount == true;
+    
     return Scaffold(
       body: _screens[_currentIndex],
-      floatingActionButton: _currentIndex == 3
-          ? null // Hide floating button on My Orders screen
+      // Hide floating action button for bronze users and on My Orders screen
+      floatingActionButton: (isBronze || _currentIndex == _myOrdersIndex)
+          ? null
           : FloatingActionButton(
               onPressed: _openAddOrder,
               backgroundColor: AppColors.primary,
@@ -74,24 +121,35 @@ class _MainNavigationState extends State<MainNavigation> {
           ],
         ),
         child: BottomNavigationBar(
-          currentIndex: _currentIndex > 2 ? _currentIndex : _currentIndex,
+          currentIndex: _currentIndex,
           onTap: (index) async {
-            // If New Order (index 2) is tapped, open as a new screen
-            if (index == 2) {
-              _openAddOrder();
-              // Don't change the current index, keep it on whatever tab was selected
-            } else if (index == 3 || index == 4) {
-              // My Orders (index 3) and Account (index 4) require authentication
-              final isAuthenticated = await AuthHelper.requireAuth(context);
-              if (!isAuthenticated) return;
-              
+            if (isBronze) {
+              // Bronze users: Simple navigation (Home, Store, My Orders, Account)
+              if (index == 2 || index == 3) {
+                // My Orders and Account require authentication
+                final isAuthenticated = await AuthHelper.requireAuth(context);
+                if (!isAuthenticated) return;
+              }
               setState(() {
                 _currentIndex = index;
               });
             } else {
-              setState(() {
-                _currentIndex = index;
-              });
+              // Regular users: Full navigation
+              if (index == 2) {
+                // New Order - open as modal screen
+                _openAddOrder();
+              } else if (index == 3 || index == 4) {
+                // My Orders and Account require authentication
+                final isAuthenticated = await AuthHelper.requireAuth(context);
+                if (!isAuthenticated) return;
+                setState(() {
+                  _currentIndex = index;
+                });
+              } else {
+                setState(() {
+                  _currentIndex = index;
+                });
+              }
             }
           },
           type: BottomNavigationBarType.fixed,
@@ -101,46 +159,74 @@ class _MainNavigationState extends State<MainNavigation> {
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           unselectedLabelStyle: const TextStyle(fontSize: 11),
           elevation: 0,
-          items: [
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.home, size: 26),
-              label: l10n.home,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.store, size: 26),
-              label: l10n.store,
-            ),
-            BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.add_shopping_cart,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-              label: l10n.newOrder,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.shopping_bag, size: 26),
-              label: l10n.myOrders,
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.person, size: 26),
-              label: l10n.account,
-            ),
-          ],
+          items: _buildNavItems(l10n, isBronze),
         ),
       ),
     );
+  }
+  
+  // Build navigation items dynamically based on account type
+  List<BottomNavigationBarItem> _buildNavItems(AppLocalizations l10n, bool isBronze) {
+    if (isBronze) {
+      // Bronze users: Home, Store, My Orders, Account (no Websites, no Add Order)
+      return [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.home, size: 26),
+          label: l10n.home,
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.store, size: 26),
+          label: l10n.store,
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.shopping_bag, size: 26),
+          label: l10n.myOrders,
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.person, size: 26),
+          label: l10n.account,
+        ),
+      ];
+    } else {
+      // Regular users: Full navigation
+      return [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.home, size: 26),
+          label: l10n.home,
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.store, size: 26),
+          label: l10n.store,
+        ),
+        BottomNavigationBarItem(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.add_shopping_cart,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          label: l10n.newOrder,
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.shopping_bag, size: 26),
+          label: l10n.myOrders,
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.person, size: 26),
+          label: l10n.account,
+        ),
+      ];
+    }
   }
 }
 

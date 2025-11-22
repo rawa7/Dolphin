@@ -39,6 +39,12 @@ class _StoreScreenState extends State<StoreScreen> {
     _searchController.dispose();
     super.dispose();
   }
+  
+  // Helper function to fix malformed image URLs
+  String _fixImageUrl(String url) {
+    // Fix URLs with ".." in them (e.g., "http://domain.com../uploads/")
+    return url.replaceAll('../', '/').replaceAll('../', '/');
+  }
 
   Future<void> _loadShopItems() async {
     setState(() {
@@ -371,7 +377,7 @@ class _StoreScreenState extends State<StoreScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(14),
                     child: Image.network(
-                      imageUrl!,
+                      _fixImageUrl(imageUrl!),
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return const Center(
@@ -401,8 +407,9 @@ class _StoreScreenState extends State<StoreScreen> {
 
   Future<File?> _downloadImage(String imageUrl) async {
     try {
+      final fixedUrl = _fixImageUrl(imageUrl);
       final response = await http.get(
-        Uri.parse(imageUrl),
+        Uri.parse(fixedUrl),
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         },
@@ -502,7 +509,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     child: ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                       child: Image.network(
-                        item.imagePath,
+                        _fixImageUrl(item.imagePath),
                         fit: BoxFit.cover,
                         width: double.infinity,
                         errorBuilder: (context, error, stackTrace) {

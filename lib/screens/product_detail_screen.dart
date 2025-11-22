@@ -28,11 +28,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     _pageController.dispose();
     super.dispose();
   }
+  
+  // Helper function to fix malformed image URLs
+  String _fixImageUrl(String url) {
+    // Fix URLs with ".." in them (e.g., "http://domain.com../uploads/")
+    return url.replaceAll('../', '/').replaceAll('../', '/');
+  }
 
   Future<File?> _downloadImage(String imageUrl) async {
     try {
+      final fixedUrl = _fixImageUrl(imageUrl);
       final response = await http.get(
-        Uri.parse(imageUrl),
+        Uri.parse(fixedUrl),
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         },
@@ -115,7 +122,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 minScale: 0.5,
                 maxScale: 4.0,
                 child: Image.network(
-                  imageUrl,
+                  _fixImageUrl(imageUrl),
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
                     return const Icon(
@@ -208,7 +215,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               onTap: () => _showFullImage(context, allImages[index]),
                               child: Center(
                                 child: Image.network(
-                                  allImages[index],
+                                  _fixImageUrl(allImages[index]),
                                   fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) {
                                     return const Center(
