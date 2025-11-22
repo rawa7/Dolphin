@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import '../models/shop_item_model.dart';
+import '../models/user_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../utils/auth_helper.dart';
@@ -26,11 +27,20 @@ class _StoreScreenState extends State<StoreScreen> {
   bool _isLoading = true;
   String _errorMessage = '';
   final TextEditingController _searchController = TextEditingController();
+  User? _user; // Track current user for bronze account check
 
   @override
   void initState() {
     super.initState();
+    _loadUser();
     _loadShopItems();
+  }
+  
+  Future<void> _loadUser() async {
+    final user = await StorageService.getUser();
+    setState(() {
+      _user = user;
+    });
   }
 
   @override
@@ -212,54 +222,55 @@ class _StoreScreenState extends State<StoreScreen> {
               ),
             ),
 
-            // Brand Filters
-            SliverToBoxAdapter(
-              child: Container(
-                height: 120,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  children: [
-                    // All Brands
-                    _buildBrandFilter(
-                      isSelected: _selectedBrandId == null,
-                      brandName: l10n.allBrands,
-                      onTap: () => _filterByBrand(null),
-                      child: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: AppColors.primaryGradient,
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+            // Brand Filters - Hide for bronze users
+            if (_user?.isBronzeAccount != true)
+              SliverToBoxAdapter(
+                child: Container(
+                  height: 120,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    children: [
+                      // All Brands
+                      _buildBrandFilter(
+                        isSelected: _selectedBrandId == null,
+                        brandName: l10n.allBrands,
+                        onTap: () => _filterByBrand(null),
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: AppColors.primaryGradient,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'B',
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontStyle: FontStyle.italic,
+                          child: const Center(
+                            child: Text(
+                              'B',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    ..._brands.map((brand) => _buildBrandFilter(
-                          isSelected: _selectedBrandId == brand.brandId,
-                          brandName: brand.brandName,
-                          imageUrl: brand.brandImageUrl,
-                          onTap: () => _filterByBrand(brand.brandId),
-                        )),
-                  ],
+                      ..._brands.map((brand) => _buildBrandFilter(
+                            isSelected: _selectedBrandId == brand.brandId,
+                            brandName: brand.brandName,
+                            imageUrl: brand.brandImageUrl,
+                            onTap: () => _filterByBrand(brand.brandId),
+                          )),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
             // Search and Filter
             SliverToBoxAdapter(

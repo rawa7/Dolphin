@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/order_model.dart';
+import '../models/user_model.dart';
 import '../services/api_service.dart';
+import '../services/storage_service.dart';
 import '../generated/app_localizations.dart';
 import 'webview_screen.dart';
 
@@ -20,6 +22,20 @@ class OrderDetailScreen extends StatefulWidget {
 
 class _OrderDetailScreenState extends State<OrderDetailScreen> {
   bool _isProcessing = false;
+  User? _user;
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+  
+  Future<void> _loadUser() async {
+    final user = await StorageService.getUser();
+    setState(() {
+      _user = user;
+    });
+  }
 
   Future<void> _acceptOrder() async {
     final l10n = AppLocalizations.of(context)!;
@@ -325,39 +341,41 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   ),
                   const Divider(height: 1),
 
-                  // Link
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          l10n.link,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
+                  // Link - Hide for bronze users
+                  if (_user?.isBronzeAccount != true) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n.link,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: _openLink,
-                            child: Text(
-                              widget.order.link.length > 40
-                                  ? '${widget.order.link.substring(0, 40)}...'
-                                  : widget.order.link,
-                              textAlign: TextAlign.right,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.blue,
-                                decoration: TextDecoration.underline,
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: _openLink,
+                              child: Text(
+                                widget.order.link.length > 40
+                                    ? '${widget.order.link.substring(0, 40)}...'
+                                    : widget.order.link,
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const Divider(height: 1),
+                    const Divider(height: 1),
+                  ],
 
                   // Country
                   if (widget.order.country.isNotEmpty)
