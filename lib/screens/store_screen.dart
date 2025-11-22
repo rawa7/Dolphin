@@ -222,8 +222,8 @@ class _StoreScreenState extends State<StoreScreen> {
               ),
             ),
 
-            // Brand Filters - Hide for bronze users
-            if (_user?.isBronzeAccount != true)
+            // Brand Filters - Hide for bronze users and guests
+            if (_user != null && _user!.isBronzeAccount != true)
               SliverToBoxAdapter(
                 child: Container(
                   height: 120,
@@ -485,6 +485,7 @@ class _StoreScreenState extends State<StoreScreen> {
       }
 
       // Place order directly
+      print('🛒 Ordering item: ${item.itemName}, Price: ${item.price}');
       final result = await ApiService.addOrder(
         customerId: user.id,
         link: 'Store Item: ${item.itemName}',
@@ -492,7 +493,8 @@ class _StoreScreenState extends State<StoreScreen> {
         qty: 1,
         imageFile: imageFile,
         country: 'Iraq',
-        price: item.price,
+        price: item.price > 0 ? item.price : null, // Only send price if > 0
+        currencyId: item.price > 0 ? 1 : null, // Currency ID 1 for USD
         note: 'Brand: ${item.brandName}',
       );
 

@@ -117,6 +117,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       }
 
       // Place order directly
+      print('🛒 Ordering item: ${widget.item.itemName}, Price: ${widget.item.price}');
       final result = await ApiService.addOrder(
         customerId: user.id,
         link: 'Store Item: ${widget.item.itemName}',
@@ -124,7 +125,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         qty: 1,
         imageFile: imageFile,
         country: 'Iraq',
-        price: widget.item.price,
+        price: widget.item.price > 0 ? widget.item.price : null, // Only send price if > 0
+        currencyId: widget.item.price > 0 ? 1 : null, // Currency ID 1 for USD
         note: 'Brand: ${widget.item.brandName}',
       );
 
