@@ -9,7 +9,7 @@ class AppLocalizationsFa extends AppLocalizations {
   AppLocalizationsFa([String locale = 'fa']) : super(locale);
 
   @override
-  String get appTitle => 'دۆلفین شیپینگ';
+  String get appTitle => 'دۆلفین';
 
   @override
   String get login => 'چوونەژوورەوە';

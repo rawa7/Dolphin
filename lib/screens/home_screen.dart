@@ -201,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Logo and Dolphin Shipping Text
+                    // Logo and Dolphin Text
                     Row(
                       children: [
                         Image.asset(
@@ -217,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(width: 12),
                         const Text(
-                          'Dolphin Shipping',
+                          'Dolphin',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,

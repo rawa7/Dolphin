@@ -114,7 +114,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
           height: 40,
           errorBuilder: (context, error, stackTrace) {
             return const Text(
-              'Dolphin Shipping',
+              'Dolphin',
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.bold,

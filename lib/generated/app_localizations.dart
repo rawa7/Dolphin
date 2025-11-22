@@ -103,7 +103,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Dolphin Shipping'**
+  /// **'Dolphin'**
   String get appTitle;
 
   /// No description provided for @login.

@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Dolphin Shipping',
+      title: 'Dolphin',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       locale: _locale,
@@ -149,7 +149,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               const SizedBox(height: 24),
               const Text(
-                'Dolphin Shipping',
+                'Dolphin',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
