@@ -43,8 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
   
   Future<void> _loadWebsitesIfAllowed() async {
     final user = await StorageService.getUser();
-    // Only load websites if user is NOT bronze
-    if (user?.isBronzeAccount != true) {
+    // Only load websites if user is logged in AND NOT bronze
+    if (user != null && user.isBronzeAccount != true) {
       _loadWebsites();
     } else {
       setState(() {
@@ -393,8 +393,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Hide New Order button for bronze accounts
-                    if (_user?.isBronzeAccount != true) ...[
+                    // Hide New Order button for bronze accounts and guests (not logged in)
+                    if (_user?.isBronzeAccount != true && _user != null) ...[
                       Expanded(
                         child: _buildQuickActionButton(
                           icon: Icons.add_shopping_cart,
@@ -416,8 +416,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: _navigateToMyOrders,
                       ),
                     ),
-                    // Hide Websites button for bronze accounts
-                    if (_user?.isBronzeAccount != true) ...[
+                    // Hide Websites button for bronze accounts and guests (not logged in)
+                    if (_user?.isBronzeAccount != true && _user != null) ...[
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildQuickActionButton(
@@ -434,8 +434,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Website Section - Hide completely for bronze accounts
-            if (_user?.isBronzeAccount != true) ...[
+            // Website Section - Hide for bronze accounts and guests (not logged in)
+            if (_user?.isBronzeAccount != true && _user != null) ...[
               // Website Section Title
               SliverToBoxAdapter(
                 child: Padding(

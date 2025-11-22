@@ -97,11 +97,15 @@ class _MainNavigationState extends State<MainNavigation> {
     }
     
     final bool isBronze = _user?.isBronzeAccount == true;
+    final bool isGuest = _user == null; // Not logged in
     
     return Scaffold(
       body: _screens[_currentIndex],
-      // Hide floating action button for bronze users and on My Orders screen
-      floatingActionButton: (isBronze || _currentIndex == _myOrdersIndex)
+      // Hide floating action button for:
+      // - Bronze users
+      // - Guest users (not logged in)
+      // - On My Orders screen
+      floatingActionButton: (isBronze || isGuest || _currentIndex == _myOrdersIndex)
           ? null
           : FloatingActionButton(
               onPressed: _openAddOrder,
