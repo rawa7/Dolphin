@@ -159,9 +159,14 @@ class _HomeScreenState extends State<HomeScreen> {
     // Reload user data if logged in
     await _loadUser();
     
-    // Tab index 3 is My Orders
+    // My Orders tab index depends on account type:
+    // Bronze/Guest: Home(0), Store(1), MyOrders(2), Account(3)
+    // Regular: Home(0), Store(1), Websites(2), MyOrders(3), Account(4)
+    final bool isBronzeOrGuest = _user?.isBronzeAccount == true || _user == null;
+    final int myOrdersIndex = isBronzeOrGuest ? 2 : 3;
+    
     if (widget.onTabChange != null) {
-      widget.onTabChange!(3);
+      widget.onTabChange!(myOrdersIndex);
     }
   }
 

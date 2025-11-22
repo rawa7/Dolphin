@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/notification_model.dart';
+import '../models/user_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../constants/app_colors.dart';
@@ -18,6 +19,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _isLoading = true;
   int _unreadCount = 0;
   int? _customerId;
+  User? _user;
 
   @override
   void initState() {
@@ -34,9 +36,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (user == null) {
       setState(() {
         _isLoading = false;
+        _user = null;
       });
       return;
     }
+
+    _user = user;
 
     _customerId = user.id;
 
@@ -152,20 +157,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     // Handle deep linking based on notification type
     if (!mounted) return;
 
+    // Calculate correct tab indices based on account type
+    // Bronze/Guest: Home(0), Store(1), MyOrders(2), Account(3)
+    // Regular: Home(0), Store(1), Websites(2), MyOrders(3), Account(4)
+    final bool isBronzeOrGuest = _user?.isBronzeAccount == true || _user == null;
+    final int myOrdersTab = isBronzeOrGuest ? 2 : 3;
+    final int accountTab = isBronzeOrGuest ? 3 : 4;
+
     switch (notification.type) {
       case 'order':
         // Navigate to My Orders tab in main navigation
-        Navigator.pop(context, {'action': 'navigate', 'tab': 3}); // Tab 3 is My Orders
+        Navigator.pop(context, {'action': 'navigate', 'tab': myOrdersTab});
         break;
 
       case 'payment':
         // Navigate to Account tab in main navigation
-        Navigator.pop(context, {'action': 'navigate', 'tab': 4}); // Tab 4 is Account
+        Navigator.pop(context, {'action': 'navigate', 'tab': accountTab});
         break;
 
       case 'shipping':
         // Navigate to My Orders tab for shipping notifications
-        Navigator.pop(context, {'action': 'navigate', 'tab': 3}); // Tab 3 is My Orders
+        Navigator.pop(context, {'action': 'navigate', 'tab': myOrdersTab});
         break;
 
       case 'general':
