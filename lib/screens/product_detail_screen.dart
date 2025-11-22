@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import '../models/shop_item_model.dart';
-import 'add_order_screen.dart';
+import '../services/api_service.dart';
+import '../services/storage_service.dart';
+import '../generated/app_localizations.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final ShopItem item;
@@ -60,21 +62,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Future<void> _orderItem() async {
-    setState(() {
-      _isOrdering = true;
-    });
-
-    // Download image
-    final imageFile = await _downloadImage(widget.item.imagePath);
-
-    if (imageFile == null) {
-      setState(() {
-        _isOrdering = false;
-      });
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Get user info
+    final user = await StorageService.getUser();
+    if (user == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to download image'),
+          SnackBar(
+            content: Text(l10n.pleaseLogin),
             backgroundColor: Colors.red,
           ),
         );
@@ -82,27 +78,77 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       return;
     }
 
-    // Navigate to Add Order screen with pre-filled data
-    if (mounted) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AddOrderScreen(
-            prefilledImage: imageFile,
-            prefilledPrice: widget.item.price.toString(),
-            prefilledNote: null, // Keep description empty
-            prefilledCountry: 'Iraq',
-            prefilledLink: 'http://dolphin.com',
-            prefilledSize: 'Free Size',
-          ),
-        ),
-      );
-      
-      // Reset loading state after returning from AddOrderScreen
-      if (mounted) {
+    setState(() {
+      _isOrdering = true;
+    });
+
+    try {
+      // Download image
+      final imageFile = await _downloadImage(widget.item.imagePath);
+
+      if (imageFile == null) {
         setState(() {
           _isOrdering = false;
         });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to download product image'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Place order directly
+      final result = await ApiService.addOrder(
+        customerId: user.id,
+        link: 'Store Item: ${widget.item.itemName}',
+        size: widget.item.itemDescription.isNotEmpty ? widget.item.itemDescription : 'Standard',
+        qty: 1,
+        imageFile: imageFile,
+        country: 'Iraq',
+        price: widget.item.price,
+        note: 'Brand: ${widget.item.brandName}',
+      );
+
+      setState(() {
+        _isOrdering = false;
+      });
+
+      if (mounted) {
+        if (result['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Order placed successfully!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+          // Close product detail screen after successful order
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Failed to place order'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isOrdering = false;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }

@@ -10,7 +10,6 @@ import '../utils/auth_helper.dart';
 import '../constants/app_colors.dart';
 import '../generated/app_localizations.dart';
 import 'product_detail_screen.dart';
-import 'add_order_screen.dart';
 
 class StoreScreen extends StatefulWidget {
   const StoreScreen({super.key});
@@ -430,6 +429,22 @@ class _StoreScreenState extends State<StoreScreen> {
   }
 
   Future<void> _orderItem(ShopItem item) async {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Get user info
+    final user = await StorageService.getUser();
+    if (user == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.pleaseLogin),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
     // Show loading
     showDialog(
       context: context,
@@ -439,41 +454,69 @@ class _StoreScreenState extends State<StoreScreen> {
       ),
     );
 
-    // Download image
-    final imageFile = await _downloadImage(item.imagePath);
-    
-    // Close loading
-    if (mounted) {
-      Navigator.pop(context);
-    }
+    try {
+      // Download image
+      final imageFile = await _downloadImage(item.imagePath);
+      
+      if (imageFile == null) {
+        // Close loading
+        if (mounted) Navigator.pop(context);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to download product image'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
 
-    if (imageFile == null) {
+      // Place order directly
+      final result = await ApiService.addOrder(
+        customerId: user.id,
+        link: 'Store Item: ${item.itemName}',
+        size: item.itemDescription.isNotEmpty ? item.itemDescription : 'Standard',
+        qty: 1,
+        imageFile: imageFile,
+        country: 'Iraq',
+        price: item.price,
+        note: 'Brand: ${item.brandName}',
+      );
+
+      // Close loading
+      if (mounted) Navigator.pop(context);
+
+      if (mounted) {
+        if (result['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Order placed successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Failed to place order'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Close loading
+      if (mounted) Navigator.pop(context);
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to download image'),
+          SnackBar(
+            content: Text('Error: $e'),
             backgroundColor: Colors.red,
           ),
         );
       }
-      return;
-    }
-
-    // Navigate to Add Order screen with pre-filled data
-    if (mounted) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AddOrderScreen(
-            prefilledImage: imageFile,
-            prefilledPrice: item.price.toString(),
-            prefilledNote: null, // Keep description empty
-            prefilledCountry: 'Iraq',
-            prefilledLink: 'http://dolphin.com',
-            prefilledSize: 'Free Size',
-          ),
-        ),
-      );
     }
   }
 
