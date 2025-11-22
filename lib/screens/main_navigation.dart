@@ -46,9 +46,10 @@ class _MainNavigationState extends State<MainNavigation> {
   // Dynamic screens list based on account type
   List<Widget> get _screens {
     final bool isBronze = _user?.isBronzeAccount == true;
+    final bool isGuest = _user == null;
     
-    if (isBronze) {
-      // Bronze users: Home, Store, My Orders, Account (no Websites, no Add Order)
+    // Bronze or Guest users: Home, Store, My Orders, Account (no Websites, no Add Order)
+    if (isBronze || isGuest) {
       return [
         HomeScreen(onTabChange: _changeTab),
         const StoreScreen(),
@@ -68,7 +69,8 @@ class _MainNavigationState extends State<MainNavigation> {
   }
   
   // Get the correct My Orders index based on account type
-  int get _myOrdersIndex => _user?.isBronzeAccount == true ? 2 : 3;
+  // Bronze or Guest: 4 tabs (index 2), Regular: 5 tabs (index 3)
+  int get _myOrdersIndex => (_user?.isBronzeAccount == true || _user == null) ? 2 : 3;
 
   void _openAddOrder() async {
     // Check authentication first
@@ -127,8 +129,8 @@ class _MainNavigationState extends State<MainNavigation> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) async {
-            if (isBronze) {
-              // Bronze users: Simple navigation (Home, Store, My Orders, Account)
+            // Bronze or Guest users: Simple 4-tab navigation (Home, Store, My Orders, Account)
+            if (isBronze || isGuest) {
               if (index == 2 || index == 3) {
                 // My Orders and Account require authentication
                 final isAuthenticated = await AuthHelper.requireAuth(context);
@@ -138,7 +140,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 _currentIndex = index;
               });
             } else {
-              // Regular users: Full navigation
+              // Regular users: Full 5-tab navigation with New Order
               if (index == 2) {
                 // New Order - open as modal screen
                 _openAddOrder();
@@ -163,16 +165,17 @@ class _MainNavigationState extends State<MainNavigation> {
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           unselectedLabelStyle: const TextStyle(fontSize: 11),
           elevation: 0,
-          items: _buildNavItems(l10n, isBronze),
+          items: _buildNavItems(l10n, isBronze, isGuest),
         ),
       ),
     );
   }
   
   // Build navigation items dynamically based on account type
-  List<BottomNavigationBarItem> _buildNavItems(AppLocalizations l10n, bool isBronze) {
-    if (isBronze) {
-      // Bronze users: Home, Store, My Orders, Account (no Websites, no Add Order)
+  List<BottomNavigationBarItem> _buildNavItems(AppLocalizations l10n, bool isBronze, bool isGuest) {
+    // Bronze or Guest users: Home, Store, My Orders, Account (no New Order tab)
+    if (isBronze || isGuest) {
+      // Bronze/Guest users: Home, Store, My Orders, Account (no Websites, no Add Order)
       return [
         BottomNavigationBarItem(
           icon: const Icon(Icons.home, size: 26),
