@@ -284,19 +284,20 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      // Reorder button
-                      ElevatedButton.icon(
-                        onPressed: _isProcessing ? null : _reorderProduct,
-                        icon: const Icon(Icons.refresh, size: 18),
-                        label: Text(l10n.reorder),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF9C1B5E),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                      // Reorder button - Hide for bronze accounts
+                      if (_user?.isBronzeAccount != true)
+                        ElevatedButton.icon(
+                          onPressed: _isProcessing ? null : _reorderProduct,
+                          icon: const Icon(Icons.refresh, size: 18),
+                          label: Text(l10n.reorder),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF9C1B5E),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
