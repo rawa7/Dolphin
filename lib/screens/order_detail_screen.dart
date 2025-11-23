@@ -388,46 +388,51 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
                   // Quantity
                   _buildDetailRow(l10n.quantity, widget.order.qty),
-                  const Divider(height: 1),
+                  
+                  // Hide price details for completed orders (status = -2)
+                  if (widget.order.status != '-2') ...[
+                    const Divider(height: 1),
 
-                  // Item Price
-                  _buildDetailRow(
-                    l10n.itemPrice,
-                    '${widget.order.currencySymbol ?? ''}${itemPrice.toStringAsFixed(2)}',
-                  ),
-                  const Divider(height: 1),
+                    // Item Price
+                    _buildDetailRow(
+                      l10n.itemPrice,
+                      '${widget.order.currencySymbol ?? ''}${itemPrice.toStringAsFixed(2)}',
+                    ),
+                    const Divider(height: 1),
 
-                  // Shipping (always USD)
-                  _buildDetailRow(l10n.shipping, '\$${shipping.toStringAsFixed(2)}'),
-                  const Divider(height: 1),
+                    // Shipping (always USD)
+                    _buildDetailRow(l10n.shipping, '\$${shipping.toStringAsFixed(2)}'),
+                    const Divider(height: 1),
 
-                  // Internal Shipping (Cargo) - same currency as item price
-                  _buildDetailRow(
-                    l10n.cargo,
-                    '${widget.order.currencySymbol ?? ''}${internalShipping.toStringAsFixed(2)}',
-                  ),
-                  const Divider(height: 1),
+                    // Internal Shipping (Cargo) - same currency as item price
+                    _buildDetailRow(
+                      l10n.cargo,
+                      '${widget.order.currencySymbol ?? ''}${internalShipping.toStringAsFixed(2)}',
+                    ),
+                    const Divider(height: 1),
 
-                  // Commission - same currency as item price
-                  _buildDetailRow(
-                    l10n.commission,
-                    '${widget.order.currencySymbol ?? ''}${commission.toStringAsFixed(2)}',
-                  ),
-                  const Divider(height: 1),
+                    // Commission - same currency as item price
+                    _buildDetailRow(
+                      l10n.commission,
+                      '${widget.order.currencySymbol ?? ''}${commission.toStringAsFixed(2)}',
+                    ),
+                    const Divider(height: 1),
 
-                  // Tax - same currency as item price
-                  _buildDetailRow(
-                    l10n.tax,
-                    '${widget.order.currencySymbol ?? ''}${tax.toStringAsFixed(2)}',
-                  ),
-                  const Divider(height: 1),
+                    // Tax - same currency as item price
+                    _buildDetailRow(
+                      l10n.tax,
+                      '${widget.order.currencySymbol ?? ''}${tax.toStringAsFixed(2)}',
+                    ),
+                    const Divider(height: 1),
 
-                  // Total Price (always USD)
-                  _buildDetailRow(
-                    l10n.totalPrice,
-                    '\$${price.toStringAsFixed(2)}',
-                    isTotal: true,
-                  ),
+                    // Total Price (always USD)
+                    _buildDetailRow(
+                      l10n.totalPrice,
+                      '\$${price.toStringAsFixed(2)}',
+                      isTotal: true,
+                    ),
+                  ] else 
+                    const Divider(height: 1),
                   
                   const SizedBox(height: 24),
 
