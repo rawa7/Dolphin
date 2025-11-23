@@ -60,13 +60,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         _allOrders = result['orders'] as List<Order>;
         _statuses = result['statuses'] as List<OrderStatus>;
         _accountInfo = result['account_info'] as AccountInfo;
-        // Apply default filter for "All Orders" - exclude rejected (6), canceled (14), complete (-2), and refunded (-3)
-        _filteredOrders = _allOrders.where((order) => 
-          order.status != '6' && 
-          order.status != '14' && 
-          order.status != '-2' && 
-          order.status != '-3'
-        ).toList();
+        // Show all orders by default (no filter on initial load)
+        _filteredOrders = _allOrders;
         _isLoading = false;
       });
     } else {
@@ -88,13 +83,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     setState(() {
       _selectedStatusId = statusId;
       if (statusId == null) {
-        // For "All Orders", exclude rejected (6), canceled (14), complete (-2), and refunded (-3)
-        _filteredOrders = _allOrders.where((order) => 
-          order.status != '6' && 
-          order.status != '14' && 
-          order.status != '-2' && 
-          order.status != '-3'
-        ).toList();
+        // For "All Orders", show all orders (no filtering)
+        _filteredOrders = _allOrders;
       } else {
         _filteredOrders = _allOrders.where((order) => order.status == statusId).toList();
       }
