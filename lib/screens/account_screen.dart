@@ -661,28 +661,6 @@ class _AccountScreenState extends State<AccountScreen> {
                         ],
                       ),
                     ),
-                    // Edit Button
-                    IconButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${l10n.edit} ${l10n.profile} coming soon!'),
-                          ),
-                        );
-                      },
-                      icon: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
