@@ -25,7 +25,6 @@ class AccountScreen extends StatefulWidget {
 class _AccountScreenState extends State<AccountScreen> {
   ProfileData? _profileData;
   List<Order> _orders = [];
-  double _calculatedTotalPurchases = 0.0;
   bool _isLoading = true;
   String _errorMessage = '';
   DeliveryStatus? _deliveryStatus;
@@ -52,22 +51,12 @@ class _AccountScreenState extends State<AccountScreen> {
         final ordersResult = await ApiService.getOrders(user.id);
         
         if (profileResult['success']) {
-          // Calculate total purchases for status -2 only
-          double totalPurchases = 0.0;
           if (ordersResult['success']) {
-            final orders = ordersResult['orders'] as List<Order>;
-            for (var order in orders) {
-              if (order.status == '-2') {
-                final price = double.tryParse(order.totalPrice) ?? 0.0;
-                totalPurchases += price;
-              }
-            }
-            _orders = orders;
+            _orders = ordersResult['orders'] as List<Order>;
           }
           
           setState(() {
             _profileData = profileResult['data'] as ProfileData;
-            _calculatedTotalPurchases = totalPurchases;
             _isLoading = false;
           });
         } else {
@@ -777,101 +766,6 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 12),
-                    
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  const Color(0xFF5B7FE8),
-                                  const Color(0xFF7B9FFF),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.shopping_cart,
-                                  color: Colors.white70,
-                                  size: 28,
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  l10n.totalPurchases,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${NumberFormat('#,##0.00').format(_calculatedTotalPurchases)} USD',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  const Color(0xFF4CAF50),
-                                  const Color(0xFF66BB6A),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.payment,
-                                  color: Colors.white70,
-                                  size: 28,
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  l10n.totalPayments,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${NumberFormat('#,##0.00').format(summary.totalPayments)} USD',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
 
                     // Wallet Card
                     Container(
