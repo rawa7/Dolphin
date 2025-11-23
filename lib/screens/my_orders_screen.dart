@@ -307,8 +307,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             ),
           ),
 
-          // Summary Box (only when a specific status is selected, NOT for "All Orders")
-          if (_selectedStatus != null)
+          // Summary Box (only when a specific status is selected, NOT for "All Orders" or "Complete")
+          if (_selectedStatus != null && _selectedStatusId != '-2')
             _buildSummaryBox(),
 
           // Orders List
