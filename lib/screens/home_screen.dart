@@ -61,9 +61,52 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadUser() async {
     final user = await StorageService.getUser();
-    setState(() {
-      _user = user;
-    });
+    
+    // If user is logged in, refresh their data from server to get latest usertype
+    if (user != null) {
+      try {
+        final result = await ApiService.getProfile(customerId: user.id);
+        
+        if (result['success']) {
+          final profileData = result['data'];
+          final profile = profileData.profile;
+          
+          // Create updated user with latest usertype from server
+          final updatedUser = User(
+            id: user.id,
+            name: profile.name,
+            phone: profile.phone,
+            email: profile.email,
+            address: profile.address,
+            isActive: int.tryParse(profile.isActive) ?? 1,
+            createdAt: user.createdAt,
+            usertype: profile.usertype, // Fresh usertype from server!
+          );
+          
+          // Save updated user to storage
+          await StorageService.saveUser(updatedUser);
+          
+          setState(() {
+            _user = updatedUser;
+          });
+        } else {
+          // If API fails, use cached user data
+          setState(() {
+            _user = user;
+          });
+        }
+      } catch (e) {
+        // If error occurs, use cached user data
+        setState(() {
+          _user = user;
+        });
+      }
+    } else {
+      // No user logged in
+      setState(() {
+        _user = null;
+      });
+    }
   }
 
   Future<void> _loadNotificationCount() async {

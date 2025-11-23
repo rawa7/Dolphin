@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../generated/app_localizations.dart';
 import '../utils/auth_helper.dart';
 import '../services/storage_service.dart';
+import '../services/api_service.dart';
 import '../models/user_model.dart';
 import 'home_screen.dart';
 import 'store_screen.dart';
@@ -31,10 +32,60 @@ class _MainNavigationState extends State<MainNavigation> {
 
   Future<void> _loadUser() async {
     final user = await StorageService.getUser();
-    setState(() {
-      _user = user;
-      _isLoading = false;
-    });
+    
+    // If user is logged in, refresh their data from server to get latest usertype
+    if (user != null) {
+      try {
+        print('🔄 Refreshing user data from server...');
+        final result = await ApiService.getProfile(customerId: user.id);
+        
+        if (result['success']) {
+          final profileData = result['data'];
+          final profile = profileData.profile;
+          
+          // Create updated user with latest usertype from server
+          final updatedUser = User(
+            id: user.id,
+            name: profile.name,
+            phone: profile.phone,
+            email: profile.email,
+            address: profile.address,
+            isActive: int.tryParse(profile.isActive) ?? 1,
+            createdAt: user.createdAt,
+            usertype: profile.usertype, // Fresh usertype from server!
+          );
+          
+          // Save updated user to storage
+          await StorageService.saveUser(updatedUser);
+          print('✅ User data refreshed. Usertype: ${updatedUser.usertype}, Bronze: ${updatedUser.isBronzeAccount}');
+          
+          setState(() {
+            _user = updatedUser;
+            _isLoading = false;
+          });
+        } else {
+          // If API fails, use cached user data
+          print('⚠️ Failed to refresh user data, using cached data');
+          setState(() {
+            _user = user;
+            _isLoading = false;
+          });
+        }
+      } catch (e) {
+        // If error occurs, use cached user data
+        print('⚠️ Error refreshing user data: $e, using cached data');
+        setState(() {
+          _user = user;
+          _isLoading = false;
+        });
+      }
+    } else {
+      // No user logged in
+      setState(() {
+        _user = null;
+        _isLoading = false;
+      });
+    }
   }
 
   void _changeTab(int index) {
