@@ -1,0 +1,50 @@
+Dear App Review Team,
+
+Thank you for your feedback regarding Guideline 5.2.2 - Legal.
+
+We have carefully reviewed your concerns and made significant changes to our app to ensure full compliance with the App Store Review Guidelines.
+
+CHANGES MADE IN VERSION 2.0.0:
+-------------------------------
+
+1. REMOVED all third-party brand names and logos
+   - No Amazon, AliExpress, Shein, Temu, or other brand references
+   - No brand filters or brand selection features
+   - No third-party trademarks or logos displayed
+
+2. UPDATED our business model
+   - Dolphin now has our own product catalog
+   - We sell our own products directly to customers
+   - All products shown are Dolphin's inventory
+
+3. REDESIGNED the Store interface
+   - Products display: image, name, category, price, and order button only
+   - Clean, professional product catalog
+   - No external links or third-party references
+
+WHAT YOU WILL SEE:
+------------------
+The test account provided is a standard customer account. When reviewing the app, you will see:
+
+- Home: Welcome screen with order statistics
+- Store: Our product catalog (generic products with categories like Electronics, Fashion, etc.)
+- My Orders: Order history and tracking
+- Account: Profile and settings
+
+All products are presented as Dolphin's own merchandise. There are no references to third-party services or brands anywhere in the app.
+
+BUSINESS CLARIFICATION:
+----------------------
+Dolphin operates an e-commerce platform selling products directly to customers in Iraq. We manage our own inventory and fulfill orders for our customers. This is a standard online shopping app where users can:
+- Browse our product catalog
+- Place orders for products they want
+- Track their order status
+- Manage their account
+
+We believe these changes fully address the concerns raised and ensure complete compliance with App Store Review Guidelines, specifically Guideline 5.2.2.
+
+Thank you for your time and consideration. We look forward to bringing Dolphin to iOS users.
+
+Best regards,
+Dolphin Team
+

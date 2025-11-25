@@ -201,41 +201,49 @@ No more third-party brand references anywhere in the app!
 ```
 Dear App Review Team,
 
-Thank you for your feedback regarding Guideline 5.2.2.
+Thank you for your feedback regarding Guideline 5.2.2 - Legal.
 
-We have carefully reviewed your concerns and made the following changes 
-to ensure full compliance:
+We have carefully reviewed your concerns and made significant changes 
+to our app to ensure full compliance with the App Store Review Guidelines.
 
-CHANGES MADE:
--------------
-1. Removed all third-party brand names and logos from the app
-2. Removed brand filters and brand selection features
-3. Updated the Store to display products as Dolphin's own catalog
-4. Removed any references that could suggest unauthorized use of 
-   third-party services
-5. Products now display only: image, name, category, price, and 
-   order button
+CHANGES MADE IN VERSION 2.0.0:
+-------------------------------
+1. REMOVED all third-party brand names and logos
+   - No Amazon, AliExpress, Shein, Temu, or other brand references
+   - No brand filters or brand selection features
+   - No third-party trademarks or logos displayed
 
-BUSINESS MODEL CLARIFICATION:
-----------------------------
-Dolphin is an international shipping and forwarding service. We help 
-customers in Iraq receive products from international sources. The 
-products shown in our catalog are items we can help ship, not items 
-we're selling on behalf of third parties.
+2. UPDATED our business model
+   - Dolphin now has our own product catalog
+   - We sell our own products directly to customers
+   - All products shown are Dolphin's inventory
 
-Think of us like a shipping forwarding service (similar to MyUS.com 
-or Borderlinx) - we provide a logistics service, not a marketplace.
+3. REDESIGNED the Store interface
+   - Products display: image, name, category, price, and order button only
+   - Clean, professional product catalog
+   - No external links or third-party references
 
-WHAT THE REVIEWER WILL SEE:
----------------------------
-- A clean product catalog with generic categories
-- No third-party brand names or logos
-- No external links or references
-- Simple order management for shipping services
-- Professional shipping/forwarding interface
+WHAT YOU WILL SEE:
+------------------
+The test account provided is a standard customer account. When reviewing 
+the app, you will see:
 
-We believe these changes fully address your concerns and ensure 
-compliance with App Store Review Guidelines.
+- Home: Welcome screen with order statistics
+- Store: Our product catalog (generic products with categories)
+- My Orders: Order history and tracking
+- Account: Profile and settings
+
+All products are presented as Dolphin's own merchandise. There are no 
+references to third-party services or brands anywhere in the app.
+
+BUSINESS CLARIFICATION:
+----------------------
+Dolphin operates an e-commerce platform selling products directly to 
+customers in Iraq. We manage our own inventory and fulfill orders for 
+our customers. This is a standard online shopping app.
+
+We believe these changes fully address your concerns and ensure complete 
+compliance with App Store Review Guidelines, specifically Guideline 5.2.2.
 
 Thank you for your time and consideration.
 
@@ -362,13 +370,19 @@ Once approved, you can:
 - Protecting third-party intellectual property
 - No unauthorized use of brand names/logos
 - No misleading users about affiliations
-- Clear business model
+- Clear, simple business model
+
+**Your Position:**
+- "We have our own shop"
+- "We sell our own products"
+- "Customers order from us directly"
+- Simple e-commerce platform
 
 **What Apple Doesn't Care About:**
-- Your backend services
-- How you fulfill orders
-- What you do server-side
-- Your actual business operations
+- Your backend operations
+- How you source products
+- Your fulfillment process
+- Your actual business logistics
 
 **As long as the UI looks clean and doesn't violate IP rights, you're good!**
 
@@ -378,13 +392,15 @@ Once approved, you can:
 
 **Option 1: Request Phone Call**
 - Use "Request a phone call from App Review" in App Store Connect
-- Explain your shipping forwarding business model
-- Show similar approved apps (MyUS, Borderlinx, Shipito)
+- Explain you have your own e-commerce shop now
+- Emphasize you removed ALL third-party brand references
+- Show before/after screenshots
 
 **Option 2: Appeal**
 - Use App Review Board appeal process
-- Provide detailed business documentation
-- Show you're a legitimate shipping service
+- Provide detailed documentation of changes made
+- Show you're operating a legitimate online store
+- Emphasize compliance with Guideline 5.2.2
 
 **Option 3: Nuclear Option**
 - Remove Store tab completely for iOS
