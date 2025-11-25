@@ -120,14 +120,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       print('🛒 Ordering item: ${widget.item.itemName}, Price: ${widget.item.price}');
       final result = await ApiService.addOrder(
         customerId: user.id,
-        link: 'Store Item: ${widget.item.itemName}',
+        link: 'Product: ${widget.item.itemName}',
         size: widget.item.itemDescription.isNotEmpty ? widget.item.itemDescription : 'Standard',
         qty: 1,
         imageFile: imageFile,
         country: 'Iraq',
         price: widget.item.price > 0 ? widget.item.price : null, // Only send price if > 0
         currencyId: widget.item.price > 0 ? 1 : null, // Currency ID 1 for USD
-        note: 'Brand: ${widget.item.brandName}',
+        note: 'Dolphin Store Item',
       );
 
       setState(() {
@@ -354,48 +354,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Brand & Category - Hide brand for bronze users
-                        Row(
-                          children: [
-                            if (_user?.isBronzeAccount != true)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF9C1B5E).withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  widget.item.brandName,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF9C1B5E),
-                                  ),
-                                ),
-                              ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                widget.item.itemCategory,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black87,
-                                ),
-                              ),
+                        // Category only (brand removed for Apple compliance)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            widget.item.itemCategory,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
                             ),
-                          ],
+                          ),
                         ),
 
                         const SizedBox(height: 16),

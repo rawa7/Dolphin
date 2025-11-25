@@ -222,55 +222,7 @@ class _StoreScreenState extends State<StoreScreen> {
               ),
             ),
 
-            // Brand Filters - Hide for bronze users and guests
-            if (_user != null && _user!.isBronzeAccount != true)
-              SliverToBoxAdapter(
-                child: Container(
-                  height: 120,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    children: [
-                      // All Brands
-                      _buildBrandFilter(
-                        isSelected: _selectedBrandId == null,
-                        brandName: l10n.allBrands,
-                        onTap: () => _filterByBrand(null),
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: AppColors.primaryGradient,
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'B',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      ..._brands.map((brand) => _buildBrandFilter(
-                            isSelected: _selectedBrandId == brand.brandId,
-                            brandName: brand.brandName,
-                            imageUrl: brand.brandImageUrl,
-                            onTap: () => _filterByBrand(brand.brandId),
-                          )),
-                    ],
-                  ),
-                ),
-              ),
+            // Brand Filters removed for Apple compliance
 
             // Search
             SliverToBoxAdapter(
@@ -465,14 +417,14 @@ class _StoreScreenState extends State<StoreScreen> {
       print('🛒 Ordering item: ${item.itemName}, Price: ${item.price}');
       final result = await ApiService.addOrder(
         customerId: user.id,
-        link: 'Store Item: ${item.itemName}',
+        link: 'Product: ${item.itemName}',
         size: item.itemDescription.isNotEmpty ? item.itemDescription : 'Standard',
         qty: 1,
         imageFile: imageFile,
         country: 'Iraq',
         price: item.price > 0 ? item.price : null, // Only send price if > 0
         currencyId: item.price > 0 ? 1 : null, // Currency ID 1 for USD
-        note: 'Brand: ${item.brandName}',
+        note: 'Dolphin Store Item',
       );
 
       // Close loading
