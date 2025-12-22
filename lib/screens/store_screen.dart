@@ -23,7 +23,9 @@ class _StoreScreenState extends State<StoreScreen> {
   List<ShopItem> _allItems = [];
   List<ShopItem> _filteredItems = [];
   List<Brand> _brands = [];
+  List<String> _categories = [];
   String? _selectedBrandId;
+  String? _selectedCategory;
   bool _isLoading = true;
   String _errorMessage = '';
   final TextEditingController _searchController = TextEditingController();
@@ -80,11 +82,20 @@ class _StoreScreenState extends State<StoreScreen> {
             );
           }
         }
+        
+        // Extract unique categories
+        final Set<String> categorySet = {};
+        for (var item in items) {
+          if (item.itemCategory.isNotEmpty) {
+            categorySet.add(item.itemCategory);
+          }
+        }
 
         setState(() {
           _allItems = items;
           _filteredItems = items;
           _brands = brandMap.values.toList();
+          _categories = categorySet.toList()..sort();
           _isLoading = false;
         });
       } else {
@@ -104,37 +115,46 @@ class _StoreScreenState extends State<StoreScreen> {
   void _filterByBrand(String? brandId) {
     setState(() {
       _selectedBrandId = brandId;
-      if (brandId == null) {
-        _filteredItems = _allItems;
-      } else {
-        _filteredItems = _allItems.where((item) => item.brandId == brandId).toList();
-      }
-      _applySearch();
+      _applyFilters();
+    });
+  }
+  
+  void _filterByCategory(String? category) {
+    setState(() {
+      _selectedCategory = category;
+      _applyFilters();
+    });
+  }
+  
+  void _applyFilters() {
+    List<ShopItem> filtered = _allItems;
+    
+    // Apply brand filter
+    if (_selectedBrandId != null) {
+      filtered = filtered.where((item) => item.brandId == _selectedBrandId).toList();
+    }
+    
+    // Apply category filter
+    if (_selectedCategory != null) {
+      filtered = filtered.where((item) => item.itemCategory == _selectedCategory).toList();
+    }
+    
+    // Apply search filter
+    final query = _searchController.text.toLowerCase();
+    if (query.isNotEmpty) {
+      filtered = filtered.where((item) =>
+          item.itemName.toLowerCase().contains(query) ||
+          item.itemCategory.toLowerCase().contains(query) ||
+          item.itemDescription.toLowerCase().contains(query)).toList();
+    }
+    
+    setState(() {
+      _filteredItems = filtered;
     });
   }
 
   void _applySearch() {
-    final query = _searchController.text.toLowerCase();
-    if (query.isEmpty) {
-      if (_selectedBrandId == null) {
-        setState(() {
-          _filteredItems = _allItems;
-        });
-      } else {
-        setState(() {
-          _filteredItems = _allItems.where((item) => item.brandId == _selectedBrandId).toList();
-        });
-      }
-    } else {
-      setState(() {
-        _filteredItems = (_selectedBrandId == null ? _allItems : _allItems.where((item) => item.brandId == _selectedBrandId))
-            .where((item) =>
-                item.itemName.toLowerCase().contains(query) ||
-                item.itemCategory.toLowerCase().contains(query) ||
-                item.itemDescription.toLowerCase().contains(query))
-            .toList();
-      });
-    }
+    _applyFilters();
   }
 
   Future<void> _navigateToProductDetail(ShopItem item) async {
@@ -222,7 +242,82 @@ class _StoreScreenState extends State<StoreScreen> {
               ),
             ),
 
-            // Brand Filters removed for Apple compliance
+            // Brand Filters
+            if (_brands.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  height: 110,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      // All Brands filter
+                      _buildBrandFilter(
+                        isSelected: _selectedBrandId == null,
+                        brandName: 'All',
+                        child: const Icon(Icons.apps, color: AppColors.primary),
+                        onTap: () => _filterByBrand(null),
+                      ),
+                      // Individual brand filters
+                      ..._brands.map((brand) => _buildBrandFilter(
+                            isSelected: _selectedBrandId == brand.brandId,
+                            brandName: brand.brandName,
+                            imageUrl: brand.brandImageUrl,
+                            onTap: () => _filterByBrand(brand.brandId),
+                          )),
+                    ],
+                  ),
+                ),
+              ),
+            
+            // Category Filters
+            if (_categories.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Container(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        // All Categories chip
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: const Text('All'),
+                            selected: _selectedCategory == null,
+                            onSelected: (selected) => _filterByCategory(null),
+                            backgroundColor: Colors.grey[100],
+                            selectedColor: AppColors.primary.withOpacity(0.2),
+                            labelStyle: TextStyle(
+                              color: _selectedCategory == null ? AppColors.primary : Colors.black87,
+                              fontWeight: _selectedCategory == null ? FontWeight.bold : FontWeight.normal,
+                            ),
+                            checkmarkColor: AppColors.primary,
+                          ),
+                        ),
+                        // Individual category chips
+                        ..._categories.map((category) => Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: FilterChip(
+                                label: Text(category),
+                                selected: _selectedCategory == category,
+                                onSelected: (selected) => _filterByCategory(selected ? category : null),
+                                backgroundColor: Colors.grey[100],
+                                selectedColor: AppColors.primary.withOpacity(0.2),
+                                labelStyle: TextStyle(
+                                  color: _selectedCategory == category ? AppColors.primary : Colors.black87,
+                                  fontWeight: _selectedCategory == category ? FontWeight.bold : FontWeight.normal,
+                                ),
+                                checkmarkColor: AppColors.primary,
+                              ),
+                            )),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
 
             // Search
             SliverToBoxAdapter(
