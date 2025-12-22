@@ -663,4 +663,63 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dontHaveAnAccount => 'ليس لديك حساب؟';
+
+  @override
+  String get changePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get changePasswordDescription =>
+      'الرجاء إدخال كلمة المرور الحالية واختيار كلمة مرور جديدة لتأمين حسابك.';
+
+  @override
+  String get currentPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get enterCurrentPassword => 'أدخل كلمة المرور الحالية';
+
+  @override
+  String get pleaseEnterCurrentPassword => 'الرجاء إدخال كلمة المرور الحالية';
+
+  @override
+  String get newPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get enterNewPassword => 'أدخل كلمة المرور الجديدة';
+
+  @override
+  String get pleaseEnterNewPassword => 'الرجاء إدخال كلمة المرور الجديدة';
+
+  @override
+  String get passwordMustBeAtLeast4Characters =>
+      'يجب أن تكون كلمة المرور 4 أحرف على الأقل';
+
+  @override
+  String get confirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get enterConfirmPassword => 'أعد إدخال كلمة المرور الجديدة';
+
+  @override
+  String get pleaseEnterConfirmPassword => 'الرجاء تأكيد كلمة المرور';
+
+  @override
+  String get passwordsDoNotMatch => 'كلمات المرور غير متطابقة';
+
+  @override
+  String get passwordChangedSuccessfully => 'تم تغيير كلمة المرور بنجاح';
+
+  @override
+  String get failedToChangePassword => 'فشل تغيير كلمة المرور';
+
+  @override
+  String get userNotFound => 'المستخدم غير موجود';
+
+  @override
+  String get passwordTips => 'نصائح كلمة المرور';
+
+  @override
+  String get passwordTip1 => 'يجب أن تكون كلمة المرور 4 أحرف على الأقل';
+
+  @override
+  String get passwordTip2 => 'استخدم كلمة مرور قوية لحماية حسابك';
 }

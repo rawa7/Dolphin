@@ -664,4 +664,65 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dontHaveAnAccount => 'هەژمارت نییە؟';
+
+  @override
+  String get changePassword => 'گۆڕینی وشەی نهێنی';
+
+  @override
+  String get changePasswordDescription =>
+      'تکایە وشەی نهێنی ئێستاکەت بنووسە و وشەی نهێنیەکی نوێ هەڵبژێرە بۆ پارێزگاریکردنی هەژمارەکەت.';
+
+  @override
+  String get currentPassword => 'وشەی نهێنی ئێستا';
+
+  @override
+  String get enterCurrentPassword => 'وشەی نهێنی ئێستاکەت بنووسە';
+
+  @override
+  String get pleaseEnterCurrentPassword => 'تکایە وشەی نهێنی ئێستاکەت بنووسە';
+
+  @override
+  String get newPassword => 'وشەی نهێنی نوێ';
+
+  @override
+  String get enterNewPassword => 'وشەی نهێنی نوێکەت بنووسە';
+
+  @override
+  String get pleaseEnterNewPassword => 'تکایە وشەی نهێنی نوێکەت بنووسە';
+
+  @override
+  String get passwordMustBeAtLeast4Characters =>
+      'وشەی نهێنی دەبێت لانیکەم ٤ پیت بێت';
+
+  @override
+  String get confirmPassword => 'دووپاتکردنەوەی وشەی نهێنی';
+
+  @override
+  String get enterConfirmPassword => 'وشەی نهێنی نوێکەت دووبارە بنووسەوە';
+
+  @override
+  String get pleaseEnterConfirmPassword =>
+      'تکایە وشەی نهێنیەکەت دووپات بکەرەوە';
+
+  @override
+  String get passwordsDoNotMatch => 'وشەکانی نهێنی یەکناگرنەوە';
+
+  @override
+  String get passwordChangedSuccessfully => 'وشەی نهێنی بە سەرکەوتوویی گۆڕدرا';
+
+  @override
+  String get failedToChangePassword => 'گۆڕینی وشەی نهێنی سەرکەوتوو نەبوو';
+
+  @override
+  String get userNotFound => 'بەکارهێنەر نەدۆزرایەوە';
+
+  @override
+  String get passwordTips => 'ئامۆژگاریەکانی وشەی نهێنی';
+
+  @override
+  String get passwordTip1 => 'وشەی نهێنی دەبێت لانیکەم ٤ پیت بێت';
+
+  @override
+  String get passwordTip2 =>
+      'وشەی نهێنیەکی بەهێز بەکاربهێنە بۆ پارێزگاریکردنی هەژمارەکەت';
 }

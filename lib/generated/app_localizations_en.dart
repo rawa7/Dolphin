@@ -664,4 +664,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dontHaveAnAccount => 'Don\'t have an account?';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get changePasswordDescription =>
+      'Please enter your current password and choose a new password to secure your account.';
+
+  @override
+  String get currentPassword => 'Current Password';
+
+  @override
+  String get enterCurrentPassword => 'Enter your current password';
+
+  @override
+  String get pleaseEnterCurrentPassword => 'Please enter your current password';
+
+  @override
+  String get newPassword => 'New Password';
+
+  @override
+  String get enterNewPassword => 'Enter your new password';
+
+  @override
+  String get pleaseEnterNewPassword => 'Please enter your new password';
+
+  @override
+  String get passwordMustBeAtLeast4Characters =>
+      'Password must be at least 4 characters';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get enterConfirmPassword => 'Re-enter your new password';
+
+  @override
+  String get pleaseEnterConfirmPassword => 'Please confirm your password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get passwordChangedSuccessfully => 'Password changed successfully';
+
+  @override
+  String get failedToChangePassword => 'Failed to change password';
+
+  @override
+  String get userNotFound => 'User not found';
+
+  @override
+  String get passwordTips => 'Password Tips';
+
+  @override
+  String get passwordTip1 => 'Password must be at least 4 characters long';
+
+  @override
+  String get passwordTip2 => 'Use a strong password to protect your account';
 }
