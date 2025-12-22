@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'services/storage_service.dart';
 import 'services/firebase_notification_service.dart';
 import 'services/language_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_navigation.dart';
+import 'screens/language_welcome_screen.dart';
 import 'constants/app_colors.dart';
 import 'generated/app_localizations.dart';
 
@@ -98,15 +100,29 @@ class _SplashScreenState extends State<SplashScreen> {
     // Add a small delay for splash effect
     await Future.delayed(const Duration(seconds: 1));
 
-    // Always go to home screen (MainNavigation)
-    // Users can browse as guests and will be prompted to login when needed
+    // Check if language has been selected
+    final prefs = await SharedPreferences.getInstance();
+    final hasSelectedLanguage = prefs.containsKey('selected_language');
+
     if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const MainNavigation(),
-        ),
-      );
+      if (!hasSelectedLanguage) {
+        // First time - show language selection
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const LanguageWelcomeScreen(),
+          ),
+        );
+      } else {
+        // Language already selected - go to home screen
+        // Users can browse as guests and will be prompted to login when needed
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MainNavigation(),
+          ),
+        );
+      }
     }
   }
 
