@@ -1001,7 +1001,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 8),
                               ),
                               child: Text(
-                                l10n.accept,
+                                l10n.approve,
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -1028,8 +1028,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.confirmAccept),
-        content: Text('${l10n.accept} ${l10n.order} #${order.id}?'),
+        title: Text(l10n.confirmApprove),
+        content: Text('${l10n.approve} ${l10n.order} #${order.id}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1040,7 +1040,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
             ),
-            child: Text(l10n.accept),
+            child: Text(l10n.approve),
           ),
         ],
       ),
