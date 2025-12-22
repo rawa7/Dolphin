@@ -461,7 +461,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
               IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios,
-                  color: _canGoBack ? AppColors.primary : AppColors.gray,
+                  color: _canGoBack ? Colors.black : AppColors.gray,
                   size: 20,
                 ),
                 tooltip: 'Back',
@@ -476,7 +476,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
               IconButton(
                 icon: Icon(
                   Icons.arrow_forward_ios,
-                  color: _canGoForward ? AppColors.primary : AppColors.gray,
+                  color: _canGoForward ? Colors.black : AppColors.gray,
                   size: 20,
                 ),
                 tooltip: 'Forward',
