@@ -78,10 +78,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     'Turkey',
     'UAE',
     'USA',
-    'UK',
     'Germany',
-    'France',
-    'China',
   ];
 
   @override
