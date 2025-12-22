@@ -109,6 +109,10 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Image.asset(
           'assets/logo.png',
           height: 40,
