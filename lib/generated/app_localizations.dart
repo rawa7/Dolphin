@@ -586,6 +586,12 @@ abstract class AppLocalizations {
   /// **'Confirm Accept'**
   String get confirmAccept;
 
+  /// No description provided for @confirmApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Approve'**
+  String get confirmApprove;
+
   /// No description provided for @confirmReject.
   ///
   /// In en, this message translates to:
@@ -597,6 +603,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to accept this order?'**
   String get areYouSureAccept;
+
+  /// No description provided for @areYouSureApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to approve this order?'**
+  String get areYouSureApprove;
 
   /// No description provided for @areYouSureReject.
   ///
@@ -825,6 +837,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Accept'**
   String get accept;
+
+  /// No description provided for @approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approve;
 
   /// No description provided for @reject.
   ///

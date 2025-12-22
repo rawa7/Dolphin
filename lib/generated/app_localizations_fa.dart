@@ -252,10 +252,16 @@ class AppLocalizationsFa extends AppLocalizations {
   String get confirmAccept => 'دڵنیاکردنەوەی قبوڵکردن';
 
   @override
+  String get confirmApprove => 'دڵنیاکردنەوەی پەسەندکردن';
+
+  @override
   String get confirmReject => 'دڵنیاکردنەوەی ڕەتکردنەوە';
 
   @override
   String get areYouSureAccept => 'دڵنیایت لە قبوڵکردنی ئەم داواکارییە؟';
+
+  @override
+  String get areYouSureApprove => 'دڵنیایت لە پەسەندکردنی ئەم داواکارییە؟';
 
   @override
   String get areYouSureReject => 'دڵنیایت لە ڕەتکردنەوەی ئەم داواکارییە؟';
@@ -370,6 +376,9 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get accept => 'قبوڵکردن';
+
+  @override
+  String get approve => 'پەسەندکردن';
 
   @override
   String get reject => 'ڕەتکردنەوە';

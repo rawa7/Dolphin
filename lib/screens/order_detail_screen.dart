@@ -44,8 +44,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.confirmAccept),
-        content: Text(l10n.areYouSureAccept),
+        title: Text(l10n.confirmApprove),
+        content: Text(l10n.areYouSureApprove),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -56,7 +56,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
             ),
-            child: Text(l10n.accept),
+            child: Text(l10n.approve),
           ),
         ],
       ),
@@ -497,7 +497,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                     ),
                                   )
                                 : Text(
-                                    l10n.accept,
+                                    l10n.approve,
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,

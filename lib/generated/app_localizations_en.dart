@@ -252,10 +252,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmAccept => 'Confirm Accept';
 
   @override
+  String get confirmApprove => 'Confirm Approve';
+
+  @override
   String get confirmReject => 'Confirm Reject';
 
   @override
   String get areYouSureAccept => 'Are you sure you want to accept this order?';
+
+  @override
+  String get areYouSureApprove =>
+      'Are you sure you want to approve this order?';
 
   @override
   String get areYouSureReject => 'Are you sure you want to reject this order?';
@@ -370,6 +377,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accept => 'Accept';
+
+  @override
+  String get approve => 'Approve';
 
   @override
   String get reject => 'Reject';

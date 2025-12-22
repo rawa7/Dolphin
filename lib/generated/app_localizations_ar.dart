@@ -252,10 +252,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get confirmAccept => 'تأكيد القبول';
 
   @override
+  String get confirmApprove => 'تأكيد الموافقة';
+
+  @override
   String get confirmReject => 'تأكيد الرفض';
 
   @override
   String get areYouSureAccept => 'هل أنت متأكد من قبول هذا الطلب؟';
+
+  @override
+  String get areYouSureApprove => 'هل أنت متأكد من الموافقة على هذا الطلب؟';
 
   @override
   String get areYouSureReject => 'هل أنت متأكد من رفض هذا الطلب؟';
@@ -370,6 +376,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get accept => 'قبول';
+
+  @override
+  String get approve => 'موافقة';
 
   @override
   String get reject => 'رفض';
