@@ -628,7 +628,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pleaseEnterYourPhoneNumber => 'الرجاء إدخال رقم هاتفك';
 
   @override
-  String get pleaseEnterValidPhoneNumber => 'الرجاء إدخال رقم هاتف صحيح';
+  String get pleaseEnterValidPhoneNumber =>
+      'يجب أن يكون رقم الهاتف 11 رقمًا بالضبط';
 
   @override
   String get pleaseEnterYourAddress => 'الرجاء إدخال عنوانك';

@@ -1327,7 +1327,7 @@ abstract class AppLocalizations {
   /// No description provided for @pleaseEnterValidPhoneNumber.
   ///
   /// In en, this message translates to:
-  /// **'Please enter a valid phone number'**
+  /// **'Phone number must be exactly 11 digits'**
   String get pleaseEnterValidPhoneNumber;
 
   /// No description provided for @pleaseEnterYourAddress.

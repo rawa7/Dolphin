@@ -213,7 +213,7 @@
   "pleaseEnterYourName": "Please enter your name",
   "nameMustBeAtLeast2Characters": "Name must be at least 2 characters",
   "pleaseEnterYourPhoneNumber": "Please enter your phone number",
-  "pleaseEnterValidPhoneNumber": "Please enter a valid phone number",
+  "pleaseEnterValidPhoneNumber": "Phone number must be exactly 11 digits",
   "pleaseEnterYourAddress": "Please enter your address",
   "pleaseEnterPassword": "Please enter a password",
   "passwordMustBeAtLeast6Characters": "Password must be at least 6 characters",

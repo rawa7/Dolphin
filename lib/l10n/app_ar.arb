@@ -204,7 +204,7 @@
   "pleaseEnterYourName": "الرجاء إدخال اسمك",
   "nameMustBeAtLeast2Characters": "يجب أن يكون الاسم حرفين على الأقل",
   "pleaseEnterYourPhoneNumber": "الرجاء إدخال رقم هاتفك",
-  "pleaseEnterValidPhoneNumber": "الرجاء إدخال رقم هاتف صحيح",
+  "pleaseEnterValidPhoneNumber": "يجب أن يكون رقم الهاتف 11 رقمًا بالضبط",
   "pleaseEnterYourAddress": "الرجاء إدخال عنوانك",
   "pleaseEnterPassword": "الرجاء إدخال كلمة المرور",
   "passwordMustBeAtLeast6Characters": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../services/firebase_notification_service.dart';
@@ -236,14 +237,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   child: TextField(
                                     controller: _phoneController,
-                                    keyboardType: TextInputType.phone,
-                                    decoration: InputDecoration(
-                                      hintText: '07xx-xxx-xxxx',
-                                      hintStyle: const TextStyle(color: AppColors.textHint),
+                                    keyboardType: TextInputType.number,
+                                    maxLength: 11,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      LengthLimitingTextInputFormatter(11),
+                                    ],
+                                    decoration: const InputDecoration(
+                                      hintText: '07501234567',
+                                      hintStyle: TextStyle(color: AppColors.textHint),
                                       border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      counterText: '',
+                                      contentPadding: EdgeInsets.symmetric(
                                           horizontal: 16, vertical: 16),
-                                      prefixIcon: const Icon(Icons.phone_android, color: AppColors.textHint),
+                                      prefixIcon: Icon(Icons.phone_android, color: AppColors.textHint),
                                     ),
                                   ),
                                 ),

@@ -630,7 +630,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get pleaseEnterValidPhoneNumber =>
-      'تکایە ژمارەی مۆبایلێکی دروست بنووسە';
+      'ژمارەی مۆبایل دەبێت بە تەواوی 11 ژمارە بێت';
 
   @override
   String get pleaseEnterYourAddress => 'تکایە ناونیشانەکەت بنووسە';

@@ -628,7 +628,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseEnterYourPhoneNumber => 'Please enter your phone number';
 
   @override
-  String get pleaseEnterValidPhoneNumber => 'Please enter a valid phone number';
+  String get pleaseEnterValidPhoneNumber =>
+      'Phone number must be exactly 11 digits';
 
   @override
   String get pleaseEnterYourAddress => 'Please enter your address';

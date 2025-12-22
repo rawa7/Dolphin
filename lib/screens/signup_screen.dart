@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/api_service.dart';
 import '../constants/app_colors.dart';
 import '../generated/app_localizations.dart';
@@ -193,15 +194,19 @@ class _SignupScreenState extends State<SignupScreen> {
                               _buildTextField(
                                 controller: _phoneController,
                                 label: l10n.phoneNumber,
-                                hint: '07xx-xxx-xxxx',
+                                hint: '07501234567',
                                 icon: Icons.phone_android,
-                                keyboardType: TextInputType.phone,
+                                keyboardType: TextInputType.number,
+                                maxLength: 11,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(11),
+                                ],
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return l10n.pleaseEnterYourPhoneNumber;
                                   }
-                                  final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
-                                  if (digits.length < 10) {
+                                  if (value.length != 11) {
                                     return l10n.pleaseEnterValidPhoneNumber;
                                   }
                                   return null;
@@ -318,6 +323,8 @@ class _SignupScreenState extends State<SignupScreen> {
     bool obscureText = false,
     Widget? suffixIcon,
     TextInputType? keyboardType,
+    int? maxLength,
+    List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
   }) {
     return Column(
@@ -354,11 +361,14 @@ class _SignupScreenState extends State<SignupScreen> {
             controller: controller,
             obscureText: obscureText,
             keyboardType: keyboardType,
+            maxLength: maxLength,
+            inputFormatters: inputFormatters,
             validator: validator,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 14),
               border: InputBorder.none,
+              counterText: maxLength != null ? '' : null,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               prefixIcon: Icon(icon, color: AppColors.textHint, size: 20),
               suffixIcon: suffixIcon,

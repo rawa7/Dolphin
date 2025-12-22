@@ -204,7 +204,7 @@
   "pleaseEnterYourName": "تکایە ناوەکەت بنووسە",
   "nameMustBeAtLeast2Characters": "ناو دەبێت لانیکەم ٢ پیت بێت",
   "pleaseEnterYourPhoneNumber": "تکایە ژمارەی مۆبایلەکەت بنووسە",
-  "pleaseEnterValidPhoneNumber": "تکایە ژمارەی مۆبایلێکی دروست بنووسە",
+  "pleaseEnterValidPhoneNumber": "ژمارەی مۆبایل دەبێت بە تەواوی 11 ژمارە بێت",
   "pleaseEnterYourAddress": "تکایە ناونیشانەکەت بنووسە",
   "pleaseEnterPassword": "تکایە وشەی نهێنی بنووسە",
   "passwordMustBeAtLeast6Characters": "وشەی نهێنی دەبێت لانیکەم ٦ پیت بێت",
