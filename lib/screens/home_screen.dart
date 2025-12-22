@@ -129,21 +129,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final user = await StorageService.getUser();
-      // Use customer id if available, otherwise use '0' for guests
-      final customerId = user?.id.toString() ?? '0';
-      final result = await ApiService.getBanners(customerId);
       
-      if (result['success'] == true && mounted) {
-        final bannersData = result['banners'] as List;
+      // Bronze accounts get static banner, others get API banners
+      if (user != null && user.isBronzeAccount == true) {
+        // Use static banner for bronze accounts
         setState(() {
-          _banners = bannersData.map((json) => BannerItem.fromJson(json)).toList();
+          _banners = [
+            BannerItem.fromImageUrl(
+              id: 'static_bronze',
+              imageUrl: 'assets/4599.jpeg',
+              isLocalAsset: true,
+            ),
+          ];
           _isLoadingBanners = false;
         });
       } else {
-        if (mounted) {
+        // Load banners from API for other account types
+        final customerId = user?.id.toString() ?? '0';
+        final result = await ApiService.getBanners(customerId);
+        
+        if (result['success'] == true && mounted) {
+          final bannersData = result['banners'] as List;
           setState(() {
+            _banners = bannersData.map((json) => BannerItem.fromJson(json)).toList();
             _isLoadingBanners = false;
           });
+        } else {
+          if (mounted) {
+            setState(() {
+              _isLoadingBanners = false;
+            });
+          }
         }
       }
     } catch (e) {
@@ -391,18 +407,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                       padding: const EdgeInsets.symmetric(horizontal: 16),
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(12),
-                                        child: Image.network(
-                                          banner.image,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            return Container(
-                                              color: AppColors.lightGray,
-                                              child: const Center(
-                                                child: Icon(Icons.image_not_supported),
+                                        child: banner.isLocalAsset
+                                            ? Image.asset(
+                                                banner.image,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  return Container(
+                                                    color: AppColors.lightGray,
+                                                    child: const Center(
+                                                      child: Icon(Icons.image_not_supported),
+                                                    ),
+                                                  );
+                                                },
+                                              )
+                                            : Image.network(
+                                                banner.image,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  return Container(
+                                                    color: AppColors.lightGray,
+                                                    child: const Center(
+                                                      child: Icon(Icons.image_not_supported),
+                                                    ),
+                                                  );
+                                                },
                                               ),
-                                            );
-                                          },
-                                        ),
                                       ),
                                     ),
                                   );
