@@ -27,6 +27,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
   bool _isLoading = true;
   double _progress = 0.0;
   bool _isFetchingData = false;
+  bool _canGoBack = false;
+  bool _canGoForward = false;
 
   @override
   void initState() {
@@ -405,11 +407,14 @@ class _WebViewScreenState extends State<WebViewScreen> {
             setState(() {
               _isLoading = true;
             });
+            _updateNavigationState();
           },
-          onPageFinished: (String url) {
+          onPageFinished: (String url) async {
             setState(() {
               _isLoading = false;
             });
+            // Update navigation buttons state
+            _updateNavigationState();
           },
           onWebResourceError: (WebResourceError error) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -422,6 +427,15 @@ class _WebViewScreenState extends State<WebViewScreen> {
         ),
       )
       ..loadRequest(Uri.parse(widget.url));
+  }
+
+  Future<void> _updateNavigationState() async {
+    final canGoBack = await _controller.canGoBack();
+    final canGoForward = await _controller.canGoForward();
+    setState(() {
+      _canGoBack = canGoBack;
+      _canGoForward = canGoForward;
+    });
   }
 
   Future<bool> _onWillPop() async {
@@ -440,25 +454,46 @@ class _WebViewScreenState extends State<WebViewScreen> {
         appBar: AppBar(
           backgroundColor: AppColors.white,
           elevation: 1,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-            onPressed: () async {
-              // Check if webview can go back
-              if (await _controller.canGoBack()) {
-                _controller.goBack();
-              } else {
-                // No more history, go back to previous screen
-                if (mounted) {
-                  Navigator.pop(context);
-                }
-              }
-            },
+          leadingWidth: 110,
+          leading: Row(
+            children: [
+              // WebView Back Button
+              IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: _canGoBack ? AppColors.primary : AppColors.gray,
+                  size: 20,
+                ),
+                tooltip: 'Back',
+                onPressed: _canGoBack
+                    ? () async {
+                        await _controller.goBack();
+                        _updateNavigationState();
+                      }
+                    : null,
+              ),
+              // WebView Forward Button
+              IconButton(
+                icon: Icon(
+                  Icons.arrow_forward_ios,
+                  color: _canGoForward ? AppColors.primary : AppColors.gray,
+                  size: 20,
+                ),
+                tooltip: 'Forward',
+                onPressed: _canGoForward
+                    ? () async {
+                        await _controller.goForward();
+                        _updateNavigationState();
+                      }
+                    : null,
+              ),
+            ],
           ),
           title: Text(
             widget.title,
             style: const TextStyle(
               color: AppColors.textPrimary,
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -473,17 +508,14 @@ class _WebViewScreenState extends State<WebViewScreen> {
             ),
             IconButton(
               icon: const Icon(Icons.refresh, color: AppColors.primary),
+              tooltip: 'Refresh',
               onPressed: () => _controller.reload(),
             ),
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert, color: AppColors.primary),
+              tooltip: 'More options',
               onSelected: (value) async {
                 switch (value) {
-                  case 'forward':
-                    if (await _controller.canGoForward()) {
-                      _controller.goForward();
-                    }
-                    break;
                   case 'open_external':
                     // Open in external browser
                     final currentUrl = await _controller.currentUrl();
@@ -495,16 +527,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
               },
               itemBuilder: (BuildContext context) {
                 return [
-                  const PopupMenuItem<String>(
-                    value: 'forward',
-                    child: Row(
-                      children: [
-                        Icon(Icons.arrow_forward, size: 20),
-                        SizedBox(width: 12),
-                        Text('Forward'),
-                      ],
-                    ),
-                  ),
                   const PopupMenuItem<String>(
                     value: 'open_external',
                     child: Row(
