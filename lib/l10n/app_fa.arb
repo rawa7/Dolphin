@@ -193,6 +193,24 @@
   "pleaseLogin": "تکایە چوونەژوورەوە",
   "loginRequired": "پێویستە بچیتە ژوورەوە بۆ بەکارهێنانی ئەم تایبەتمەندییە",
   "loginNow": "ئێستا بچۆ ژوورەوە",
-  "continueAsGuest": "وەک میوان بەردەوام بە"
+  "continueAsGuest": "وەک میوان بەردەوام بە",
+  "signIn": "چوونەژوورەوە",
+  "signUp": "دروستکردنی هەژمار",
+  "fullName": "ناوی تەواو",
+  "enterYourFullName": "ناوی تەواوت بنووسە",
+  "enterYourPhoneNumber": "ژمارەی مۆبایلەکەت بنووسە",
+  "enterYourPassword": "وشەی نهێنیەکەت بنووسە",
+  "enterYourAddress": "ناونیشانەکەت بنووسە",
+  "pleaseEnterYourName": "تکایە ناوەکەت بنووسە",
+  "nameMustBeAtLeast2Characters": "ناو دەبێت لانیکەم ٢ پیت بێت",
+  "pleaseEnterYourPhoneNumber": "تکایە ژمارەی مۆبایلەکەت بنووسە",
+  "pleaseEnterValidPhoneNumber": "تکایە ژمارەی مۆبایلێکی دروست بنووسە",
+  "pleaseEnterYourAddress": "تکایە ناونیشانەکەت بنووسە",
+  "pleaseEnterPassword": "تکایە وشەی نهێنی بنووسە",
+  "passwordMustBeAtLeast6Characters": "وشەی نهێنی دەبێت لانیکەم ٦ پیت بێت",
+  "pleaseEnterPhoneAndPassword": "تکایە ژمارەی مۆبایل و وشەی نهێنی بنووسە",
+  "accountCreated": "هەژمار دروستکرا!",
+  "accountCreatedSuccessMessage": "هەژمارەکەت بە سەرکەوتوویی دروستکرا!\n\nبەڕێوەبەر هەژمارەکەت زوو چالاک دەکات. ئاگادار دەکرێیتەوە کاتێک هەژمارەکەت چالاک دەبێت.",
+  "dontHaveAnAccount": "هەژمارت نییە؟"
 }
 

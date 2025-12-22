@@ -1263,6 +1263,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue as Guest'**
   String get continueAsGuest;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signIn;
+
+  /// No description provided for @signUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUp;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @enterYourFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get enterYourFullName;
+
+  /// No description provided for @enterYourPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get enterYourPhoneNumber;
+
+  /// No description provided for @enterYourPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get enterYourPassword;
+
+  /// No description provided for @enterYourAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your address'**
+  String get enterYourAddress;
+
+  /// No description provided for @pleaseEnterYourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name'**
+  String get pleaseEnterYourName;
+
+  /// No description provided for @nameMustBeAtLeast2Characters.
+  ///
+  /// In en, this message translates to:
+  /// **'Name must be at least 2 characters'**
+  String get nameMustBeAtLeast2Characters;
+
+  /// No description provided for @pleaseEnterYourPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your phone number'**
+  String get pleaseEnterYourPhoneNumber;
+
+  /// No description provided for @pleaseEnterValidPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid phone number'**
+  String get pleaseEnterValidPhoneNumber;
+
+  /// No description provided for @pleaseEnterYourAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your address'**
+  String get pleaseEnterYourAddress;
+
+  /// No description provided for @pleaseEnterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a password'**
+  String get pleaseEnterPassword;
+
+  /// No description provided for @passwordMustBeAtLeast6Characters.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get passwordMustBeAtLeast6Characters;
+
+  /// No description provided for @pleaseEnterPhoneAndPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter phone number and password'**
+  String get pleaseEnterPhoneAndPassword;
+
+  /// No description provided for @accountCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Created!'**
+  String get accountCreated;
+
+  /// No description provided for @accountCreatedSuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been created successfully!\n\nAn admin will activate your account ASAP. You will be notified once your account is active.'**
+  String get accountCreatedSuccessMessage;
+
+  /// No description provided for @dontHaveAnAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get dontHaveAnAccount;
 }
 
 class _AppLocalizationsDelegate

@@ -3,6 +3,7 @@ import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../services/firebase_notification_service.dart';
 import '../constants/app_colors.dart';
+import '../generated/app_localizations.dart';
 import '../main.dart';
 import 'main_navigation.dart';
 import 'signup_screen.dart';
@@ -29,8 +30,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    final l10n = AppLocalizations.of(context)!;
+    
     if (_phoneController.text.isEmpty || _passwordController.text.isEmpty) {
-      _showMessage('Please enter phone number and password');
+      _showMessage(l10n.pleaseEnterPhoneAndPassword);
       return;
     }
 
@@ -173,13 +176,18 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 60),
 
               // Sign in text
-              Text(
-                'Sign in',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
-                ),
+              Builder(
+                builder: (context) {
+                  final l10n = AppLocalizations.of(context)!;
+                  return Text(
+                    l10n.signIn,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 40),
@@ -193,179 +201,208 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Phone Number
-                        Row(
-                          children: [
-                            const Icon(Icons.phone, color: AppColors.gray),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Phone Number',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppColors.textSecondary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.shadow,
-                                spreadRadius: 1,
-                                blurRadius: 10,
-                              ),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: _phoneController,
-                            keyboardType: TextInputType.phone,
-                            decoration: InputDecoration(
-                              hintText: '07xx-xxx-xxxx',
-                          
-                              hintStyle: const TextStyle(color: AppColors.textHint),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 16),
-                              prefixIcon: const Icon(Icons.phone_android, color: AppColors.textHint),
-                            ),
-                          ),
+                        Builder(
+                          builder: (context) {
+                            final l10n = AppLocalizations.of(context)!;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.phone, color: AppColors.gray),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      l10n.phoneNumber,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: AppColors.textSecondary,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.shadow,
+                                        spreadRadius: 1,
+                                        blurRadius: 10,
+                                      ),
+                                    ],
+                                  ),
+                                  child: TextField(
+                                    controller: _phoneController,
+                                    keyboardType: TextInputType.phone,
+                                    decoration: InputDecoration(
+                                      hintText: '07xx-xxx-xxxx',
+                                      hintStyle: const TextStyle(color: AppColors.textHint),
+                                      border: InputBorder.none,
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 16),
+                                      prefixIcon: const Icon(Icons.phone_android, color: AppColors.textHint),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 24),
 
                         // Password
-                        Row(
-                          children: [
-                            const Icon(Icons.lock, color: AppColors.gray),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Password',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppColors.textSecondary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.shadow,
-                                spreadRadius: 1,
-                                blurRadius: 10,
-                              ),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            decoration: InputDecoration(
-                              hintText: 'password',
-                              hintStyle: const TextStyle(color: AppColors.textHint),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 16),
-                              prefixIcon: Icon(Icons.lock_outline,
-                                  color: AppColors.textHint),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined,
-                                  color: AppColors.textHint,
+                        Builder(
+                          builder: (context) {
+                            final l10n = AppLocalizations.of(context)!;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.lock, color: AppColors.gray),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      l10n.password,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: AppColors.textSecondary,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscurePassword = !_obscurePassword;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
+                                const SizedBox(height: 12),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.shadow,
+                                        spreadRadius: 1,
+                                        blurRadius: 10,
+                                      ),
+                                    ],
+                                  ),
+                                  child: TextField(
+                                    controller: _passwordController,
+                                    obscureText: _obscurePassword,
+                                    decoration: InputDecoration(
+                                      hintText: l10n.password,
+                                      hintStyle: const TextStyle(color: AppColors.textHint),
+                                      border: InputBorder.none,
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 16),
+                                      prefixIcon: const Icon(Icons.lock_outline,
+                                          color: AppColors.textHint),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          _obscurePassword
+                                              ? Icons.visibility_outlined
+                                              : Icons.visibility_off_outlined,
+                                          color: AppColors.textHint,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _obscurePassword = !_obscurePassword;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 32),
 
                         // Sign in button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child:                             ElevatedButton(
-                              onPressed: _isLoading ? null : _handleLogin,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              elevation: 4,
-                            ),
-                            child: _isLoading
-                                ? const CircularProgressIndicator(
-                                    color: AppColors.white,
-                                  )
-                                : const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(Icons.login, color: AppColors.white),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Sign in',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.white,
-                                        ),
-                                      ),
-                                    ],
+                        Builder(
+                          builder: (context) {
+                            final l10n = AppLocalizations.of(context)!;
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
-                          ),
+                                  elevation: 4,
+                                ),
+                                child: _isLoading
+                                    ? const CircularProgressIndicator(
+                                        color: AppColors.white,
+                                      )
+                                    : Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.login, color: AppColors.white),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            l10n.signIn,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 24),
 
                         // Sign up link
-                        Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                "Don't have an account? ",
-                                style: TextStyle(
-                                  color: AppColors.white,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const SignupScreen(),
+                        Builder(
+                          builder: (context) {
+                            final l10n = AppLocalizations.of(context)!;
+                            return Center(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    l10n.dontHaveAnAccount + ' ',
+                                    style: const TextStyle(
+                                      color: AppColors.white,
+                                      fontSize: 13,
                                     ),
-                                  );
-                                },
-                                child: const Text(
-                                  'Sign Up',
-                                  style: TextStyle(
-                                    color: AppColors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColors.white,
                                   ),
-                                ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const SignupScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      l10n.signUp,
+                                      style: const TextStyle(
+                                        color: AppColors.white,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: AppColors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 40),

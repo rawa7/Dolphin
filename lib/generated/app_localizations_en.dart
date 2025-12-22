@@ -595,4 +595,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get continueAsGuest => 'Continue as Guest';
+
+  @override
+  String get signIn => 'Sign in';
+
+  @override
+  String get signUp => 'Sign Up';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get enterYourFullName => 'Enter your full name';
+
+  @override
+  String get enterYourPhoneNumber => 'Enter your phone number';
+
+  @override
+  String get enterYourPassword => 'Enter your password';
+
+  @override
+  String get enterYourAddress => 'Enter your address';
+
+  @override
+  String get pleaseEnterYourName => 'Please enter your name';
+
+  @override
+  String get nameMustBeAtLeast2Characters =>
+      'Name must be at least 2 characters';
+
+  @override
+  String get pleaseEnterYourPhoneNumber => 'Please enter your phone number';
+
+  @override
+  String get pleaseEnterValidPhoneNumber => 'Please enter a valid phone number';
+
+  @override
+  String get pleaseEnterYourAddress => 'Please enter your address';
+
+  @override
+  String get pleaseEnterPassword => 'Please enter a password';
+
+  @override
+  String get passwordMustBeAtLeast6Characters =>
+      'Password must be at least 6 characters';
+
+  @override
+  String get pleaseEnterPhoneAndPassword =>
+      'Please enter phone number and password';
+
+  @override
+  String get accountCreated => 'Account Created!';
+
+  @override
+  String get accountCreatedSuccessMessage =>
+      'Your account has been created successfully!\n\nAn admin will activate your account ASAP. You will be notified once your account is active.';
+
+  @override
+  String get dontHaveAnAccount => 'Don\'t have an account?';
 }

@@ -597,4 +597,62 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get continueAsGuest => 'وەک میوان بەردەوام بە';
+
+  @override
+  String get signIn => 'چوونەژوورەوە';
+
+  @override
+  String get signUp => 'دروستکردنی هەژمار';
+
+  @override
+  String get fullName => 'ناوی تەواو';
+
+  @override
+  String get enterYourFullName => 'ناوی تەواوت بنووسە';
+
+  @override
+  String get enterYourPhoneNumber => 'ژمارەی مۆبایلەکەت بنووسە';
+
+  @override
+  String get enterYourPassword => 'وشەی نهێنیەکەت بنووسە';
+
+  @override
+  String get enterYourAddress => 'ناونیشانەکەت بنووسە';
+
+  @override
+  String get pleaseEnterYourName => 'تکایە ناوەکەت بنووسە';
+
+  @override
+  String get nameMustBeAtLeast2Characters => 'ناو دەبێت لانیکەم ٢ پیت بێت';
+
+  @override
+  String get pleaseEnterYourPhoneNumber => 'تکایە ژمارەی مۆبایلەکەت بنووسە';
+
+  @override
+  String get pleaseEnterValidPhoneNumber =>
+      'تکایە ژمارەی مۆبایلێکی دروست بنووسە';
+
+  @override
+  String get pleaseEnterYourAddress => 'تکایە ناونیشانەکەت بنووسە';
+
+  @override
+  String get pleaseEnterPassword => 'تکایە وشەی نهێنی بنووسە';
+
+  @override
+  String get passwordMustBeAtLeast6Characters =>
+      'وشەی نهێنی دەبێت لانیکەم ٦ پیت بێت';
+
+  @override
+  String get pleaseEnterPhoneAndPassword =>
+      'تکایە ژمارەی مۆبایل و وشەی نهێنی بنووسە';
+
+  @override
+  String get accountCreated => 'هەژمار دروستکرا!';
+
+  @override
+  String get accountCreatedSuccessMessage =>
+      'هەژمارەکەت بە سەرکەوتوویی دروستکرا!\n\nبەڕێوەبەر هەژمارەکەت زوو چالاک دەکات. ئاگادار دەکرێیتەوە کاتێک هەژمارەکەت چالاک دەبێت.';
+
+  @override
+  String get dontHaveAnAccount => 'هەژمارت نییە؟';
 }

@@ -595,4 +595,62 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get continueAsGuest => 'متابعة كضيف';
+
+  @override
+  String get signIn => 'تسجيل الدخول';
+
+  @override
+  String get signUp => 'إنشاء حساب';
+
+  @override
+  String get fullName => 'الاسم الكامل';
+
+  @override
+  String get enterYourFullName => 'أدخل اسمك الكامل';
+
+  @override
+  String get enterYourPhoneNumber => 'أدخل رقم هاتفك';
+
+  @override
+  String get enterYourPassword => 'أدخل كلمة المرور';
+
+  @override
+  String get enterYourAddress => 'أدخل عنوانك';
+
+  @override
+  String get pleaseEnterYourName => 'الرجاء إدخال اسمك';
+
+  @override
+  String get nameMustBeAtLeast2Characters =>
+      'يجب أن يكون الاسم حرفين على الأقل';
+
+  @override
+  String get pleaseEnterYourPhoneNumber => 'الرجاء إدخال رقم هاتفك';
+
+  @override
+  String get pleaseEnterValidPhoneNumber => 'الرجاء إدخال رقم هاتف صحيح';
+
+  @override
+  String get pleaseEnterYourAddress => 'الرجاء إدخال عنوانك';
+
+  @override
+  String get pleaseEnterPassword => 'الرجاء إدخال كلمة المرور';
+
+  @override
+  String get passwordMustBeAtLeast6Characters =>
+      'يجب أن تكون كلمة المرور 6 أحرف على الأقل';
+
+  @override
+  String get pleaseEnterPhoneAndPassword =>
+      'الرجاء إدخال رقم الهاتف وكلمة المرور';
+
+  @override
+  String get accountCreated => 'تم إنشاء الحساب!';
+
+  @override
+  String get accountCreatedSuccessMessage =>
+      'تم إنشاء حسابك بنجاح!\n\nسيقوم المسؤول بتفعيل حسابك في أقرب وقت ممكن. سيتم إشعارك بمجرد تفعيل حسابك.';
+
+  @override
+  String get dontHaveAnAccount => 'ليس لديك حساب؟';
 }

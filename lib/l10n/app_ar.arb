@@ -193,6 +193,24 @@
   "pleaseLogin": "الرجاء تسجيل الدخول",
   "loginRequired": "تحتاج إلى تسجيل الدخول للوصول إلى هذه الميزة",
   "loginNow": "تسجيل الدخول الآن",
-  "continueAsGuest": "متابعة كضيف"
+  "continueAsGuest": "متابعة كضيف",
+  "signIn": "تسجيل الدخول",
+  "signUp": "إنشاء حساب",
+  "fullName": "الاسم الكامل",
+  "enterYourFullName": "أدخل اسمك الكامل",
+  "enterYourPhoneNumber": "أدخل رقم هاتفك",
+  "enterYourPassword": "أدخل كلمة المرور",
+  "enterYourAddress": "أدخل عنوانك",
+  "pleaseEnterYourName": "الرجاء إدخال اسمك",
+  "nameMustBeAtLeast2Characters": "يجب أن يكون الاسم حرفين على الأقل",
+  "pleaseEnterYourPhoneNumber": "الرجاء إدخال رقم هاتفك",
+  "pleaseEnterValidPhoneNumber": "الرجاء إدخال رقم هاتف صحيح",
+  "pleaseEnterYourAddress": "الرجاء إدخال عنوانك",
+  "pleaseEnterPassword": "الرجاء إدخال كلمة المرور",
+  "passwordMustBeAtLeast6Characters": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+  "pleaseEnterPhoneAndPassword": "الرجاء إدخال رقم الهاتف وكلمة المرور",
+  "accountCreated": "تم إنشاء الحساب!",
+  "accountCreatedSuccessMessage": "تم إنشاء حسابك بنجاح!\n\nسيقوم المسؤول بتفعيل حسابك في أقرب وقت ممكن. سيتم إشعارك بمجرد تفعيل حسابك.",
+  "dontHaveAnAccount": "ليس لديك حساب؟"
 }
 

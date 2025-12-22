@@ -202,6 +202,24 @@
   "pleaseLogin": "Please Login",
   "loginRequired": "You need to login to access this feature",
   "loginNow": "Login Now",
-  "continueAsGuest": "Continue as Guest"
+  "continueAsGuest": "Continue as Guest",
+  "signIn": "Sign in",
+  "signUp": "Sign Up",
+  "fullName": "Full Name",
+  "enterYourFullName": "Enter your full name",
+  "enterYourPhoneNumber": "Enter your phone number",
+  "enterYourPassword": "Enter your password",
+  "enterYourAddress": "Enter your address",
+  "pleaseEnterYourName": "Please enter your name",
+  "nameMustBeAtLeast2Characters": "Name must be at least 2 characters",
+  "pleaseEnterYourPhoneNumber": "Please enter your phone number",
+  "pleaseEnterValidPhoneNumber": "Please enter a valid phone number",
+  "pleaseEnterYourAddress": "Please enter your address",
+  "pleaseEnterPassword": "Please enter a password",
+  "passwordMustBeAtLeast6Characters": "Password must be at least 6 characters",
+  "pleaseEnterPhoneAndPassword": "Please enter phone number and password",
+  "accountCreated": "Account Created!",
+  "accountCreatedSuccessMessage": "Your account has been created successfully!\n\nAn admin will activate your account ASAP. You will be notified once your account is active.",
+  "dontHaveAnAccount": "Don't have an account?"
 }
 

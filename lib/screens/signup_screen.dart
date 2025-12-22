@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../constants/app_colors.dart';
+import '../generated/app_localizations.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -50,6 +51,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
     if (result['success']) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         // Show success dialog
         showDialog(
           context: context,
@@ -59,16 +61,16 @@ class _SignupScreenState extends State<SignupScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              title: const Row(
+              title: Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 28),
-                  SizedBox(width: 12),
-                  Text('Account Created!'),
+                  const Icon(Icons.check_circle, color: Colors.green, size: 28),
+                  const SizedBox(width: 12),
+                  Text(l10n.accountCreated),
                 ],
               ),
-              content: const Text(
-                'Your account has been created successfully!\n\nAn admin will activate your account ASAP. You will be notified once your account is active.',
-                style: TextStyle(fontSize: 15),
+              content: Text(
+                l10n.accountCreatedSuccessMessage,
+                style: const TextStyle(fontSize: 15),
               ),
               actions: [
                 ElevatedButton(
@@ -82,9 +84,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(color: Colors.white),
+                  child: Text(
+                    l10n.ok,
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               ],
@@ -139,13 +141,18 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
 
               // Sign up title
-              const Text(
-                'Sign Up',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
-                ),
+              Builder(
+                builder: (context) {
+                  final l10n = AppLocalizations.of(context)!;
+                  return Text(
+                    l10n.signUp,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 30),
@@ -155,138 +162,143 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: SingleChildScrollView(
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Name
-                          _buildTextField(
-                            controller: _nameController,
-                            label: 'Full Name',
-                            hint: 'Enter your full name',
-                            icon: Icons.person,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your name';
-                              }
-                              if (value.length < 2) {
-                                return 'Name must be at least 2 characters';
-                              }
-                              return null;
-                            },
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          // Phone
-                          _buildTextField(
-                            controller: _phoneController,
-                            label: 'Phone Number',
-                            hint: '07xx-xxx-xxxx',
-                            icon: Icons.phone_android,
-                            keyboardType: TextInputType.phone,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your phone number';
-                              }
-                              final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
-                              if (digits.length < 10) {
-                                return 'Please enter a valid phone number';
-                              }
-                              return null;
-                            },
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          // Address
-                          _buildTextField(
-                            controller: _addressController,
-                            label: 'Address',
-                            hint: 'Enter your address',
-                            icon: Icons.location_on,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your address';
-                              }
-                              return null;
-                            },
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          // Password
-                          _buildTextField(
-                            controller: _passwordController,
-                            label: 'Password',
-                            hint: 'Enter your password',
-                            icon: Icons.lock,
-                            obscureText: _obscurePassword,
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                                color: AppColors.textHint,
+                    child: Builder(
+                      builder: (context) {
+                        final l10n = AppLocalizations.of(context)!;
+                        return Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Name
+                              _buildTextField(
+                                controller: _nameController,
+                                label: l10n.fullName,
+                                hint: l10n.enterYourFullName,
+                                icon: Icons.person,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return l10n.pleaseEnterYourName;
+                                  }
+                                  if (value.length < 2) {
+                                    return l10n.nameMustBeAtLeast2Characters;
+                                  }
+                                  return null;
+                                },
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter a password';
-                              }
-                              if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
-                              }
-                              return null;
-                            },
-                          ),
 
-                          const SizedBox(height: 30),
+                              const SizedBox(height: 20),
 
-                          // Sign up button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleSignup,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                              // Phone
+                              _buildTextField(
+                                controller: _phoneController,
+                                label: l10n.phoneNumber,
+                                hint: '07xx-xxx-xxxx',
+                                icon: Icons.phone_android,
+                                keyboardType: TextInputType.phone,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return l10n.pleaseEnterYourPhoneNumber;
+                                  }
+                                  final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+                                  if (digits.length < 10) {
+                                    return l10n.pleaseEnterValidPhoneNumber;
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              // Address
+                              _buildTextField(
+                                controller: _addressController,
+                                label: l10n.address,
+                                hint: l10n.enterYourAddress,
+                                icon: Icons.location_on,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return l10n.pleaseEnterYourAddress;
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              // Password
+                              _buildTextField(
+                                controller: _passwordController,
+                                label: l10n.password,
+                                hint: l10n.enterYourPassword,
+                                icon: Icons.lock,
+                                obscureText: _obscurePassword,
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    color: AppColors.textHint,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
                                 ),
-                                elevation: 4,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return l10n.pleaseEnterPassword;
+                                  }
+                                  if (value.length < 6) {
+                                    return l10n.passwordMustBeAtLeast6Characters;
+                                  }
+                                  return null;
+                                },
                               ),
-                              child: _isLoading
-                                  ? const CircularProgressIndicator(
-                                      color: AppColors.white,
-                                    )
-                                  : const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.person_add, color: AppColors.white),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          'Sign Up',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                            ),
-                          ),
 
-                          const SizedBox(height: 30),
-                        ],
-                      ),
+                              const SizedBox(height: 30),
+
+                              // Sign up button
+                              SizedBox(
+                                width: double.infinity,
+                                height: 56,
+                                child: ElevatedButton(
+                                  onPressed: _isLoading ? null : _handleSignup,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    elevation: 4,
+                                  ),
+                                  child: _isLoading
+                                      ? const CircularProgressIndicator(
+                                          color: AppColors.white,
+                                        )
+                                      : Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(Icons.person_add, color: AppColors.white),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              l10n.signUp,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 30),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
