@@ -214,6 +214,25 @@
   "pleaseEnterPhoneAndPassword": "الرجاء إدخال رقم الهاتف وكلمة المرور",
   "accountCreated": "تم إنشاء الحساب!",
   "accountCreatedSuccessMessage": "تم إنشاء حسابك بنجاح!\n\nسيقوم المسؤول بتفعيل حسابك في أقرب وقت ممكن. سيتم إشعارك بمجرد تفعيل حسابك.",
-  "dontHaveAnAccount": "ليس لديك حساب؟"
+  "dontHaveAnAccount": "ليس لديك حساب؟",
+  "changePassword": "تغيير كلمة المرور",
+  "changePasswordDescription": "الرجاء إدخال كلمة المرور الحالية واختيار كلمة مرور جديدة لتأمين حسابك.",
+  "currentPassword": "كلمة المرور الحالية",
+  "enterCurrentPassword": "أدخل كلمة المرور الحالية",
+  "pleaseEnterCurrentPassword": "الرجاء إدخال كلمة المرور الحالية",
+  "newPassword": "كلمة المرور الجديدة",
+  "enterNewPassword": "أدخل كلمة المرور الجديدة",
+  "pleaseEnterNewPassword": "الرجاء إدخال كلمة المرور الجديدة",
+  "passwordMustBeAtLeast4Characters": "يجب أن تكون كلمة المرور 4 أحرف على الأقل",
+  "confirmPassword": "تأكيد كلمة المرور",
+  "enterConfirmPassword": "أعد إدخال كلمة المرور الجديدة",
+  "pleaseEnterConfirmPassword": "الرجاء تأكيد كلمة المرور",
+  "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+  "passwordChangedSuccessfully": "تم تغيير كلمة المرور بنجاح",
+  "failedToChangePassword": "فشل تغيير كلمة المرور",
+  "userNotFound": "المستخدم غير موجود",
+  "passwordTips": "نصائح كلمة المرور",
+  "passwordTip1": "يجب أن تكون كلمة المرور 4 أحرف على الأقل",
+  "passwordTip2": "استخدم كلمة مرور قوية لحماية حسابك"
 }
 

@@ -223,6 +223,25 @@
   "pleaseEnterPhoneAndPassword": "Please enter phone number and password",
   "accountCreated": "Account Created!",
   "accountCreatedSuccessMessage": "Your account has been created successfully!\n\nAn admin will activate your account ASAP. You will be notified once your account is active.",
-  "dontHaveAnAccount": "Don't have an account?"
+  "dontHaveAnAccount": "Don't have an account?",
+  "changePassword": "Change Password",
+  "changePasswordDescription": "Please enter your current password and choose a new password to secure your account.",
+  "currentPassword": "Current Password",
+  "enterCurrentPassword": "Enter your current password",
+  "pleaseEnterCurrentPassword": "Please enter your current password",
+  "newPassword": "New Password",
+  "enterNewPassword": "Enter your new password",
+  "pleaseEnterNewPassword": "Please enter your new password",
+  "passwordMustBeAtLeast4Characters": "Password must be at least 4 characters",
+  "confirmPassword": "Confirm Password",
+  "enterConfirmPassword": "Re-enter your new password",
+  "pleaseEnterConfirmPassword": "Please confirm your password",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "passwordChangedSuccessfully": "Password changed successfully",
+  "failedToChangePassword": "Failed to change password",
+  "userNotFound": "User not found",
+  "passwordTips": "Password Tips",
+  "passwordTip1": "Password must be at least 4 characters long",
+  "passwordTip2": "Use a strong password to protect your account"
 }
 

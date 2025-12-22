@@ -14,6 +14,7 @@ import '../constants/app_colors.dart';
 import 'login_screen.dart';
 import 'language_selector_screen.dart';
 import 'customer_statement_screen.dart';
+import 'change_password_screen.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -1314,6 +1315,20 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
+
+                    // Change Password
+                    _buildSettingItem(
+                      icon: Icons.lock_reset,
+                      title: l10n.changePassword,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ChangePasswordScreen(),
+                          ),
+                        );
+                      },
+                    ),
 
                     // Language
                     _buildSettingItem(

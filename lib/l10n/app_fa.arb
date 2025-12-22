@@ -214,6 +214,25 @@
   "pleaseEnterPhoneAndPassword": "تکایە ژمارەی مۆبایل و وشەی نهێنی بنووسە",
   "accountCreated": "هەژمار دروستکرا!",
   "accountCreatedSuccessMessage": "هەژمارەکەت بە سەرکەوتوویی دروستکرا!\n\nبەڕێوەبەر هەژمارەکەت زوو چالاک دەکات. ئاگادار دەکرێیتەوە کاتێک هەژمارەکەت چالاک دەبێت.",
-  "dontHaveAnAccount": "هەژمارت نییە؟"
+  "dontHaveAnAccount": "هەژمارت نییە؟",
+  "changePassword": "گۆڕینی وشەی نهێنی",
+  "changePasswordDescription": "تکایە وشەی نهێنی ئێستاکەت بنووسە و وشەی نهێنیەکی نوێ هەڵبژێرە بۆ پارێزگاریکردنی هەژمارەکەت.",
+  "currentPassword": "وشەی نهێنی ئێستا",
+  "enterCurrentPassword": "وشەی نهێنی ئێستاکەت بنووسە",
+  "pleaseEnterCurrentPassword": "تکایە وشەی نهێنی ئێستاکەت بنووسە",
+  "newPassword": "وشەی نهێنی نوێ",
+  "enterNewPassword": "وشەی نهێنی نوێکەت بنووسە",
+  "pleaseEnterNewPassword": "تکایە وشەی نهێنی نوێکەت بنووسە",
+  "passwordMustBeAtLeast4Characters": "وشەی نهێنی دەبێت لانیکەم ٤ پیت بێت",
+  "confirmPassword": "دووپاتکردنەوەی وشەی نهێنی",
+  "enterConfirmPassword": "وشەی نهێنی نوێکەت دووبارە بنووسەوە",
+  "pleaseEnterConfirmPassword": "تکایە وشەی نهێنیەکەت دووپات بکەرەوە",
+  "passwordsDoNotMatch": "وشەکانی نهێنی یەکناگرنەوە",
+  "passwordChangedSuccessfully": "وشەی نهێنی بە سەرکەوتوویی گۆڕدرا",
+  "failedToChangePassword": "گۆڕینی وشەی نهێنی سەرکەوتوو نەبوو",
+  "userNotFound": "بەکارهێنەر نەدۆزرایەوە",
+  "passwordTips": "ئامۆژگاریەکانی وشەی نهێنی",
+  "passwordTip1": "وشەی نهێنی دەبێت لانیکەم ٤ پیت بێت",
+  "passwordTip2": "وشەی نهێنیەکی بەهێز بەکاربهێنە بۆ پارێزگاریکردنی هەژمارەکەت"
 }
 

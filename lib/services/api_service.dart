@@ -115,6 +115,44 @@ class ApiService {
     }
   }
 
+  // Change Password API call
+  static Future<Map<String, dynamic>> changePassword({
+    required String customerId,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/change_password.php');
+      final response = await http.post(
+        url,
+        body: {
+          'customer_id': customerId,
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'message': data['message'] ?? 'Password changed successfully',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['error'] ?? data['message'] ?? 'Failed to change password',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error. Please check your connection.',
+      };
+    }
+  }
+
   // Get websites API call
   static Future<Map<String, dynamic>> getWebsites() async {
     try {
