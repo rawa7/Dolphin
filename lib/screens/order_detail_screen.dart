@@ -219,8 +219,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final itemPrice = double.tryParse(widget.order.itemPrice) ?? 0.0;
     final shipping = double.tryParse(widget.order.shippingPrice) ?? 0.0;
     final internalShipping = double.tryParse(widget.order.cargo) ?? 0.0;
-    final commission = double.tryParse(widget.order.commission) ?? 0.0;
-    final tax = double.tryParse(widget.order.tax) ?? 0.0;
+    
+    // Commission and Tax are percentages - calculate actual amounts
+    final commissionPercent = double.tryParse(widget.order.commission) ?? 0.0;
+    final taxPercent = double.tryParse(widget.order.tax) ?? 0.0;
+    final commissionAmount = itemPrice * (commissionPercent / 100);
+    final taxAmount = itemPrice * (taxPercent / 100);
+    
     final statusColor = _getStatusColor(widget.order.status);
 
     return Scaffold(
@@ -412,17 +417,17 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     ),
                     const Divider(height: 1),
 
-                    // Commission - same currency as item price
+                    // Commission - calculated from percentage (same currency as item price)
                     _buildDetailRow(
-                      l10n.commission,
-                      '${widget.order.currencySymbol ?? ''}${commission.toStringAsFixed(2)}',
+                      '${l10n.commission} ($commissionPercent%)',
+                      '${widget.order.currencySymbol ?? ''}${commissionAmount.toStringAsFixed(2)}',
                     ),
                     const Divider(height: 1),
 
-                    // Tax - same currency as item price
+                    // Tax - calculated from percentage (same currency as item price)
                     _buildDetailRow(
-                      l10n.tax,
-                      '${widget.order.currencySymbol ?? ''}${tax.toStringAsFixed(2)}',
+                      '${l10n.tax} ($taxPercent%)',
+                      '${widget.order.currencySymbol ?? ''}${taxAmount.toStringAsFixed(2)}',
                     ),
                     const Divider(height: 1),
 
