@@ -442,7 +442,17 @@ class _WebViewScreenState extends State<WebViewScreen> {
           elevation: 1,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () async {
+              // Check if webview can go back
+              if (await _controller.canGoBack()) {
+                _controller.goBack();
+              } else {
+                // No more history, go back to previous screen
+                if (mounted) {
+                  Navigator.pop(context);
+                }
+              }
+            },
           ),
           title: Text(
             widget.title,
@@ -453,6 +463,14 @@ class _WebViewScreenState extends State<WebViewScreen> {
             ),
           ),
           actions: [
+            // Home button - always go back to previous screen
+            IconButton(
+              icon: const Icon(Icons.home, color: AppColors.primary),
+              tooltip: 'Back to Home',
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.refresh, color: AppColors.primary),
               onPressed: () => _controller.reload(),
