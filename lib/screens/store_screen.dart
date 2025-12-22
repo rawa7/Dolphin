@@ -242,8 +242,8 @@ class _StoreScreenState extends State<StoreScreen> {
               ),
             ),
 
-            // Brand Filters
-            if (_brands.isNotEmpty)
+            // Brand Filters - Hide for bronze accounts
+            if (_brands.isNotEmpty && _user?.isBronzeAccount != true)
               SliverToBoxAdapter(
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -271,8 +271,8 @@ class _StoreScreenState extends State<StoreScreen> {
                 ),
               ),
             
-            // Category Filters
-            if (_categories.isNotEmpty)
+            // Category Filters - Hide for bronze accounts
+            if (_categories.isNotEmpty && _user?.isBronzeAccount != true)
               SliverToBoxAdapter(
                 child: Container(
                   padding: const EdgeInsets.only(bottom: 8),
