@@ -130,9 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final user = await StorageService.getUser();
       
-      // Bronze accounts get static banner, others get API banners
-      if (user != null && user.isBronzeAccount == true) {
-        // Use static banner for bronze accounts
+      // Bronze accounts and guests get static banner, others get API banners
+      if (user == null || user.isBronzeAccount == true) {
+        // Use static banner for bronze accounts and guests
         setState(() {
           _banners = [
             BannerItem.fromImageUrl(
@@ -144,8 +144,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoadingBanners = false;
         });
       } else {
-        // Load banners from API for other account types
-        final customerId = user?.id.toString() ?? '0';
+        // Load banners from API for logged-in non-bronze account types
+        final customerId = user.id.toString();
         final result = await ApiService.getBanners(customerId);
         
         if (result['success'] == true && mounted) {
