@@ -7,6 +7,7 @@ import '../models/order_model.dart';
 import '../models/currency_model.dart';
 import '../models/profile_model.dart';
 import '../models/shop_item_model.dart';
+import '../models/shop_banner_model.dart';
 import '../models/notification_model.dart';
 import '../models/size_model.dart';
 import '../models/currency_rate_model.dart';
@@ -880,6 +881,37 @@ class ApiService {
         'success': data['success'] ?? false,
         'message': data['message'] ?? 'All notifications marked as read',
       };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Get Shop Banners
+  static Future<Map<String, dynamic>> getShopBanners() async {
+    try {
+      final url = Uri.parse('$baseUrl/shop_banners.php');
+      final response = await http.get(url);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true && data['data'] != null) {
+        final List<ShopBanner> banners = (data['data'] as List)
+            .map((item) => ShopBanner.fromJson(item))
+            .toList();
+        
+        return {
+          'success': true,
+          'data': banners,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to fetch shop banners',
+        };
+      }
     } catch (e) {
       return {
         'success': false,

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import '../models/shop_item_model.dart';
+import '../models/shop_banner_model.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
@@ -24,11 +25,15 @@ class _StoreScreenState extends State<StoreScreen> {
   List<ShopItem> _filteredItems = [];
   List<Brand> _brands = [];
   List<String> _categories = [];
+  List<ShopBanner> _shopBanners = [];
   String? _selectedBrandId;
   String? _selectedCategory;
   bool _isLoading = true;
+  bool _isLoadingBanners = true;
   String _errorMessage = '';
   final TextEditingController _searchController = TextEditingController();
+  final PageController _bannerController = PageController();
+  int _currentBannerIndex = 0;
   User? _user; // Track current user for bronze account check
 
   @override
@@ -36,6 +41,7 @@ class _StoreScreenState extends State<StoreScreen> {
     super.initState();
     _loadUser();
     _loadShopItems();
+    _loadShopBanners();
   }
   
   Future<void> _loadUser() async {
@@ -45,9 +51,50 @@ class _StoreScreenState extends State<StoreScreen> {
     });
   }
 
+  Future<void> _loadShopBanners() async {
+    setState(() {
+      _isLoadingBanners = true;
+    });
+
+    try {
+      // Only load banners for logged-in non-bronze users
+      final user = await StorageService.getUser();
+      if (user != null && user.isBronzeAccount != true) {
+        final result = await ApiService.getShopBanners();
+        
+        if (result['success'] && result['data'] != null) {
+          setState(() {
+            _shopBanners = result['data'] as List<ShopBanner>;
+            _isLoadingBanners = false;
+          });
+        } else {
+          setState(() {
+            _isLoadingBanners = false;
+          });
+        }
+      } else {
+        setState(() {
+          _isLoadingBanners = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoadingBanners = false;
+      });
+    }
+  }
+
+  Future<void> _refreshAll() async {
+    await Future.wait([
+      _loadShopItems(),
+      _loadShopBanners(),
+    ]);
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
+    _bannerController.dispose();
     super.dispose();
   }
   
@@ -211,7 +258,7 @@ class _StoreScreenState extends State<StoreScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: RefreshIndicator(
-        onRefresh: _loadShopItems,
+        onRefresh: _refreshAll,
         child: CustomScrollView(
           slivers: [
             // Store Header
@@ -241,6 +288,115 @@ class _StoreScreenState extends State<StoreScreen> {
                 ),
               ),
             ),
+
+            // Shop Banners - Only for Silver, Gold, Platinum accounts
+            if (_shopBanners.isNotEmpty && _user != null && _user!.isBronzeAccount != true)
+              SliverToBoxAdapter(
+                child: Container(
+                  height: 200,
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: PageView.builder(
+                      controller: _bannerController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentBannerIndex = index;
+                        });
+                      },
+                      itemCount: _shopBanners.length,
+                      itemBuilder: (context, index) {
+                        final banner = _shopBanners[index];
+                        return GestureDetector(
+                          onTap: () {
+                            // Navigate to product detail if product_id is valid
+                            // For now, we'll just show the banner
+                          },
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              // Banner Image
+                              Image.network(
+                                banner.bannerImage,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.image_not_supported, size: 48),
+                                  );
+                                },
+                              ),
+                              // Gradient Overlay
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.7),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              // Banner Info
+                              Positioned(
+                                bottom: 16,
+                                left: 16,
+                                right: 16,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      banner.title,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      banner.description,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Page Indicator
+                              if (_shopBanners.length > 1)
+                                Positioned(
+                                  bottom: 8,
+                                  right: 16,
+                                  child: Row(
+                                    children: List.generate(
+                                      _shopBanners.length,
+                                      (dotIndex) => Container(
+                                        margin: const EdgeInsets.only(left: 4),
+                                        width: 8,
+                                        height: 8,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: _currentBannerIndex == dotIndex
+                                              ? Colors.white
+                                              : Colors.white.withOpacity(0.4),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
 
             // Brand Filters - Hide for bronze accounts and guests
             if (_brands.isNotEmpty && _user != null && _user!.isBronzeAccount != true)
