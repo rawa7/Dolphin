@@ -148,10 +148,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   return Text(
                     l10n.signUp,
                     style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.white,
-                    ),
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.white,
+                ),
                   );
                 },
               ),
@@ -167,141 +167,141 @@ class _SignupScreenState extends State<SignupScreen> {
                       builder: (context) {
                         final l10n = AppLocalizations.of(context)!;
                         return Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Name
-                              _buildTextField(
-                                controller: _nameController,
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Name
+                          _buildTextField(
+                            controller: _nameController,
                                 label: l10n.fullName,
                                 hint: l10n.enterYourFullName,
-                                icon: Icons.person,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
+                            icon: Icons.person,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
                                     return l10n.pleaseEnterYourName;
-                                  }
-                                  if (value.length < 2) {
+                              }
+                              if (value.length < 2) {
                                     return l10n.nameMustBeAtLeast2Characters;
-                                  }
-                                  return null;
-                                },
-                              ),
+                              }
+                              return null;
+                            },
+                          ),
 
-                              const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                              // Phone
-                              _buildTextField(
-                                controller: _phoneController,
+                          // Phone
+                          _buildTextField(
+                            controller: _phoneController,
                                 label: l10n.phoneNumber,
                                 hint: '07501234567',
-                                icon: Icons.phone_android,
+                            icon: Icons.phone_android,
                                 keyboardType: TextInputType.number,
                                 maxLength: 11,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(11),
                                 ],
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
                                     return l10n.pleaseEnterYourPhoneNumber;
-                                  }
+                              }
                                   if (value.length != 11) {
                                     return l10n.pleaseEnterValidPhoneNumber;
-                                  }
-                                  return null;
-                                },
-                              ),
+                              }
+                              return null;
+                            },
+                          ),
 
-                              const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                              // Address
-                              _buildTextField(
-                                controller: _addressController,
+                          // Address
+                          _buildTextField(
+                            controller: _addressController,
                                 label: l10n.address,
                                 hint: l10n.enterYourAddress,
-                                icon: Icons.location_on,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
+                            icon: Icons.location_on,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
                                     return l10n.pleaseEnterYourAddress;
-                                  }
-                                  return null;
-                                },
-                              ),
+                              }
+                              return null;
+                            },
+                          ),
 
-                              const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                              // Password
-                              _buildTextField(
-                                controller: _passwordController,
+                          // Password
+                          _buildTextField(
+                            controller: _passwordController,
                                 label: l10n.password,
                                 hint: l10n.enterYourPassword,
-                                icon: Icons.lock,
-                                obscureText: _obscurePassword,
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                    color: AppColors.textHint,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscurePassword = !_obscurePassword;
-                                    });
-                                  },
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return l10n.pleaseEnterPassword;
-                                  }
-                                  if (value.length < 6) {
-                                    return l10n.passwordMustBeAtLeast6Characters;
-                                  }
-                                  return null;
-                                },
+                            icon: Icons.lock,
+                            obscureText: _obscurePassword,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                color: AppColors.textHint,
                               ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                    return l10n.pleaseEnterPassword;
+                              }
+                              if (value.length < 6) {
+                                    return l10n.passwordMustBeAtLeast6Characters;
+                              }
+                              return null;
+                            },
+                          ),
 
-                              const SizedBox(height: 30),
+                          const SizedBox(height: 30),
 
-                              // Sign up button
-                              SizedBox(
-                                width: double.infinity,
-                                height: 56,
-                                child: ElevatedButton(
-                                  onPressed: _isLoading ? null : _handleSignup,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    elevation: 4,
-                                  ),
-                                  child: _isLoading
-                                      ? const CircularProgressIndicator(
-                                          color: AppColors.white,
-                                        )
+                          // Sign up button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _handleSignup,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 4,
+                              ),
+                              child: _isLoading
+                                  ? const CircularProgressIndicator(
+                                      color: AppColors.white,
+                                    )
                                       : Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
                                             const Icon(Icons.person_add, color: AppColors.white),
                                             const SizedBox(width: 8),
-                                            Text(
+                                        Text(
                                               l10n.signUp,
                                               style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: AppColors.white,
-                                              ),
-                                            ),
-                                          ],
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.white,
+                                          ),
                                         ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 30),
-                            ],
+                                      ],
+                                    ),
+                            ),
                           ),
+
+                          const SizedBox(height: 30),
+                        ],
+                      ),
                         );
                       },
                     ),

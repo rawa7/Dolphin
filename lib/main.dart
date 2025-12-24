@@ -116,12 +116,12 @@ class _SplashScreenState extends State<SplashScreen> {
       } else {
         // Language already selected - go to home screen
         // Users can browse as guests and will be prompted to login when needed
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const MainNavigation(),
-          ),
-        );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MainNavigation(),
+        ),
+      );
       }
     }
   }

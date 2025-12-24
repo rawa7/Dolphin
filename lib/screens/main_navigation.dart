@@ -110,12 +110,12 @@ class _MainNavigationState extends State<MainNavigation> {
     } else {
       // Regular users: All screens
       return [
-        HomeScreen(onTabChange: _changeTab),
-        const StoreScreen(),
-        const WebsiteScreen(),
-        const MyOrdersScreen(),
-        const AccountScreen(),
-      ];
+    HomeScreen(onTabChange: _changeTab),
+    const StoreScreen(),
+    const WebsiteScreen(),
+    const MyOrdersScreen(),
+    const AccountScreen(),
+  ];
     }
   }
   
@@ -184,8 +184,8 @@ class _MainNavigationState extends State<MainNavigation> {
             if (isBronze || isGuest) {
               if (index == 2 || index == 3) {
                 // My Orders and Account require authentication
-                final isAuthenticated = await AuthHelper.requireAuth(context);
-                if (!isAuthenticated) return;
+              final isAuthenticated = await AuthHelper.requireAuth(context);
+              if (!isAuthenticated) return;
               }
               setState(() {
                 _currentIndex = index;
@@ -199,13 +199,13 @@ class _MainNavigationState extends State<MainNavigation> {
                 // My Orders and Account require authentication
                 final isAuthenticated = await AuthHelper.requireAuth(context);
                 if (!isAuthenticated) return;
-                setState(() {
-                  _currentIndex = index;
-                });
-              } else {
-                setState(() {
-                  _currentIndex = index;
-                });
+              setState(() {
+                _currentIndex = index;
+              });
+            } else {
+              setState(() {
+                _currentIndex = index;
+              });
               }
             }
           },
@@ -248,41 +248,41 @@ class _MainNavigationState extends State<MainNavigation> {
     } else {
       // Regular users: Full navigation
       return [
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.home, size: 26),
-          label: l10n.home,
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.store, size: 26),
-          label: l10n.store,
-        ),
-        BottomNavigationBarItem(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.home, size: 26),
+              label: l10n.home,
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.store, size: 26),
+              label: l10n.store,
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.add_shopping_cart,
+                  color: Colors.white,
+                  size: 28,
+                ),
               ),
-              shape: BoxShape.circle,
+              label: l10n.newOrder,
             ),
-            child: const Icon(
-              Icons.add_shopping_cart,
-              color: Colors.white,
-              size: 28,
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.shopping_bag, size: 26),
+              label: l10n.myOrders,
             ),
-          ),
-          label: l10n.newOrder,
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.shopping_bag, size: 26),
-          label: l10n.myOrders,
-        ),
-        BottomNavigationBarItem(
-          icon: const Icon(Icons.person, size: 26),
-          label: l10n.account,
-        ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.person, size: 26),
+              label: l10n.account,
+            ),
       ];
     }
   }

@@ -257,27 +257,27 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   const Spacer(),
                   // Hide "Add Order" button for bronze accounts and guests
                   if (_user != null && _user!.isBronzeAccount != true)
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AddOrderScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.add, size: 20),
-                      label: Text(l10n.newOrder),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        elevation: 2,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddOrderScreen(),
                         ),
+                      );
+                    },
+                    icon: const Icon(Icons.add, size: 20),
+                    label: Text(l10n.newOrder),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      elevation: 2,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
+                  ),
                 ],
               ),
             ),

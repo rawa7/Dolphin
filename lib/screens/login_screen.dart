@@ -114,26 +114,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Back button
+            children: [
+              // Back button
                     Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: AppColors.white),
-                        onPressed: () {
-                          // Always go back to home screen
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MainNavigation(),
-                            ),
-                          );
-                        },
-                      ),
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: AppColors.white),
+                      onPressed: () {
+                        // Always go back to home screen
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MainNavigation(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                     // Language button
                     Container(
                       decoration: BoxDecoration(
@@ -183,10 +183,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   return Text(
                     l10n.signIn,
                     style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.white,
-                    ),
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.white,
+                ),
                   );
                 },
               ),
@@ -208,35 +208,35 @@ class _LoginScreenState extends State<LoginScreen> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.phone, color: AppColors.gray),
-                                    const SizedBox(width: 8),
-                                    Text(
+                        Row(
+                          children: [
+                            const Icon(Icons.phone, color: AppColors.gray),
+                            const SizedBox(width: 8),
+                            Text(
                                       l10n.phoneNumber,
                                       style: const TextStyle(
-                                        fontSize: 16,
-                                        color: AppColors.textSecondary,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.shadow,
-                                        spreadRadius: 1,
-                                        blurRadius: 10,
-                                      ),
-                                    ],
-                                  ),
-                                  child: TextField(
-                                    controller: _phoneController,
+                                fontSize: 16,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.shadow,
+                                spreadRadius: 1,
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: _phoneController,
                                     keyboardType: TextInputType.number,
                                     maxLength: 11,
                                     inputFormatters: [
@@ -246,14 +246,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                     decoration: const InputDecoration(
                                       hintText: '07501234567',
                                       hintStyle: TextStyle(color: AppColors.textHint),
-                                      border: InputBorder.none,
+                              border: InputBorder.none,
                                       counterText: '',
                                       contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 16),
+                                  horizontal: 16, vertical: 16),
                                       prefixIcon: Icon(Icons.phone_android, color: AppColors.textHint),
                                     ),
-                                  ),
-                                ),
+                            ),
+                          ),
                               ],
                             );
                           },
@@ -268,59 +268,59 @@ class _LoginScreenState extends State<LoginScreen> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.lock, color: AppColors.gray),
-                                    const SizedBox(width: 8),
-                                    Text(
+                        Row(
+                          children: [
+                            const Icon(Icons.lock, color: AppColors.gray),
+                            const SizedBox(width: 8),
+                            Text(
                                       l10n.password,
                                       style: const TextStyle(
-                                        fontSize: 16,
-                                        color: AppColors.textSecondary,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.shadow,
-                                        spreadRadius: 1,
-                                        blurRadius: 10,
-                                      ),
-                                    ],
-                                  ),
-                                  child: TextField(
-                                    controller: _passwordController,
-                                    obscureText: _obscurePassword,
-                                    decoration: InputDecoration(
+                                fontSize: 16,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.shadow,
+                                spreadRadius: 1,
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
                                       hintText: l10n.password,
-                                      hintStyle: const TextStyle(color: AppColors.textHint),
-                                      border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 16),
+                              hintStyle: const TextStyle(color: AppColors.textHint),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 16),
                                       prefixIcon: const Icon(Icons.lock_outline,
-                                          color: AppColors.textHint),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscurePassword
-                                              ? Icons.visibility_outlined
-                                              : Icons.visibility_off_outlined,
-                                          color: AppColors.textHint,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            _obscurePassword = !_obscurePassword;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ),
+                                  color: AppColors.textHint),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  color: AppColors.textHint,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
                                 ),
                               ],
                             );
@@ -334,37 +334,37 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (context) {
                             final l10n = AppLocalizations.of(context)!;
                             return SizedBox(
-                              width: double.infinity,
-                              height: 56,
+                          width: double.infinity,
+                          height: 56,
                               child: ElevatedButton(
-                                onPressed: _isLoading ? null : _handleLogin,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  elevation: 4,
-                                ),
-                                child: _isLoading
-                                    ? const CircularProgressIndicator(
-                                        color: AppColors.white,
-                                      )
-                                    : Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(Icons.login, color: AppColors.white),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            l10n.signIn,
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.white,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                              onPressed: _isLoading ? null : _handleLogin,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
                               ),
+                              elevation: 4,
+                            ),
+                            child: _isLoading
+                                ? const CircularProgressIndicator(
+                                    color: AppColors.white,
+                                  )
+                                    : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.login, color: AppColors.white),
+                                          const SizedBox(width: 8),
+                                      Text(
+                                            l10n.signIn,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
                             );
                           },
                         ),
@@ -376,38 +376,38 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (context) {
                             final l10n = AppLocalizations.of(context)!;
                             return Center(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
                                   Text(
                                     l10n.dontHaveAnAccount + ' ',
                                     style: const TextStyle(
-                                      color: AppColors.white,
-                                      fontSize: 13,
+                                  color: AppColors.white,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const SignupScreen(),
                                     ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const SignupScreen(),
-                                        ),
-                                      );
-                                    },
+                                  );
+                                },
                                     child: Text(
                                       l10n.signUp,
                                       style: const TextStyle(
-                                        color: AppColors.white,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: AppColors.white,
-                                      ),
-                                    ),
+                                    color: AppColors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColors.white,
                                   ),
-                                ],
+                                ),
                               ),
+                            ],
+                          ),
                             );
                           },
                         ),

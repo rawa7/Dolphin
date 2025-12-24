@@ -98,23 +98,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     });
 
     try {
-      // Download image
-      final imageFile = await _downloadImage(widget.item.imagePath);
+    // Download image
+    final imageFile = await _downloadImage(widget.item.imagePath);
 
-      if (imageFile == null) {
-        setState(() {
-          _isOrdering = false;
-        });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+    if (imageFile == null) {
+      setState(() {
+        _isOrdering = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
               content: Text('Failed to download product image'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        return;
+            backgroundColor: Colors.red,
+          ),
+        );
       }
+      return;
+    }
 
       // Place order directly
       print('🛒 Ordering item: ${widget.item.itemName}, Price: ${widget.item.price}');
@@ -155,9 +155,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         }
       }
     } catch (e) {
-      setState(() {
-        _isOrdering = false;
-      });
+        setState(() {
+          _isOrdering = false;
+        });
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -355,23 +355,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Category only (brand removed for Apple compliance)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            widget.item.itemCategory,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                          ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                widget.item.itemCategory,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
+                              ),
                         ),
 
                         const SizedBox(height: 16),

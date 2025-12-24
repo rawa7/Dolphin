@@ -76,13 +76,13 @@ class ShopItem {
   List<String> get allImages {
     final images = <String>[imagePath];
     if (imageid2 != null && imageid2!.isNotEmpty) {
-      images.add('https://dolphinshippingiq.com/images/$imageid2.png');
+      images.add(imageid2!);
     }
     if (imageid3 != null && imageid3!.isNotEmpty) {
-      images.add('https://dolphinshippingiq.com/images/$imageid3.png');
+      images.add(imageid3!);
     }
     if (imageid4 != null && imageid4!.isNotEmpty) {
-      images.add('https://dolphinshippingiq.com/images/$imageid4.png');
+      images.add(imageid4!);
     }
     return images;
   }

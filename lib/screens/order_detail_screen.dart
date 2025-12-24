@@ -291,18 +291,18 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       ),
                       // Reorder button - Hide for bronze accounts
                       if (_user?.isBronzeAccount != true)
-                        ElevatedButton.icon(
-                          onPressed: _isProcessing ? null : _reorderProduct,
-                          icon: const Icon(Icons.refresh, size: 18),
-                          label: Text(l10n.reorder),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF9C1B5E),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
+                      ElevatedButton.icon(
+                        onPressed: _isProcessing ? null : _reorderProduct,
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: Text(l10n.reorder),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF9C1B5E),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -349,38 +349,38 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
                   // Link - Hide for bronze users
                   if (_user?.isBronzeAccount != true) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            l10n.link,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black54,
-                            ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          l10n.link,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
                           ),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: _openLink,
-                              child: Text(
-                                widget.order.link.length > 40
-                                    ? '${widget.order.link.substring(0, 40)}...'
-                                    : widget.order.link,
-                                textAlign: TextAlign.right,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
-                                ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: _openLink,
+                            child: Text(
+                              widget.order.link.length > 40
+                                  ? '${widget.order.link.substring(0, 40)}...'
+                                  : widget.order.link,
+                              textAlign: TextAlign.right,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    const Divider(height: 1),
+                  ),
+                  const Divider(height: 1),
                   ],
 
                   // Country
@@ -435,46 +435,46 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   
                   // Hide price details for completed orders (status = -2)
                   if (widget.order.status != '-2') ...[
-                    const Divider(height: 1),
+                  const Divider(height: 1),
 
-                    // Item Price
-                    _buildDetailRow(
-                      l10n.itemPrice,
-                      '${widget.order.currencySymbol ?? ''}${itemPrice.toStringAsFixed(2)}',
-                    ),
-                    const Divider(height: 1),
+                  // Item Price
+                  _buildDetailRow(
+                    l10n.itemPrice,
+                    '${widget.order.currencySymbol ?? ''}${itemPrice.toStringAsFixed(2)}',
+                  ),
+                  const Divider(height: 1),
 
-                    // Shipping (always USD)
-                    _buildDetailRow(l10n.shipping, '\$${shipping.toStringAsFixed(2)}'),
-                    const Divider(height: 1),
+                  // Shipping (always USD)
+                  _buildDetailRow(l10n.shipping, '\$${shipping.toStringAsFixed(2)}'),
+                  const Divider(height: 1),
 
-                    // Internal Shipping (Cargo) - same currency as item price
-                    _buildDetailRow(
-                      l10n.cargo,
-                      '${widget.order.currencySymbol ?? ''}${internalShipping.toStringAsFixed(2)}',
-                    ),
-                    const Divider(height: 1),
+                  // Internal Shipping (Cargo) - same currency as item price
+                  _buildDetailRow(
+                    l10n.cargo,
+                    '${widget.order.currencySymbol ?? ''}${internalShipping.toStringAsFixed(2)}',
+                  ),
+                  const Divider(height: 1),
 
                     // Commission - calculated from percentage (same currency as item price)
-                    _buildDetailRow(
+                  _buildDetailRow(
                       '${l10n.commission} ($commissionPercent%)',
                       '${widget.order.currencySymbol ?? ''}${commissionAmount.toStringAsFixed(2)}',
-                    ),
-                    const Divider(height: 1),
+                  ),
+                  const Divider(height: 1),
 
                     // Tax - calculated from percentage (same currency as item price)
-                    _buildDetailRow(
+                  _buildDetailRow(
                       '${l10n.tax} ($taxPercent%)',
                       '${widget.order.currencySymbol ?? ''}${taxAmount.toStringAsFixed(2)}',
-                    ),
-                    const Divider(height: 1),
+                  ),
+                  const Divider(height: 1),
 
-                    // Total Price (always USD)
-                    _buildDetailRow(
-                      l10n.totalPrice,
-                      '\$${price.toStringAsFixed(2)}',
-                      isTotal: true,
-                    ),
+                  // Total Price (always USD)
+                  _buildDetailRow(
+                    l10n.totalPrice,
+                    '\$${price.toStringAsFixed(2)}',
+                    isTotal: true,
+                  ),
                   ] else 
                     const Divider(height: 1),
                   

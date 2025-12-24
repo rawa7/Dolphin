@@ -132,26 +132,26 @@ class _StoreScreenState extends State<StoreScreen> {
     // Apply brand filter
     if (_selectedBrandId != null) {
       filtered = filtered.where((item) => item.brandId == _selectedBrandId).toList();
-    }
+      }
     
     // Apply category filter
     if (_selectedCategory != null) {
       filtered = filtered.where((item) => item.itemCategory == _selectedCategory).toList();
-    }
-    
+  }
+
     // Apply search filter
     final query = _searchController.text.toLowerCase();
     if (query.isNotEmpty) {
       filtered = filtered.where((item) =>
-          item.itemName.toLowerCase().contains(query) ||
-          item.itemCategory.toLowerCase().contains(query) ||
+                item.itemName.toLowerCase().contains(query) ||
+                item.itemCategory.toLowerCase().contains(query) ||
           item.itemDescription.toLowerCase().contains(query)).toList();
     }
     
     setState(() {
       _filteredItems = filtered;
-    });
-  }
+      });
+    }
 
   void _applySearch() {
     _applyFilters();
@@ -244,33 +244,33 @@ class _StoreScreenState extends State<StoreScreen> {
 
             // Brand Filters - Hide for bronze accounts and guests
             if (_brands.isNotEmpty && _user != null && _user!.isBronzeAccount != true)
-              SliverToBoxAdapter(
-                child: Container(
+            SliverToBoxAdapter(
+              child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   height: 110,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
+                  children: [
                       // All Brands filter
-                      _buildBrandFilter(
-                        isSelected: _selectedBrandId == null,
+                    _buildBrandFilter(
+                      isSelected: _selectedBrandId == null,
                         brandName: 'All',
                         child: const Icon(Icons.apps, color: AppColors.primary),
-                        onTap: () => _filterByBrand(null),
+                      onTap: () => _filterByBrand(null),
                       ),
                       // Individual brand filters
-                      ..._brands.map((brand) => _buildBrandFilter(
-                            isSelected: _selectedBrandId == brand.brandId,
-                            brandName: brand.brandName,
-                            imageUrl: brand.brandImageUrl,
-                            onTap: () => _filterByBrand(brand.brandId),
-                          )),
-                    ],
-                  ),
+                    ..._brands.map((brand) => _buildBrandFilter(
+                          isSelected: _selectedBrandId == brand.brandId,
+                          brandName: brand.brandName,
+                          imageUrl: brand.brandImageUrl,
+                          onTap: () => _filterByBrand(brand.brandId),
+                        )),
+                  ],
                 ),
               ),
-            
+            ),
+
             // Category Filters - Hide for bronze accounts and guests
             if (_categories.isNotEmpty && _user != null && _user!.isBronzeAccount != true)
               SliverToBoxAdapter(
@@ -323,20 +323,20 @@ class _StoreScreenState extends State<StoreScreen> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (value) => _applySearch(),
-                  decoration: InputDecoration(
-                    hintText: l10n.searchProducts,
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) => _applySearch(),
+                        decoration: InputDecoration(
+                          hintText: l10n.searchProducts,
+                          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
                 ),
               ),
             ),
@@ -490,23 +490,23 @@ class _StoreScreenState extends State<StoreScreen> {
     );
 
     try {
-      // Download image
-      final imageFile = await _downloadImage(item.imagePath);
-      
+    // Download image
+    final imageFile = await _downloadImage(item.imagePath);
+    
       if (imageFile == null) {
-        // Close loading
+    // Close loading
         if (mounted) Navigator.pop(context);
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
               content: Text('Failed to download product image'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        return;
+            backgroundColor: Colors.red,
+          ),
+        );
       }
+      return;
+    }
 
       // Place order directly
       print('🛒 Ordering item: ${item.itemName}, Price: ${item.price}');
@@ -525,7 +525,7 @@ class _StoreScreenState extends State<StoreScreen> {
       // Close loading
       if (mounted) Navigator.pop(context);
 
-      if (mounted) {
+    if (mounted) {
         if (result['success']) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -551,8 +551,8 @@ class _StoreScreenState extends State<StoreScreen> {
           SnackBar(
             content: Text('Error: $e'),
             backgroundColor: Colors.red,
-          ),
-        );
+        ),
+      );
       }
     }
   }
