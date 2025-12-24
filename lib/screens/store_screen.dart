@@ -293,7 +293,7 @@ class _StoreScreenState extends State<StoreScreen> {
             if (_shopBanners.isNotEmpty && _user != null && _user!.isBronzeAccount != true)
               SliverToBoxAdapter(
                 child: Container(
-                  height: 200,
+                  height: 250,
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
