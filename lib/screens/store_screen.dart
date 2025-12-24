@@ -751,7 +751,7 @@ class _StoreScreenState extends State<StoreScreen> {
           GestureDetector(
             onTap: () => _navigateToProductDetail(item),
             child: Container(
-              height: 140,
+              height: 180,
               decoration: BoxDecoration(
                 color: Colors.grey[100],
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
