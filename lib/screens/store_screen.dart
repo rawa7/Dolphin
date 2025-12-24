@@ -219,6 +219,26 @@ class _StoreScreenState extends State<StoreScreen> {
     }
   }
 
+  void _onBannerTap(ShopBanner banner) {
+    // Find the product in the items list using product_id
+    try {
+      final product = _allItems.firstWhere(
+        (item) => item.itemId == banner.productId.toString(),
+      );
+      _navigateToProductDetail(product);
+    } catch (e) {
+      // Product not found in current items list - do nothing or show message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Product not available'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -308,10 +328,7 @@ class _StoreScreenState extends State<StoreScreen> {
                       itemBuilder: (context, index) {
                         final banner = _shopBanners[index];
                         return GestureDetector(
-                          onTap: () {
-                            // Navigate to product detail if product_id is valid
-                            // For now, we'll just show the banner
-                          },
+                          onTap: () => _onBannerTap(banner),
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
