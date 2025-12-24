@@ -289,7 +289,7 @@ class _StoreScreenState extends State<StoreScreen> {
               ),
             ),
 
-            // Shop Banners - Only for Silver, Gold, Platinum accounts
+            // Shop Banners - Only for non-bronze accounts (Silver, Gold, Platinum, Diamond, etc.)
             if (_shopBanners.isNotEmpty && _user != null && _user!.isBronzeAccount != true)
               SliverToBoxAdapter(
                 child: Container(
