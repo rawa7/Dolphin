@@ -146,6 +146,10 @@ class _WebViewScreenState extends State<WebViewScreen> {
               
               data.images = images;
               
+              // Get selected size and color from our custom variables
+              data.size = window.dolphinSelectedSize || '';
+              data.color = window.dolphinSelectedColor || '';
+              
               return JSON.stringify(data);
             }
             
@@ -226,15 +230,21 @@ class _WebViewScreenState extends State<WebViewScreen> {
             
             data.images = images;
             
-            // Try to get color
-            const colorElement = document.querySelector('[class*="color"] [class*="selected"]') ||
-                                document.querySelector('[data-color]');
-            data.color = colorElement?.textContent?.trim() || '';
+            // Try to get color (use our custom variable first, then fallback)
+            data.color = window.dolphinSelectedColor || '';
+            if (!data.color) {
+              const colorElement = document.querySelector('[class*="color"] [class*="selected"]') ||
+                                  document.querySelector('[data-color]');
+              data.color = colorElement?.textContent?.trim() || '';
+            }
             
-            // Try to get size
-            const sizeElement = document.querySelector('[class*="size"] [class*="selected"]') ||
-                               document.querySelector('[data-size]');
-            data.size = sizeElement?.textContent?.trim() || '';
+            // Try to get size (use our custom variable first, then fallback)
+            data.size = window.dolphinSelectedSize || '';
+            if (!data.size) {
+              const sizeElement = document.querySelector('[class*="size"] [class*="selected"]') ||
+                                 document.querySelector('[data-size]');
+              data.size = sizeElement?.textContent?.trim() || '';
+            }
             
             return JSON.stringify(data);
           } catch (error) {
@@ -525,6 +535,11 @@ class _WebViewScreenState extends State<WebViewScreen> {
             });
             // Update navigation buttons state
             _updateNavigationState();
+            
+            // Inject custom CSS and JS for Shein pages
+            if (url.toLowerCase().contains('shein.com')) {
+              await _customizeSheinPage();
+            }
           },
           onWebResourceError: (WebResourceError error) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -546,6 +561,115 @@ class _WebViewScreenState extends State<WebViewScreen> {
       _canGoBack = canGoBack;
       _canGoForward = canGoForward;
     });
+  }
+  
+  // Customize Shein page to hide their add to cart and enhance UX
+  Future<void> _customizeSheinPage() async {
+    try {
+      const jsCode = '''
+        (function() {
+          try {
+            // Inject CSS to hide Shein's add to cart and other UI elements
+            const style = document.createElement('style');
+            style.innerHTML = `
+              /* Hide Shein's add to cart button */
+              [class*="addToCart"],
+              [class*="add-to-cart"],
+              [class*="AddToCart"],
+              button[class*="add"][class*="bag"],
+              button[class*="Add"][class*="Bag"],
+              .she-btn-black,
+              [class*="buyNow"],
+              [class*="buy-now"],
+              
+              /* Hide bottom sticky bar with cart */
+              [class*="sticky-wrapper"],
+              [class*="product-intro__footer"],
+              [class*="goods-bottom-bar"],
+              [class*="bottomBar"],
+              [class*="bottom-bar"],
+              
+              /* Hide cart icon and wishlist in header */
+              [class*="cart-icon"],
+              [class*="wishlist"],
+              [class*="favorite"],
+              
+              /* Hide promotional banners */
+              [class*="promotion-bar"],
+              [class*="promo-banner"],
+              
+              /* Hide chat/customer service */
+              [class*="customer-service"],
+              [class*="chat-btn"],
+              [class*="live-chat"] {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+              }
+              
+              /* Make product details more visible */
+              [class*="product-intro__container"] {
+                padding-bottom: 80px !important;
+              }
+              
+              /* Ensure size selector is visible at top */
+              [class*="size-select"],
+              [class*="product-intro__attr-item"] {
+                position: relative !important;
+                z-index: 1 !important;
+              }
+            `;
+            document.head.appendChild(style);
+            
+            // Store selected size globally for easy access
+            window.dolphinSelectedSize = null;
+            window.dolphinSelectedColor = null;
+            
+            // Function to capture selected size and color
+            function captureSelections() {
+              // Capture size
+              const sizeSelected = document.querySelector('[class*="size"][class*="select"] [class*="active"]') ||
+                                  document.querySelector('[class*="product-intro__attr-item"][class*="active"]');
+              if (sizeSelected) {
+                window.dolphinSelectedSize = sizeSelected.textContent?.trim();
+              }
+              
+              // Capture color
+              const colorSelected = document.querySelector('[class*="color"][class*="select"] [class*="active"]') ||
+                                   document.querySelector('[class*="product-intro__sku-color"][class*="active"]');
+              if (colorSelected) {
+                window.dolphinSelectedColor = colorSelected.getAttribute('title') || 
+                                             colorSelected.getAttribute('data-color') ||
+                                             colorSelected.textContent?.trim();
+              }
+            }
+            
+            // Capture selections initially
+            setTimeout(captureSelections, 1000);
+            
+            // Monitor for size/color changes
+            const observer = new MutationObserver(captureSelections);
+            observer.observe(document.body, {
+              attributes: true,
+              subtree: true,
+              attributeFilter: ['class']
+            });
+            
+            console.log('Dolphin: Shein page customized successfully');
+            return 'success';
+          } catch (error) {
+            console.error('Dolphin: Error customizing Shein page:', error);
+            return 'error: ' + error.toString();
+          }
+        })();
+      ''';
+      
+      final result = await _controller.runJavaScriptReturningResult(jsCode);
+      print('Shein page customization result: $result');
+    } catch (e) {
+      print('Error customizing Shein page: $e');
+    }
   }
 
   Future<bool> _onWillPop() async {
