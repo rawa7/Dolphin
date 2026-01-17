@@ -276,15 +276,27 @@ class _WebViewScreenState extends State<WebViewScreen> {
         data['price'] = priceStr;
       }
       
-      // Try to download the first image if available
+      // PRIORITY 1: Take a screenshot first (most reliable for main product image)
       File? imageFile;
-      if (data['images'] != null && data['images'] is List && (data['images'] as List).isNotEmpty) {
-        print('Found ${(data['images'] as List).length} images in data');
+      try {
+        print('Taking screenshot to capture product image...');
+        imageFile = await _captureScreenshot();
+        if (imageFile != null) {
+          print('Screenshot captured successfully: ${imageFile.path}');
+        } else {
+          print('Screenshot returned null');
+        }
+      } catch (e) {
+        print('Error capturing screenshot: $e');
+      }
+      
+      // PRIORITY 2: If screenshot failed, try to download from URL
+      if (imageFile == null && data['images'] != null && data['images'] is List && (data['images'] as List).isNotEmpty) {
+        print('Screenshot failed, attempting to download from URL...');
         final imageUrl = (data['images'] as List)[0].toString();
         print('Attempting to download image from: $imageUrl');
         
         try {
-          // Add timeout to prevent hanging (increased to 10 seconds)
           imageFile = await _downloadImage(imageUrl).timeout(
             const Duration(seconds: 10),
             onTimeout: () {
@@ -300,21 +312,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
           }
         } catch (e) {
           print('Error downloading image: $e');
-        }
-      } else {
-        print('No images found in extracted data');
-      }
-      
-      // If image download failed or no images found, take a screenshot
-      if (imageFile == null) {
-        try {
-          print('Image download failed, taking screenshot...');
-          imageFile = await _captureScreenshot();
-          if (imageFile != null) {
-            print('Screenshot captured successfully');
-          }
-        } catch (e) {
-          print('Error capturing screenshot: $e');
         }
       }
       
@@ -363,98 +360,25 @@ class _WebViewScreenState extends State<WebViewScreen> {
   
   Future<File?> _captureScreenshot() async {
     try {
-      print('Attempting to capture screenshot...');
+      print('Attempting to capture webview screenshot...');
       
-      // Use JavaScript to get the main product image from the page
-      const jsCode = '''
-        (function() {
-          try {
-            // Priority 1: Main product image selectors (most specific first)
-            const mainImageSelectors = [
-              'img[data-zoom-image]',
-              'img[itemprop="image"]',
-              '.product-main-image img:first-child',
-              '.product-image-container img:first-child',
-              'img[class*="mainImage"]',
-              'img[id*="mainImage"]',
-              'img[class*="main-image"]',
-              'img[id*="main-image"]',
-              'img[class*="product"][class*="main"]',
-              'img[class*="Product"][class*="Main"]',
-              '[class*="ImageViewer"] img:first-child',
-              '[class*="ProductImage"] img:first-child',
-              'img[class*="productImage"]:first-child',
-              'img.product-image:first-child',
-              '.product-images img:first-child',
-              '.product__media img:first-child',
-              '.gallery img:first-child',
-              '[class*="product-gallery"] img:first-child'
-            ];
-            
-            for (const selector of mainImageSelectors) {
-              const element = document.querySelector(selector);
-              if (element) {
-                const src = element.src || element.getAttribute('data-src') || element.getAttribute('data-original') || element.getAttribute('data-zoom-image');
-                if (src && src.startsWith('http')) {
-                  return src;
-                }
-              }
-            }
-            
-            // Priority 2: Meta og:image (usually main product)
-            const ogImage = document.querySelector('meta[property="og:image"]');
-            if (ogImage && ogImage.content) {
-              return ogImage.content;
-            }
-            
-            // Priority 3: Find first large image (likely product image)
-            const allImages = Array.from(document.querySelectorAll('img'));
-            const largeImage = allImages.find(img => 
-              img.naturalWidth >= 400 && img.naturalHeight >= 400 && 
-              img.src && img.src.startsWith('http')
-            );
-            
-            if (largeImage) {
-              return largeImage.src;
-            }
-            
-            return null;
-          } catch (error) {
-            return null;
-          }
-        })();
-      ''';
-
-      final result = await _controller.runJavaScriptReturningResult(jsCode);
-      print('Screenshot JS result: $result');
+      // Capture screenshot of the entire webview page
+      final screenshot = await _controller.takeScreenshot();
       
-      if (result != null && result.toString().isNotEmpty && result.toString() != 'null') {
-        String imageUrl = result.toString();
-        
-        // Remove quotes if present
-        if (imageUrl.startsWith('"') && imageUrl.endsWith('"')) {
-          imageUrl = imageUrl.substring(1, imageUrl.length - 1);
-        }
-        
-        print('Found image URL from page: $imageUrl');
-        
-        // Download this image
-        final imageFile = await _downloadImage(imageUrl).timeout(
-          const Duration(seconds: 10),
-          onTimeout: () {
-            print('Image download from page timed out');
-            return null;
-          },
-        );
-        
-        if (imageFile != null) {
-          print('Successfully downloaded image from page');
-          return imageFile;
-        }
+      if (screenshot == null || screenshot.isEmpty) {
+        print('Screenshot capture returned null or empty');
+        return null;
       }
       
-      print('Could not capture screenshot - no suitable image found');
-      return null;
+      print('Screenshot captured successfully, size: ${screenshot.length} bytes');
+      
+      // Save screenshot to temporary file
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/screenshot_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(screenshot);
+      
+      print('Screenshot saved to: ${file.path}');
+      return file;
     } catch (e) {
       print('Error capturing screenshot: $e');
       return null;
