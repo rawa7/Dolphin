@@ -135,16 +135,20 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       }
       
       if (widget.prefilledLink != null) {
-        _linkController.text = widget.prefilledLink!;
-        _previousUrl = widget.prefilledLink!;
+        // Convert app links to web URLs
+        final convertedUrl = _convertAppLinkToWebUrl(widget.prefilledLink!);
+        _linkController.text = convertedUrl;
+        _previousUrl = convertedUrl;
       }
       
       _isApplyingInitialData = false;
     }
     // Apply initial data if provided (before adding listener)
     else if (widget.initialUrl != null) {
-      _linkController.text = widget.initialUrl!;
-      _previousUrl = widget.initialUrl!;
+      // Convert app links to web URLs
+      final convertedUrl = _convertAppLinkToWebUrl(widget.initialUrl!);
+      _linkController.text = convertedUrl;
+      _previousUrl = convertedUrl;
       
       // If no initialData is provided, trigger auto-fetch after a short delay
       // This happens when coming from WebView "Add to Order" button
@@ -443,6 +447,41 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     // If no http/https URL found, return the original text
     return text.trim();
   }
+  
+  // Convert app deep links to proper web URLs
+  String _convertAppLinkToWebUrl(String url) {
+    final lowerUrl = url.toLowerCase();
+    
+    // Handle Shein app links (sheinlink://applink/goods/ID or shein://...)
+    if (lowerUrl.startsWith('sheinlink://') || lowerUrl.startsWith('shein://')) {
+      // Extract product ID from the URL
+      final goodsIdMatch = RegExp(r'goods[/_](\d+)', caseSensitive: false).firstMatch(url);
+      if (goodsIdMatch != null) {
+        final productId = goodsIdMatch.group(1);
+        return 'https://m.shein.com/goods-$productId.html';
+      }
+      
+      // Also try to extract from data parameter
+      final dataMatch = RegExp(r'goods_id["\']?[:\s=]+["\']?(\d+)', caseSensitive: false).firstMatch(url);
+      if (dataMatch != null) {
+        final productId = dataMatch.group(1);
+        return 'https://m.shein.com/goods-$productId.html';
+      }
+    }
+    
+    // Handle other app links (can add more conversions here)
+    // For now, if it's not http/https, return a default error message
+    if (!lowerUrl.startsWith('http://') && !lowerUrl.startsWith('https://')) {
+      // Try to find any number that might be a product ID
+      final idMatch = RegExp(r'(\d{6,})').firstMatch(url);
+      if (idMatch != null && lowerUrl.contains('shein')) {
+        final productId = idMatch.group(1);
+        return 'https://m.shein.com/goods-$productId.html';
+      }
+    }
+    
+    return url;
+  }
 
   Future<void> _fetchSizes() async {
     setState(() {
@@ -701,16 +740,25 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       return;
     }
 
+    // Convert app links to web URLs
+    String url = _convertAppLinkToWebUrl(_linkController.text.trim());
+    
+    // Update the text field with the converted URL
+    if (url != _linkController.text.trim()) {
+      setState(() {
+        _linkController.text = url;
+      });
+    }
+
     setState(() {
       _isFetchingDetails = true;
     });
 
     // First try regular HTML scraping
-    var result = await WebScraperService.fetchProductDetails(_linkController.text.trim());
+    var result = await WebScraperService.fetchProductDetails(url);
 
     // If regular scraping fails, try WebView scraping for JavaScript-heavy sites
     if (!result['success'] || (result['data'] != null && result['data']['images'].isEmpty)) {
-      final url = _linkController.text.trim();
       final lowerUrl = url.toLowerCase();
       
       // Use WebView for known JavaScript-heavy sites
@@ -722,7 +770,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         
         result = await WebViewScraperService.fetchProductDetailsWithWebView(
           context, 
-          _linkController.text.trim()
+          url
         );
       }
     }
@@ -1064,12 +1112,23 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 onChanged: (value) {
                   // Auto-extract URL when user pastes directly into the field
                   if (value.isNotEmpty && value.contains(' ')) {
-                    final extractedUrl = _extractUrlFromText(value);
+                    String extractedUrl = _extractUrlFromText(value);
+                    extractedUrl = _convertAppLinkToWebUrl(extractedUrl);
                     if (extractedUrl != value) {
                       // Only update if extraction found a different URL
                       _linkController.value = TextEditingValue(
                         text: extractedUrl,
                         selection: TextSelection.collapsed(offset: extractedUrl.length),
+                      );
+                    }
+                  }
+                  // Also check for app links even without spaces
+                  else if (value.isNotEmpty && !value.toLowerCase().startsWith('http')) {
+                    String convertedUrl = _convertAppLinkToWebUrl(value);
+                    if (convertedUrl != value) {
+                      _linkController.value = TextEditingValue(
+                        text: convertedUrl,
+                        selection: TextSelection.collapsed(offset: convertedUrl.length),
                       );
                     }
                   }
@@ -1101,7 +1160,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                           final data = await Clipboard.getData(Clipboard.kTextPlain);
                           if (data != null && data.text != null) {
                             // Extract only the URL from the text
-                            final extractedUrl = _extractUrlFromText(data.text!);
+                            String extractedUrl = _extractUrlFromText(data.text!);
+                            // Convert app links to web URLs
+                            extractedUrl = _convertAppLinkToWebUrl(extractedUrl);
                             setState(() {
                               _linkController.text = extractedUrl;
                             });
