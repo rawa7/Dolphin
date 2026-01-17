@@ -117,21 +117,33 @@ class _WebViewScreenState extends State<WebViewScreen> {
               data.price = detail.salePrice?.amount || detail.retailPrice?.amount || '';
               data.currency = detail.salePrice?.currency || detail.retailPrice?.currency || 'USD';
               
-              // Get SHEIN images - use detail_image for main product photo
+              // Get SHEIN images - prioritize main product image
               const images = [];
-              if (detail.detail_image) {
-                images.push(detail.detail_image);
-              }
+              
+              // Priority 1: goods_img (main product display image)
               if (detail.goods_img) {
                 images.push(detail.goods_img);
               }
-              if (detail.goods_imgs && Array.isArray(detail.goods_imgs)) {
-                detail.goods_imgs.forEach(img => {
+              
+              // Priority 2: First image from goods_imgs array (usually main image)
+              if (detail.goods_imgs && Array.isArray(detail.goods_imgs) && detail.goods_imgs.length > 0) {
+                const firstImg = detail.goods_imgs[0];
+                if (firstImg.origin_image && !images.includes(firstImg.origin_image)) {
+                  images.push(firstImg.origin_image);
+                }
+                // Add remaining images
+                detail.goods_imgs.slice(1).forEach(img => {
                   if (img.origin_image && !images.includes(img.origin_image)) {
                     images.push(img.origin_image);
                   }
                 });
               }
+              
+              // Priority 3: detail_image (alternative view)
+              if (detail.detail_image && !images.includes(detail.detail_image)) {
+                images.push(detail.detail_image);
+              }
+              
               data.images = images;
               
               return JSON.stringify(data);
@@ -157,33 +169,58 @@ class _WebViewScreenState extends State<WebViewScreen> {
                            priceElement?.textContent?.match(/[A-Z]{3}/)?.[0] ||
                            document.querySelector('[class*="currency"]')?.textContent || '';
             
-            // Try to get images - prioritize high-quality product images
+            // Try to get images - prioritize main product image
             const images = [];
             
-            // 1. Meta og:image (usually high quality)
-            const ogImage = document.querySelector('meta[property="og:image"]')?.content;
-            if (ogImage) images.push(ogImage);
-            
-            // 2. Twitter image (backup)
-            const twitterImage = document.querySelector('meta[name="twitter:image"]')?.content;
-            if (twitterImage && !images.includes(twitterImage)) images.push(twitterImage);
-            
-            // 3. Specific product image selectors
-            const productImageSelectors = [
-              'img[itemprop="image"]',
-              'img[class*="productImage"]',
-              'img[class*="product-image"]',
-              'img[class*="ProductImage"]',
-              'img[data-zoom-image]',
-              '.product-main-image img',
+            // Priority 1: Specific product image selectors (most reliable for main image)
+            const mainProductImageSelectors = [
+              'img[data-zoom-image]', // Zoom images are usually main product
+              'img[itemprop="image"]', // Schema.org markup
+              '.product-main-image img:first-child',
               '.product-image-container img:first-child',
-              '[class*="ImageViewer"] img:first-child'
+              'img[class*="mainImage"]',
+              'img[id*="mainImage"]',
+              'img[class*="main-image"]',
+              'img[id*="main-image"]',
+              '[class*="ImageViewer"] img:first-child',
+              '[class*="ProductImage"] img:first-child',
+              'img[class*="productImage"]:first-child',
+              'img[class*="product-image"]:first-child',
+              '.gallery img:first-child',
+              '[class*="product-gallery"] img:first-child'
             ];
             
-            for (const selector of productImageSelectors) {
+            for (const selector of mainProductImageSelectors) {
               const img = document.querySelector(selector);
               if (img && img.src && !images.includes(img.src)) {
                 images.push(img.src);
+                break; // Found main image, stop searching
+              }
+            }
+            
+            // Priority 2: Meta og:image (usually main product image)
+            const ogImage = document.querySelector('meta[property="og:image"]')?.content;
+            if (ogImage && !images.includes(ogImage)) images.push(ogImage);
+            
+            // Priority 3: Twitter image (backup)
+            const twitterImage = document.querySelector('meta[name="twitter:image"]')?.content;
+            if (twitterImage && !images.includes(twitterImage)) images.push(twitterImage);
+            
+            // Priority 4: Additional product images (only if we found main image)
+            if (images.length > 0) {
+              const additionalImageSelectors = [
+                'img[class*="productImage"]',
+                'img[class*="product-image"]',
+                'img[class*="ProductImage"]'
+              ];
+              
+              for (const selector of additionalImageSelectors) {
+                const imgs = document.querySelectorAll(selector);
+                imgs.forEach(img => {
+                  if (img.src && !images.includes(img.src)) {
+                    images.push(img.src);
+                  }
+                });
               }
             }
             
@@ -332,33 +369,49 @@ class _WebViewScreenState extends State<WebViewScreen> {
       const jsCode = '''
         (function() {
           try {
-            // Try multiple selectors for product images
-            const selectors = [
-              'meta[property="og:image"]',
+            // Priority 1: Main product image selectors (most specific first)
+            const mainImageSelectors = [
+              'img[data-zoom-image]',
+              'img[itemprop="image"]',
+              '.product-main-image img:first-child',
+              '.product-image-container img:first-child',
+              'img[class*="mainImage"]',
+              'img[id*="mainImage"]',
+              'img[class*="main-image"]',
+              'img[id*="main-image"]',
               'img[class*="product"][class*="main"]',
               'img[class*="Product"][class*="Main"]',
-              'img[itemprop="image"]',
-              'img[data-product]',
-              'img.product-image',
+              '[class*="ImageViewer"] img:first-child',
+              '[class*="ProductImage"] img:first-child',
+              'img[class*="productImage"]:first-child',
+              'img.product-image:first-child',
               '.product-images img:first-child',
-              '.product__media img:first-child'
+              '.product__media img:first-child',
+              '.gallery img:first-child',
+              '[class*="product-gallery"] img:first-child'
             ];
             
-            for (const selector of selectors) {
+            for (const selector of mainImageSelectors) {
               const element = document.querySelector(selector);
               if (element) {
-                if (selector.includes('meta')) {
-                  return element.content;
-                } else {
-                  return element.src || element.getAttribute('data-src') || element.getAttribute('data-original');
+                const src = element.src || element.getAttribute('data-src') || element.getAttribute('data-original') || element.getAttribute('data-zoom-image');
+                if (src && src.startsWith('http')) {
+                  return src;
                 }
               }
             }
             
-            // Fallback: get first large image
+            // Priority 2: Meta og:image (usually main product)
+            const ogImage = document.querySelector('meta[property="og:image"]');
+            if (ogImage && ogImage.content) {
+              return ogImage.content;
+            }
+            
+            // Priority 3: Find first large image (likely product image)
             const allImages = Array.from(document.querySelectorAll('img'));
             const largeImage = allImages.find(img => 
-              img.naturalWidth > 300 && img.naturalHeight > 300
+              img.naturalWidth >= 400 && img.naturalHeight >= 400 && 
+              img.src && img.src.startsWith('http')
             );
             
             if (largeImage) {
@@ -601,4 +654,5 @@ class _WebViewScreenState extends State<WebViewScreen> {
     );
   }
 }
+
 
