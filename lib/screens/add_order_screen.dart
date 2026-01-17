@@ -462,7 +462,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       }
       
       // Also try to extract from data parameter
-      final dataMatch = RegExp(r'goods_id["\']?[:\s=]+["\']?(\d+)', caseSensitive: false).firstMatch(url);
+      final dataMatch = RegExp(r'goods_id.*?(\d{6,})', caseSensitive: false).firstMatch(url);
       if (dataMatch != null) {
         final productId = dataMatch.group(1);
         return 'https://m.shein.com/goods-$productId.html';
