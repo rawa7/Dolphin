@@ -111,6 +111,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fetchingDetails => 'Fetching product details...';
 
   @override
+  String get selectDataEntryMode => 'Select Data Entry Mode';
+
+  @override
+  String get selectDataEntryModeDescription =>
+      'How would you like to enter product data?';
+
+  @override
+  String get automatic => 'Automatic';
+
+  @override
+  String get automaticDescription => 'Fetch data from the link automatically';
+
+  @override
+  String get manual => 'Manual';
+
+  @override
+  String get manualDescription => 'Enter product details manually';
+
+  @override
+  String get automaticMode => 'Automatic Mode';
+
+  @override
+  String get manualMode => 'Manual Mode';
+
+  @override
+  String get switchToAutomatic => 'Switch to Automatic';
+
+  @override
+  String get switchToManual => 'Switch to Manual';
+
+  @override
   String get productImage => 'Product Image';
 
   @override

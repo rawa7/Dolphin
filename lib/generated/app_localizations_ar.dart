@@ -111,6 +111,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fetchingDetails => 'جاري جلب تفاصيل المنتج...';
 
   @override
+  String get selectDataEntryMode => 'اختر طريقة إدخال البيانات';
+
+  @override
+  String get selectDataEntryModeDescription => 'كيف تريد إدخال بيانات المنتج؟';
+
+  @override
+  String get automatic => 'تلقائي';
+
+  @override
+  String get automaticDescription => 'جلب البيانات من الرابط تلقائياً';
+
+  @override
+  String get manual => 'يدوي';
+
+  @override
+  String get manualDescription => 'إدخال تفاصيل المنتج يدوياً';
+
+  @override
+  String get automaticMode => 'الوضع التلقائي';
+
+  @override
+  String get manualMode => 'الوضع اليدوي';
+
+  @override
+  String get switchToAutomatic => 'التبديل إلى التلقائي';
+
+  @override
+  String get switchToManual => 'التبديل إلى اليدوي';
+
+  @override
   String get productImage => 'صورة المنتج';
 
   @override

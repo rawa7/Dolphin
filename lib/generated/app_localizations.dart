@@ -304,6 +304,66 @@ abstract class AppLocalizations {
   /// **'Fetching product details...'**
   String get fetchingDetails;
 
+  /// No description provided for @selectDataEntryMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Data Entry Mode'**
+  String get selectDataEntryMode;
+
+  /// No description provided for @selectDataEntryModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'How would you like to enter product data?'**
+  String get selectDataEntryModeDescription;
+
+  /// No description provided for @automatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get automatic;
+
+  /// No description provided for @automaticDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch data from the link automatically'**
+  String get automaticDescription;
+
+  /// No description provided for @manual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get manual;
+
+  /// No description provided for @manualDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter product details manually'**
+  String get manualDescription;
+
+  /// No description provided for @automaticMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic Mode'**
+  String get automaticMode;
+
+  /// No description provided for @manualMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual Mode'**
+  String get manualMode;
+
+  /// No description provided for @switchToAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Automatic'**
+  String get switchToAutomatic;
+
+  /// No description provided for @switchToManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Manual'**
+  String get switchToManual;
+
   /// No description provided for @productImage.
   ///
   /// In en, this message translates to:

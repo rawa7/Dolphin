@@ -111,6 +111,37 @@ class AppLocalizationsFa extends AppLocalizations {
   String get fetchingDetails => 'وەرگرتنی وردەکاری بەرهەم...';
 
   @override
+  String get selectDataEntryMode => 'شێوازی نووسینی زانیاری هەڵبژێرە';
+
+  @override
+  String get selectDataEntryModeDescription =>
+      'چۆن دەتەوێت زانیاری بەرهەم بنووسیت؟';
+
+  @override
+  String get automatic => 'خۆکار';
+
+  @override
+  String get automaticDescription => 'وەرگرتنی زانیاری لە لینک بە شێوەی خۆکار';
+
+  @override
+  String get manual => 'دەستی';
+
+  @override
+  String get manualDescription => 'نووسینی وردەکاری بەرهەم بە دەست';
+
+  @override
+  String get automaticMode => 'دۆخی خۆکار';
+
+  @override
+  String get manualMode => 'دۆخی دەستی';
+
+  @override
+  String get switchToAutomatic => 'گۆڕین بۆ خۆکار';
+
+  @override
+  String get switchToManual => 'گۆڕین بۆ دەستی';
+
+  @override
   String get productImage => 'وێنەی بەرهەم';
 
   @override

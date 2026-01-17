@@ -71,6 +71,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   // For detecting paste operations
   String _previousUrl = '';
   bool _isApplyingInitialData = false;
+  
+  // For manual/automatic mode
+  bool _isManualMode = false;
+  bool _hasAskedMode = false;
 
   final List<String> _countries = [
     'Iraq',
@@ -267,9 +271,128 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   Future<void> _onUrlPasted() async {
     // Wait a moment for the text to be set
     await Future.delayed(const Duration(milliseconds: 100));
-    if (_linkController.text.isNotEmpty) {
-      _fetchProductDetails();
+    if (_linkController.text.isNotEmpty && !_hasAskedMode) {
+      _hasAskedMode = true;
+      _showModeSelectionDialog();
     }
+  }
+  
+  // Show dialog to ask user for manual or automatic mode
+  Future<void> _showModeSelectionDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(
+            l10n.selectDataEntryMode,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.selectDataEntryModeDescription,
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              // Automatic button
+              InkWell(
+                onTap: () {
+                  Navigator.of(dialogContext).pop();
+                  setState(() {
+                    _isManualMode = false;
+                  });
+                  _fetchProductDetails();
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.pink[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.pink[700]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.auto_awesome, color: Colors.pink[700]),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.automatic,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.pink[700],
+                              ),
+                            ),
+                            Text(
+                              l10n.automaticDescription,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Manual button
+              InkWell(
+                onTap: () {
+                  Navigator.of(dialogContext).pop();
+                  setState(() {
+                    _isManualMode = true;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[400]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, color: Colors.grey[700]),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.manual,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            Text(
+                              l10n.manualDescription,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
   
   Future<void> _fetchCurrencies() async {
@@ -1020,6 +1143,54 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                         color: Colors.pink[700],
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            
+            // Mode indicator and switch button
+            if (_hasAskedMode && _linkController.text.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          _isManualMode ? Icons.edit : Icons.auto_awesome,
+                          size: 16,
+                          color: _isManualMode ? Colors.grey[600] : Colors.pink[700],
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _isManualMode ? l10n.manualMode : l10n.automaticMode,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: _isManualMode ? Colors.grey[600] : Colors.pink[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _isManualMode = !_isManualMode;
+                        });
+                        if (!_isManualMode) {
+                          // Switched to automatic, fetch data
+                          _fetchProductDetails();
+                        }
+                      },
+                      icon: Icon(
+                        _isManualMode ? Icons.auto_awesome : Icons.edit,
+                        size: 16,
+                      ),
+                      label: Text(
+                        _isManualMode ? l10n.switchToAutomatic : l10n.switchToManual,
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ),
                   ],
