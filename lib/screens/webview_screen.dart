@@ -513,11 +513,31 @@ class _WebViewScreenState extends State<WebViewScreen> {
   }
 
   void _initializeWebView() {
+    // Convert initial URL if it's an app link
+    final initialUrl = _convertAppLinkToWebUrl(widget.url);
+    
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.white)
+      ..setUserAgent('Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36')
       ..setNavigationDelegate(
         NavigationDelegate(
+          onNavigationRequest: (NavigationRequest request) {
+            // Intercept app deep links and convert to web URLs
+            final url = request.url.toLowerCase();
+            if (url.startsWith('sheinlink://') || url.startsWith('shein://')) {
+              final convertedUrl = _convertAppLinkToWebUrl(request.url);
+              print('App link detected: ${request.url}');
+              print('Converting to: $convertedUrl');
+              
+              // Load the converted URL instead
+              _controller.loadRequest(Uri.parse(convertedUrl));
+              return NavigationDecision.prevent;
+            }
+            
+            // Allow all http/https URLs
+            return NavigationDecision.navigate;
+          },
           onProgress: (int progress) {
             setState(() {
               _progress = progress / 100;
@@ -551,7 +571,38 @@ class _WebViewScreenState extends State<WebViewScreen> {
           },
         ),
       )
-      ..loadRequest(Uri.parse(widget.url));
+      ..loadRequest(Uri.parse(initialUrl));
+  }
+  
+  // Convert app deep links to proper web URLs
+  String _convertAppLinkToWebUrl(String url) {
+    final lowerUrl = url.toLowerCase();
+    
+    // Handle Shein app links (sheinlink://applink/goods/ID or shein://...)
+    if (lowerUrl.startsWith('sheinlink://') || lowerUrl.startsWith('shein://')) {
+      // Extract product ID from the URL
+      final goodsIdMatch = RegExp(r'goods[/_](\d+)', caseSensitive: false).firstMatch(url);
+      if (goodsIdMatch != null) {
+        final productId = goodsIdMatch.group(1);
+        return 'https://m.shein.com/goods-$productId.html';
+      }
+      
+      // Also try to extract from data parameter
+      final dataMatch = RegExp(r'goods_id.*?(\d{6,})', caseSensitive: false).firstMatch(url);
+      if (dataMatch != null) {
+        final productId = dataMatch.group(1);
+        return 'https://m.shein.com/goods-$productId.html';
+      }
+      
+      // Try to find any number that might be a product ID
+      final idMatch = RegExp(r'(\d{6,})').firstMatch(url);
+      if (idMatch != null) {
+        final productId = idMatch.group(1);
+        return 'https://m.shein.com/goods-$productId.html';
+      }
+    }
+    
+    return url;
   }
 
   Future<void> _updateNavigationState() async {
