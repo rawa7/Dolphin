@@ -48,20 +48,36 @@ class _WebViewScreenState extends State<WebViewScreen> {
     });
 
     try {
-      // Get current URL
-      final currentUrl = await _controller.currentUrl() ?? widget.url;
+      // Extract data directly from the webview (for Shein and other sites)
+      final extractedData = await _extractDataFromWebView();
       
       setState(() {
         _isFetchingData = false;
       });
 
-      // Navigate to Add Order screen with just the URL
-      // Let the Add Order screen handle data fetching (same as "Get Data" button)
+      if (extractedData == null) {
+        // If extraction failed, show error
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not extract product data. Please try again.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Get current URL as fallback
+      final currentUrl = await _controller.currentUrl() ?? widget.url;
+
+      // Navigate to Add Order screen with extracted data
       if (mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => AddOrderScreen(
+              initialData: extractedData,
               initialUrl: currentUrl,
             ),
           ),
