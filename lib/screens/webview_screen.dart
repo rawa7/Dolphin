@@ -360,27 +360,144 @@ class _WebViewScreenState extends State<WebViewScreen> {
   
   Future<File?> _captureScreenshot() async {
     try {
-      print('Attempting to capture webview screenshot...');
+      print('Attempting to extract main product image...');
       
-      // Capture screenshot of the entire webview page
-      final screenshot = await _controller.takeScreenshot();
+      // Use JavaScript to get the best quality main product image URL
+      const jsCode = '''
+        (function() {
+          try {
+            // For SHEIN - get the highest quality image
+            if (typeof window.gbProductDetail !== 'undefined' && window.gbProductDetail && window.gbProductDetail.detail) {
+              const detail = window.gbProductDetail.detail;
+              
+              // Priority 1: goods_img (main display image)
+              if (detail.goods_img) {
+                return detail.goods_img;
+              }
+              
+              // Priority 2: First origin_image from goods_imgs (highest quality)
+              if (detail.goods_imgs && Array.isArray(detail.goods_imgs) && detail.goods_imgs.length > 0) {
+                if (detail.goods_imgs[0].origin_image) {
+                  return detail.goods_imgs[0].origin_image;
+                }
+              }
+              
+              // Priority 3: detail_image
+              if (detail.detail_image) {
+                return detail.detail_image;
+              }
+            }
+            
+            // For other sites - comprehensive search
+            // Priority 1: Meta og:image (usually best quality)
+            const ogImage = document.querySelector('meta[property="og:image"]');
+            if (ogImage && ogImage.content && ogImage.content.startsWith('http')) {
+              return ogImage.content;
+            }
+            
+            // Priority 2: Main product image with data attributes (usually high quality)
+            const dataImageSelectors = [
+              'img[data-zoom-image]',
+              'img[data-large-image]',
+              'img[data-full-image]',
+              'img[data-original]'
+            ];
+            
+            for (const selector of dataImageSelectors) {
+              const element = document.querySelector(selector);
+              if (element) {
+                const dataAttr = element.getAttribute('data-zoom-image') || 
+                               element.getAttribute('data-large-image') || 
+                               element.getAttribute('data-full-image') ||
+                               element.getAttribute('data-original');
+                if (dataAttr && dataAttr.startsWith('http')) {
+                  return dataAttr;
+                }
+              }
+            }
+            
+            // Priority 3: Main product image selectors
+            const mainImageSelectors = [
+              'img[itemprop="image"]',
+              '.product-main-image img',
+              '.product-image-container img',
+              'img[class*="mainImage"]',
+              'img[id*="mainImage"]',
+              'img[class*="ProductImage"]:first-of-type',
+              '[class*="ImageViewer"] img:first-of-type',
+              '.gallery img:first-of-type',
+              '[class*="product-gallery"] img:first-of-type'
+            ];
+            
+            for (const selector of mainImageSelectors) {
+              const element = document.querySelector(selector);
+              if (element && element.src && element.src.startsWith('http')) {
+                // Check if it's a reasonably sized image (not a thumbnail)
+                if (element.naturalWidth >= 300 && element.naturalHeight >= 300) {
+                  return element.src;
+                }
+              }
+            }
+            
+            // Priority 4: Find the largest visible image on the page
+            const allImages = Array.from(document.querySelectorAll('img'));
+            let largestImage = null;
+            let maxSize = 0;
+            
+            for (const img of allImages) {
+              if (img.src && img.src.startsWith('http') && img.naturalWidth > 0 && img.naturalHeight > 0) {
+                const size = img.naturalWidth * img.naturalHeight;
+                if (size > maxSize && img.naturalWidth >= 400 && img.naturalHeight >= 400) {
+                  maxSize = size;
+                  largestImage = img.src;
+                }
+              }
+            }
+            
+            if (largestImage) {
+              return largestImage;
+            }
+            
+            return null;
+          } catch (error) {
+            console.error('Error extracting image:', error);
+            return null;
+          }
+        })();
+      ''';
+
+      final result = await _controller.runJavaScriptReturningResult(jsCode);
+      print('Image extraction JS result: $result');
       
-      if (screenshot == null || screenshot.isEmpty) {
-        print('Screenshot capture returned null or empty');
-        return null;
+      if (result != null && result.toString().isNotEmpty && result.toString() != 'null') {
+        String imageUrl = result.toString();
+        
+        // Remove quotes if present
+        if (imageUrl.startsWith('"') && imageUrl.endsWith('"')) {
+          imageUrl = imageUrl.substring(1, imageUrl.length - 1);
+        }
+        
+        print('Found main product image URL: $imageUrl');
+        
+        // Download this image with extended timeout
+        final imageFile = await _downloadImage(imageUrl).timeout(
+          const Duration(seconds: 15),
+          onTimeout: () {
+            print('Image download timed out after 15 seconds');
+            return null;
+          },
+        );
+        
+        if (imageFile != null) {
+          print('Successfully downloaded main product image');
+          return imageFile;
+        }
       }
       
-      print('Screenshot captured successfully, size: ${screenshot.length} bytes');
-      
-      // Save screenshot to temporary file
-      final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/screenshot_${DateTime.now().millisecondsSinceEpoch}.png');
-      await file.writeAsBytes(screenshot);
-      
-      print('Screenshot saved to: ${file.path}');
-      return file;
+      print('Could not extract main product image');
+      return null;
     } catch (e) {
-      print('Error capturing screenshot: $e');
+      print('Error capturing main product image: $e');
       return null;
     }
   }
