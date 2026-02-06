@@ -4,7 +4,9 @@ import '../models/user_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../generated/app_localizations.dart';
+import '../utils/auth_helper.dart';
 import 'webview_screen.dart';
+import 'add_order_screen.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final Order order;
@@ -145,34 +147,110 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     }
   }
 
-  void _openLink() {
-    // Open link in WebViewScreen
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => WebViewScreen(
-          url: widget.order.link,
-          title: widget.order.country.isNotEmpty 
-              ? widget.order.country 
-              : 'Product Page',
+  Future<void> _openLink() async {
+    // Check if it's a Shein link - if so, call API directly
+    if (_isSheinUrl(widget.order.link)) {
+      await _handleSheinLink(widget.order.link);
+    } else {
+      // For non-Shein sites, open webview as normal
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WebViewScreen(
+            url: widget.order.link,
+            title: widget.order.country.isNotEmpty 
+                ? widget.order.country 
+                : 'Product Page',
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
-  void _reorderProduct() {
-    // Navigate to WebViewScreen with the product link
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => WebViewScreen(
-          url: widget.order.link,
-          title: widget.order.country.isNotEmpty 
-              ? widget.order.country 
-              : 'Product Page',
+  Future<void> _reorderProduct() async {
+    // Check if it's a Shein link - if so, call API directly
+    if (_isSheinUrl(widget.order.link)) {
+      await _handleSheinLink(widget.order.link);
+    } else {
+      // For non-Shein sites, open webview as normal
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WebViewScreen(
+            url: widget.order.link,
+            title: widget.order.country.isNotEmpty 
+                ? widget.order.country 
+                : 'Product Page',
+          ),
         ),
+      );
+    }
+  }
+
+  bool _isSheinUrl(String url) {
+    final lowerUrl = url.toLowerCase();
+    return lowerUrl.contains('shein.com') || 
+           lowerUrl.contains('sheinlink://') || 
+           lowerUrl.startsWith('shein://');
+  }
+
+  Future<void> _handleSheinLink(String url) async {
+    // Check authentication first
+    final isAuthenticated = await AuthHelper.requireAuth(context);
+    if (!isAuthenticated) {
+      return; // User cancelled or not logged in
+    }
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
       ),
     );
+
+    try {
+      // Call Shein API directly
+      final apiResult = await ApiService.getSheinProduct(url);
+      
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        
+        if (apiResult['success'] == true && apiResult['data'] != null) {
+          final extractedData = apiResult['data'] as Map<String, dynamic>;
+          
+          // Navigate directly to Add Order screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddOrderScreen(
+                initialData: extractedData,
+                initialUrl: url,
+              ),
+            ),
+          );
+        } else {
+          // API failed, show error
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(apiResult['message'] ?? 'Failed to fetch product data'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Color _getStatusColor(String status) {

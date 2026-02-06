@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import '../models/user_model.dart';
 import '../models/website_model.dart';
 import '../models/order_model.dart';
@@ -743,6 +744,339 @@ class ApiService {
         'message': 'Network error: $e',
       };
     }
+  }
+
+  // Get Shein product data from API
+  static Future<Map<String, dynamic>> getSheinProduct(String url) async {
+    try {
+      // Clean and normalize the URL
+      String cleanUrl = url.trim();
+      
+      // Remove any trailing slashes or whitespace
+      cleanUrl = cleanUrl.replaceAll(RegExp(r'[\s]+$'), '');
+      
+      // Fix incomplete URLs (e.g., "goods-616166.ht" -> "goods-616166.html")
+      if (cleanUrl.endsWith('.ht') && !cleanUrl.endsWith('.html')) {
+        cleanUrl = '${cleanUrl}ml';
+      }
+      
+      // Ensure URL is properly formatted
+      if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+        // If it's a mobile URL without protocol, add https
+        if (cleanUrl.startsWith('m.shein.com') || cleanUrl.startsWith('www.shein.com')) {
+          cleanUrl = 'https://$cleanUrl';
+        } else {
+          return {
+            'success': false,
+            'message': 'Invalid URL format. Please provide a complete Shein URL.',
+          };
+        }
+      }
+      
+      // Convert mobile URLs to standard format that API expects
+      // API expects: https://ar.shein.com/...-p-PRODUCTID.html
+      // Mobile format: https://m.shein.com/goods-PRODUCTID.html
+      if (cleanUrl.contains('m.shein.com/goods-')) {
+        // Extract product ID from mobile URL format
+        final productIdMatch = RegExp(r'goods-(\d+)').firstMatch(cleanUrl);
+        if (productIdMatch != null) {
+          final productId = productIdMatch.group(1);
+          // Convert to standard format: https://ar.shein.com/product-p-PRODUCTID.html
+          cleanUrl = 'https://ar.shein.com/product-p-$productId.html';
+          print('📝 Converted mobile URL to standard format: $cleanUrl');
+        }
+      }
+      
+      // Also handle other mobile URL formats
+      if (cleanUrl.contains('m.shein.com') && !cleanUrl.contains('-p-')) {
+        // Try to extract product ID from various mobile URL patterns
+        final patterns = [
+          RegExp(r'goods-(\d+)'),
+          RegExp(r'product-(\d+)'),
+          RegExp(r'/(\d{6,})'),
+        ];
+        
+        for (final pattern in patterns) {
+          final match = pattern.firstMatch(cleanUrl);
+          if (match != null) {
+            final productId = match.group(1);
+            cleanUrl = 'https://ar.shein.com/product-p-$productId.html';
+            print('📝 Converted URL to standard format: $cleanUrl');
+            break;
+          }
+        }
+      }
+      
+      print('📤 Calling Shein API with URL: $cleanUrl');
+      final apiUrl = Uri.parse('$baseUrl/shein_product.php?url=${Uri.encodeComponent(cleanUrl)}');
+      print('📤 Full API URL: $apiUrl');
+      
+      final response = await http.get(
+        apiUrl,
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+      ).timeout(const Duration(seconds: 30));
+
+      print('📥 API Response Status: ${response.statusCode}');
+      if (response.body.length > 500) {
+        print('📥 API Response Body (first 500 chars): ${response.body.substring(0, 500)}...');
+      } else {
+        print('📥 API Response Body: ${response.body}');
+      }
+
+      if (response.statusCode != 200) {
+        // Try to parse error message from response
+        String errorMessage = 'API request failed with status ${response.statusCode}';
+        try {
+          final errorData = jsonDecode(response.body);
+          if (errorData['message'] != null) {
+            errorMessage = errorData['message'].toString();
+          } else if (errorData['error'] != null) {
+            errorMessage = errorData['error'].toString();
+          }
+        } catch (e) {
+          // If parsing fails, use default message
+          final responsePreview = response.body.length > 200 
+              ? response.body.substring(0, 200) 
+              : response.body;
+          errorMessage = 'API request failed with status ${response.statusCode}. Response: $responsePreview';
+        }
+        
+        return {
+          'success': false,
+          'message': errorMessage,
+        };
+      }
+
+      final data = jsonDecode(response.body);
+      
+      // Debug: Print API response structure
+      print('=== Shein API Response ===');
+      print('Status Code: ${response.statusCode}');
+      print('Response keys: ${data?.keys.toList()}');
+      print('Success: ${data?['success']}');
+      print('Data type: ${data?['data']?.runtimeType}');
+      if (data?['data'] != null) {
+        if (data['data'] is Map) {
+          print('Data keys: ${(data['data'] as Map).keys.toList()}');
+        } else if (data['data'] is List) {
+          print('Data[0] keys: ${(data['data'] as List).isNotEmpty ? (data['data'][0] as Map?)?.keys.toList() : "empty"}');
+        }
+      }
+      print('========================');
+      
+      // Check if response has the expected structure
+      if (data == null) {
+        return {
+          'success': false,
+          'message': 'Invalid API response: null',
+        };
+      }
+
+      if (data['success'] != true) {
+        return {
+          'success': false,
+          'message': data['message']?.toString() ?? 'API returned unsuccessful response',
+        };
+      }
+
+      // Check if data exists - it can be either a Map or a List
+      if (data['data'] == null) {
+        return {
+          'success': false,
+          'message': 'No product data found in API response',
+        };
+      }
+
+      Map<String, dynamic>? detail;
+      
+      // Handle both response formats: Map or List
+      if (data['data'] is Map) {
+        // API returns data as a Map directly (new format)
+        final productData = data['data'] as Map<String, dynamic>;
+        
+        print('📦 Data Map keys: ${productData.keys.toList()}');
+        
+        // Check if it has 'detail' key (nested structure)
+        if (productData['detail'] != null && productData['detail'] is Map) {
+          detail = productData['detail'] as Map<String, dynamic>;
+          print('✅ Found detail in nested structure');
+        } else if (productData.containsKey('goods_name') || productData.containsKey('goods_id')) {
+          // The data itself is the detail object (flat structure)
+          detail = productData;
+          print('✅ Using data as detail (flat structure)');
+        } else {
+          // Try to find detail in data array if it exists
+          if (productData.containsKey('data') && productData['data'] is List && (productData['data'] as List).isNotEmpty) {
+            final firstItem = (productData['data'] as List)[0];
+            if (firstItem is Map && firstItem['detail'] != null) {
+              detail = firstItem['detail'] as Map<String, dynamic>;
+              print('✅ Found detail in data array');
+            }
+          }
+        }
+      } else if (data['data'] is List && (data['data'] as List).isNotEmpty) {
+        // API returns data as a List (old format)
+        final productData = (data['data'] as List)[0] as Map<String, dynamic>?;
+        
+        if (productData == null) {
+          return {
+            'success': false,
+            'message': 'Product data is null in API response',
+          };
+        }
+        
+        if (productData['detail'] != null) {
+          detail = productData['detail'] as Map<String, dynamic>;
+        } else {
+          detail = productData;
+        }
+        print('✅ Using List format');
+      } else {
+        return {
+          'success': false,
+          'message': 'Invalid data format in API response',
+        };
+      }
+      
+      // Final check for detail
+      if (detail == null) {
+        print('⚠️ Could not find detail in API response');
+        print('⚠️ Data type: ${data['data'].runtimeType}');
+        if (data['data'] is Map) {
+          print('⚠️ Data keys: ${(data['data'] as Map).keys.toList()}');
+        }
+        return {
+          'success': false,
+          'message': 'Product detail not found in API response',
+        };
+      }
+      
+      print('✅ Detail keys: ${detail.keys.toList()}');
+      
+      // Extract product information with null safety
+      final extractedData = {
+        'title': detail['goods_name']?.toString() ?? 
+                 detail['productRelationID']?.toString() ?? 
+                 detail['goods_name_en']?.toString() ?? 
+                 '',
+        'price': detail['salePrice']?['amount']?.toString() ?? 
+                 detail['retailPrice']?['amount']?.toString() ?? 
+                 '',
+        'currency': detail['salePrice']?['currency']?.toString() ?? 
+                    detail['retailPrice']?['currency']?.toString() ?? 
+                    'USD',
+        'images': <String>[],
+        'size': '',
+        'color': '',
+      };
+      
+      // Extract images with null safety
+      if (detail['goods_img'] != null) {
+        String imgUrl = detail['goods_img'].toString();
+        if (imgUrl.isNotEmpty) {
+          if (!imgUrl.startsWith('http')) {
+            imgUrl = 'https:$imgUrl';
+          }
+          extractedData['images'] = [imgUrl];
+        }
+      }
+      
+      if (detail['original_img'] != null) {
+        String imgUrl = detail['original_img'].toString();
+        if (imgUrl.isNotEmpty) {
+          if (!imgUrl.startsWith('http')) {
+            imgUrl = 'https:$imgUrl';
+          }
+          final imagesList = extractedData['images'] as List<String>;
+          if (!imagesList.contains(imgUrl)) {
+            imagesList.insert(0, imgUrl);
+          }
+        }
+      }
+      
+      // Extract size and color from attributes with null safety
+      if (detail['mainSaleAttribute'] != null && 
+          detail['mainSaleAttribute'] is List && 
+          (detail['mainSaleAttribute'] as List).isNotEmpty) {
+        try {
+          final mainAttr = (detail['mainSaleAttribute'] as List)[0] as Map<String, dynamic>;
+          if (mainAttr['attr_name_en']?.toString() == 'Color') {
+            extractedData['color'] = mainAttr['attr_value_en']?.toString() ?? 
+                                     mainAttr['attr_value']?.toString() ?? '';
+          }
+        } catch (e) {
+          print('Error extracting color: $e');
+        }
+      }
+      
+      if (detail['secondSaleAttributes'] != null && 
+          detail['secondSaleAttributes'] is List && 
+          (detail['secondSaleAttributes'] as List).isNotEmpty) {
+        try {
+          final sizeAttr = (detail['secondSaleAttributes'] as List).firstWhere(
+            (attr) => (attr as Map<String, dynamic>)['attr_name_en']?.toString() == 'Size',
+            orElse: () => <String, dynamic>{},
+          ) as Map<String, dynamic>;
+          
+          if (sizeAttr.isNotEmpty && 
+              sizeAttr['attr_value_list'] != null && 
+              sizeAttr['attr_value_list'] is List && 
+              (sizeAttr['attr_value_list'] as List).isNotEmpty) {
+            final sizeList = sizeAttr['attr_value_list'] as List;
+            if (sizeList.isNotEmpty) {
+              final firstSize = sizeList[0] as Map<String, dynamic>;
+              extractedData['size'] = firstSize['attr_value_en']?.toString() ?? 
+                                     firstSize['attr_value']?.toString() ?? '';
+            }
+          }
+        } catch (e) {
+          print('Error extracting size: $e');
+        }
+      }
+      
+      return {
+        'success': true,
+        'data': extractedData,
+      };
+    } catch (e) {
+      print('Error in getSheinProduct: $e');
+      return {
+        'success': false,
+        'message': 'Network error: $e',
+      };
+    }
+  }
+
+  // Helper method to download image from URL
+  static Future<File?> _downloadImage(String imageUrl) async {
+    try {
+      print('Downloading image from: $imageUrl');
+      final response = await http.get(
+        Uri.parse(imageUrl),
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Safari/537.36',
+          'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+          'Referer': 'https://www.shein.com/',
+        },
+      ).timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final tempDir = await getTemporaryDirectory();
+        final fileName = 'shein_product_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final file = File('${tempDir.path}/$fileName');
+        await file.writeAsBytes(response.bodyBytes);
+        print('✅ Image saved to: ${file.path} (${response.bodyBytes.length} bytes)');
+        return file;
+      } else {
+        print('⚠️ Image download failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error downloading image: $e');
+    }
+    return null;
   }
 
   // Delete/Deactivate FCM token from backend

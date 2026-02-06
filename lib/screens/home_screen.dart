@@ -238,6 +238,96 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  bool _isSheinUrl(String url) {
+    final lowerUrl = url.toLowerCase();
+    return lowerUrl.contains('shein.com') || 
+           lowerUrl.contains('sheinlink://') || 
+           lowerUrl.startsWith('shein://');
+  }
+
+  Future<void> _openWebsite(Website website) async {
+    if (website.link.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Website link not available')),
+      );
+      return;
+    }
+
+    // Check if it's a Shein link - if so, call API directly
+    if (_isSheinUrl(website.link)) {
+      await _handleSheinLink(website.link);
+    } else {
+      // For non-Shein sites, open webview as normal
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WebViewScreen(
+            url: website.link,
+            title: website.name,
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleSheinLink(String url) async {
+    // Check authentication first
+    final isAuthenticated = await AuthHelper.requireAuth(context);
+    if (!isAuthenticated) {
+      return; // User cancelled or not logged in
+    }
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      // Call Shein API directly
+      final apiResult = await ApiService.getSheinProduct(url);
+      
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        
+        if (apiResult['success'] == true && apiResult['data'] != null) {
+          final extractedData = apiResult['data'] as Map<String, dynamic>;
+          
+          // Navigate directly to Add Order screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddOrderScreen(
+                initialData: extractedData,
+                initialUrl: url,
+              ),
+            ),
+          );
+        } else {
+          // API failed, show error
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(apiResult['message'] ?? 'Failed to fetch product data'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -392,15 +482,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                   return GestureDetector(
                                     onTap: () {
                                       if (banner.link.isNotEmpty) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => WebViewScreen(
-                                              url: banner.link,
-                                              title: 'Banner',
+                                        if (_isSheinUrl(banner.link)) {
+                                          _handleSheinLink(banner.link);
+                                        } else {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => WebViewScreen(
+                                                url: banner.link,
+                                                title: 'Banner',
+                                              ),
                                             ),
-                                          ),
-                                        );
+                                          );
+                                        }
                                       }
                                     },
                                     child: Padding(
@@ -673,17 +767,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildWebsiteCard(Website website) {
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => WebViewScreen(
-              url: website.link,
-              title: website.name,
-            ),
-          ),
-        );
-      },
+      onTap: () => _openWebsite(website),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(

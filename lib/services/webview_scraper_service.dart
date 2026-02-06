@@ -60,10 +60,31 @@ class _InteractiveWebViewScraperState extends State<_InteractiveWebViewScraper> 
   }
 
   void _initWebView() {
+    // Convert app links to web URLs before loading
+    final initialUrl = _convertAppLinkToWebUrl(widget.url);
+    print('WebViewScraper: Loading URL: $initialUrl');
+    
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setUserAgent('Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36')
       ..setNavigationDelegate(
         NavigationDelegate(
+          onNavigationRequest: (NavigationRequest request) {
+            // Intercept app deep links and convert to web URLs
+            final url = request.url.toLowerCase();
+            if (url.startsWith('sheinlink://') || url.startsWith('shein://')) {
+              final convertedUrl = _convertAppLinkToWebUrl(request.url);
+              print('WebViewScraper: App link detected: ${request.url}');
+              print('WebViewScraper: Converting to: $convertedUrl');
+              
+              // Load the converted URL instead
+              _controller.loadRequest(Uri.parse(convertedUrl));
+              return NavigationDecision.prevent;
+            }
+            
+            // Allow all http/https URLs
+            return NavigationDecision.navigate;
+          },
           onPageStarted: (String url) {
             setState(() {
               _isLoading = true;
@@ -76,7 +97,57 @@ class _InteractiveWebViewScraperState extends State<_InteractiveWebViewScraper> 
           },
         ),
       )
-      ..loadRequest(Uri.parse(widget.url));
+      ..loadRequest(Uri.parse(initialUrl));
+  }
+  
+  // Convert app deep links to proper web URLs
+  String _convertAppLinkToWebUrl(String url) {
+    final lowerUrl = url.toLowerCase();
+    
+    print('=== URL Conversion Debug ===');
+    print('Original URL: $url');
+    
+    // Handle Shein app links (sheinlink://applink/goods/ID or shein://...)
+    if (lowerUrl.startsWith('sheinlink://') || lowerUrl.startsWith('shein://')) {
+      // Extract product ID from the URL - try multiple patterns
+      
+      // Pattern 1: goods/12345 or goods_12345
+      final goodsIdMatch = RegExp(r'goods[/_](\d+)', caseSensitive: false).firstMatch(url);
+      if (goodsIdMatch != null) {
+        final productId = goodsIdMatch.group(1);
+        print('Pattern 1 matched - Product ID: $productId');
+        // Use mobile-friendly URL
+        final convertedUrl = 'https://m.shein.com/goods-$productId.html';
+        print('Converted URL: $convertedUrl');
+        return convertedUrl;
+      }
+      
+      // Pattern 2: goods_id in data parameter
+      final dataMatch = RegExp(r'goods_id.*?(\d{6,})', caseSensitive: false).firstMatch(url);
+      if (dataMatch != null) {
+        final productId = dataMatch.group(1);
+        print('Pattern 2 matched - Product ID: $productId');
+        final convertedUrl = 'https://m.shein.com/goods-$productId.html';
+        print('Converted URL: $convertedUrl');
+        return convertedUrl;
+      }
+      
+      // Pattern 3: Any 6+ digit number
+      final idMatch = RegExp(r'(\d{6,})').firstMatch(url);
+      if (idMatch != null) {
+        final productId = idMatch.group(1);
+        print('Pattern 3 matched - Product ID: $productId');
+        final convertedUrl = 'https://m.shein.com/goods-$productId.html';
+        print('Converted URL: $convertedUrl');
+        return convertedUrl;
+      }
+      
+      print('No pattern matched! Returning original URL');
+    }
+    
+    print('Not a shein link, returning original');
+    print('===========================');
+    return url;
   }
 
   Future<void> _extractData() async {
@@ -284,19 +355,11 @@ class _InteractiveWebViewScraperState extends State<_InteractiveWebViewScraper> 
           (data['price'] != null && data['price'].toString().isNotEmpty) || 
           (data['title'] != null && data['title'].toString().isNotEmpty)) {
         
-        File? imageFile;
-        
-        // Try to download the first image if available
-        if (data['images'] != null && data['images'].isNotEmpty) {
-          imageFile = await _downloadImage(data['images'][0]);
-        }
-        
-        // If no image was found or download failed, automatically take screenshot
-        if (imageFile == null) {
+        // ALWAYS take screenshot to capture what user sees
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('No product image found, taking screenshot...'),
+              content: Text('Taking screenshot...'),
                 duration: Duration(seconds: 1),
               ),
             );
@@ -305,8 +368,8 @@ class _InteractiveWebViewScraperState extends State<_InteractiveWebViewScraper> 
           // Wait a moment for snackbar to show
           await Future.delayed(const Duration(milliseconds: 500));
           
-          // Take screenshot automatically
-          imageFile = await _captureScreenshot();
+        // Take screenshot
+        File? imageFile = await _captureScreenshot();
           
           if (imageFile != null && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -315,7 +378,6 @@ class _InteractiveWebViewScraperState extends State<_InteractiveWebViewScraper> 
                 duration: Duration(seconds: 1),
               ),
             );
-          }
         }
 
         setState(() {
@@ -323,6 +385,11 @@ class _InteractiveWebViewScraperState extends State<_InteractiveWebViewScraper> 
         });
 
         if (mounted) {
+          print('=== Returning Data from WebViewScraper ===');
+          print('Screenshot file: ${imageFile?.path ?? "NULL"}');
+          print('Data keys: ${data.keys.toList()}');
+          print('==========================================');
+          
           Navigator.pop(context, {
             'success': true,
             'data': {
@@ -453,21 +520,29 @@ class _InteractiveWebViewScraperState extends State<_InteractiveWebViewScraper> 
 
   Future<File?> _captureScreenshot() async {
     try {
+      print('Capturing screenshot...');
+      
       // Create a temporary file
       final tempDir = await getTemporaryDirectory();
       final fileName = 'screenshot_${DateTime.now().millisecondsSinceEpoch}.png';
       final file = File('${tempDir.path}/$fileName');
 
-      // Try to get screenshot using RenderRepaintBoundary
+      // Try to get screenshot using RenderRepaintBoundary with high quality
       final RenderObject? renderObject = _webViewKey.currentContext?.findRenderObject();
       if (renderObject is RenderRepaintBoundary) {
-        final ui.Image image = await renderObject.toImage(pixelRatio: 2.0);
+        print('RenderRepaintBoundary found, capturing with pixelRatio: 3.0');
+        final ui.Image image = await renderObject.toImage(pixelRatio: 3.0); // Higher quality
         final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
         
         if (byteData != null) {
           await file.writeAsBytes(byteData.buffer.asUint8List());
+          print('Screenshot saved: ${file.path}, size: ${byteData.lengthInBytes} bytes');
           return file;
+        } else {
+          print('ByteData is null');
         }
+      } else {
+        print('RenderObject is not a RenderRepaintBoundary');
       }
 
       return null;

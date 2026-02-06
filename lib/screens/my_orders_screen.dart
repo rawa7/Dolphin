@@ -53,6 +53,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _customerId = user.id;
     _user = user; // Store user for account type checks
 
+    // Store the currently selected status before reloading
+    final currentStatusId = _selectedStatusId;
+
     final result = await ApiService.getOrders(user.id);
 
     if (result['success']) {
@@ -60,8 +63,16 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         _allOrders = result['orders'] as List<Order>;
         _statuses = result['statuses'] as List<OrderStatus>;
         _accountInfo = result['account_info'] as AccountInfo;
-        // Show all orders by default (no filter on initial load)
-        _filteredOrders = _allOrders;
+        
+        // Reapply the filter that was selected before refresh
+        if (currentStatusId == null) {
+          // Show all orders if "All Orders" was selected
+          _filteredOrders = _allOrders;
+        } else {
+          // Filter by the previously selected status
+          _filteredOrders = _allOrders.where((order) => order.status == currentStatusId).toList();
+        }
+        
         _isLoading = false;
       });
     } else {

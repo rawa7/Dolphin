@@ -71,10 +71,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   // For detecting paste operations
   String _previousUrl = '';
   bool _isApplyingInitialData = false;
-  
-  // For manual/automatic mode
-  bool _isManualMode = false;
-  bool _hasAskedMode = false;
+
+  // Always use automatic mode - removed manual mode selection
 
   final List<String> _countries = [
     'Iraq',
@@ -229,9 +227,21 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         }
         
         // Set image if provided
-        if (data['imageFile'] != null && data['imageFile'] is File) {
-          _selectedImage = data['imageFile'];
+        print('=== Setting Image from Initial Data ===');
+        print('imageFile exists: ${data['imageFile'] != null}');
+        print('imageFile type: ${data['imageFile'].runtimeType}');
+        
+        if (data['imageFile'] != null) {
+          if (data['imageFile'] is File) {
+            _selectedImage = data['imageFile'] as File;
+            print('✅ Screenshot set as product image: ${_selectedImage!.path}');
+          } else {
+            print('❌ imageFile is not a File type: ${data['imageFile'].runtimeType}');
+          }
+        } else {
+          print('❌ No imageFile in data');
         }
+        print('======================================');
       });
     });
   }
@@ -271,132 +281,14 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     _previousUrl = currentUrl;
   }
   
-  // Trigger auto-fetch after paste
+  // Trigger auto-fetch after paste - always automatic
   Future<void> _onUrlPasted() async {
     // Wait a moment for the text to be set
     await Future.delayed(const Duration(milliseconds: 100));
-    if (_linkController.text.isNotEmpty && !_hasAskedMode) {
-      _hasAskedMode = true;
-      _showModeSelectionDialog();
+    if (_linkController.text.isNotEmpty) {
+      // Always use automatic mode - fetch product details immediately
+      _fetchProductDetails();
     }
-  }
-  
-  // Show dialog to ask user for manual or automatic mode
-  Future<void> _showModeSelectionDialog() async {
-    final l10n = AppLocalizations.of(context)!;
-    
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text(
-            l10n.selectDataEntryMode,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.selectDataEntryModeDescription,
-                style: const TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 16),
-              // Automatic button
-              InkWell(
-                onTap: () {
-                  Navigator.of(dialogContext).pop();
-                  setState(() {
-                    _isManualMode = false;
-                  });
-                  _fetchProductDetails();
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.pink[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.pink[700]!),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.auto_awesome, color: Colors.pink[700]),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.automatic,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.pink[700],
-                              ),
-                            ),
-                            Text(
-                              l10n.automaticDescription,
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Manual button
-              InkWell(
-                onTap: () {
-                  Navigator.of(dialogContext).pop();
-                  setState(() {
-                    _isManualMode = true;
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey[400]!),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.edit, color: Colors.grey[700]),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.manual,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                            Text(
-                              l10n.manualDescription,
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
   
   Future<void> _fetchCurrencies() async {
@@ -754,16 +646,134 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       _isFetchingDetails = true;
     });
 
-    // First try regular HTML scraping
+    // Check if it's a Shein link - if so, call API directly
+    final lowerUrl = url.toLowerCase();
+    if (lowerUrl.contains('shein.com') || 
+        lowerUrl.contains('sheinlink://') || 
+        lowerUrl.startsWith('shein://')) {
+      // Call Shein API directly
+      final apiResult = await ApiService.getSheinProduct(url);
+      
+      setState(() {
+        _isFetchingDetails = false;
+      });
+      
+      if (apiResult['success'] == true && apiResult['data'] != null) {
+        final extractedData = apiResult['data'] as Map<String, dynamic>;
+        
+        // Convert API data to the format expected by the form
+        final data = {
+          'title': extractedData['title'] ?? '',
+          'price': extractedData['price'] ?? '',
+          'currency': extractedData['currency'] ?? 'USD',
+          'images': extractedData['images'] ?? <String>[],
+          'size': extractedData['size'] ?? '',
+          'color': extractedData['color'] ?? '',
+        };
+        
+        _fetchedProductData = data;
+        
+        // Auto-detect and set country from URL
+        if (_linkController.text.isNotEmpty) {
+          final detectedCountry = _detectCountryFromUrl(_linkController.text);
+          setState(() {
+            _selectedCountry = detectedCountry;
+          });
+        }
+        
+        // Auto-fill price if found
+        if (data['price'] != null && data['price'].toString().isNotEmpty) {
+          setState(() {
+            _extractedPrice = data['price'].toString();
+            _extractedCurrency = data['currency']?.toString() ?? '';
+            _priceController.text = '$_extractedCurrency $_extractedPrice';
+          });
+          
+          // Auto-select currency based on detected currency code
+          if (_extractedCurrency != null && _extractedCurrency!.isNotEmpty && _currencies.isNotEmpty) {
+            final currencyCode = _extractedCurrency!.toUpperCase();
+            Currency? matchedCurrency;
+            
+            try {
+              matchedCurrency = _currencies.firstWhere(
+                (c) => c.currencyCode == currencyCode,
+              );
+            } catch (e) {
+              try {
+                matchedCurrency = _currencies.firstWhere(
+                  (c) => c.currencySign == _extractedCurrency,
+                );
+              } catch (e) {
+                // Keep default currency
+              }
+            }
+            
+            if (matchedCurrency != null) {
+              setState(() {
+                _selectedCurrency = matchedCurrency;
+              });
+            }
+          }
+        }
+        
+        // Auto-fill color if found
+        if (data['color'] != null && data['color'].toString().isNotEmpty) {
+          setState(() {
+            _colorController.text = data['color'].toString();
+          });
+        }
+        
+        // Auto-select size if found
+        if (data['size'] != null && data['size'].toString().isNotEmpty) {
+          final size = data['size'].toString().toUpperCase();
+          if (_sizes.contains(size)) {
+            setState(() {
+              _selectedSize = size;
+            });
+          }
+        }
+        
+        // Set the downloaded image if available
+        if (data['imageFile'] != null && data['imageFile'] is File) {
+          setState(() {
+            _selectedImage = data['imageFile'] as File;
+          });
+          print('✅ Shein product image set: ${_selectedImage!.path}');
+        } else if (data['images'] != null && (data['images'] as List).isNotEmpty) {
+          // If imageFile not available, try to download from URL
+          final firstImageUrl = (data['images'] as List)[0].toString();
+          if (firstImageUrl.isNotEmpty) {
+            print('📥 Downloading image from URL: $firstImageUrl');
+            try {
+              final imageFile = await _downloadAndSetImage(firstImageUrl);
+              if (imageFile != null) {
+                setState(() {
+                  _selectedImage = imageFile;
+                });
+                print('✅ Image downloaded and set: ${imageFile.path}');
+              }
+            } catch (e) {
+              print('⚠️ Error downloading image: $e');
+            }
+          }
+        }
+        
+        _showMessage('Product details fetched successfully!', isError: false);
+        return;
+      } else {
+        // API failed, show error
+        _showMessage(apiResult['message'] ?? 'Failed to fetch product data', isError: true);
+        return;
+      }
+    }
+
+    // For non-Shein sites, use regular scraping
     var result = await WebScraperService.fetchProductDetails(url);
 
     // If regular scraping fails, try WebView scraping for JavaScript-heavy sites
     if (!result['success'] || (result['data'] != null && result['data']['images'].isEmpty)) {
-      final lowerUrl = url.toLowerCase();
-      
-      // Use WebView for known JavaScript-heavy sites
-      if (lowerUrl.contains('shein.com') || 
-          lowerUrl.contains('zara.com') || 
+      // Use WebView for known JavaScript-heavy sites (but not Shein - already handled above)
+      if (lowerUrl.contains('zara.com') || 
           lowerUrl.contains('amazon.') ||
           lowerUrl.contains('hm.com') ||
           !result['success']) {
@@ -780,9 +790,18 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     });
 
     if (result['success']) {
-      // Cast to proper type
-      final data = Map<String, dynamic>.from(result['data'] as Map);
+      // Get data map - DO NOT use Map.from() as it loses File objects!
+      final data = result['data'] as Map<String, dynamic>;
       _fetchedProductData = data;
+      
+      print('=== Received Data from WebView ===');
+      print('Data keys: ${data.keys.toList()}');
+      print('Has imageFile: ${data.containsKey('imageFile')}');
+      if (data.containsKey('imageFile')) {
+        print('imageFile type: ${data['imageFile'].runtimeType}');
+        print('imageFile path: ${(data['imageFile'] as File?)?.path ?? "NULL"}');
+      }
+      print('==================================');
 
       // Auto-detect and set country from URL
       if (_linkController.text.isNotEmpty) {
@@ -844,21 +863,23 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         }
       }
 
-      // Set image if already downloaded via WebView
-      if (data['imageFile'] != null && data['imageFile'] is File) {
+      // Set image if already downloaded via WebView (screenshot)
+      print('=== Setting Screenshot as Product Image ===');
+      print('imageFile exists: ${data['imageFile'] != null}');
+      if (data['imageFile'] != null) {
+        print('imageFile type: ${data['imageFile'].runtimeType}');
+        if (data['imageFile'] is File) {
         setState(() {
-          _selectedImage = data['imageFile'];
-        });
-      } 
-      // Otherwise download and set the first image
-      else if (data['images'] != null && (data['images'] as List).isNotEmpty) {
-        final imageUrl = (data['images'] as List).first;
-        await _downloadAndSetImage(imageUrl);
+            _selectedImage = data['imageFile'] as File;
+          });
+          print('✅ Screenshot set as product image: ${_selectedImage!.path}');
+        } else {
+          print('❌ imageFile is not File type');
+        }
+      } else {
+        print('❌ No imageFile in data');
       }
-      // If still no image, automatically take screenshot
-      else if (_selectedImage == null) {
-        _showMessage('No product image found. Please take a screenshot or upload manually.', isError: true);
-      }
+      print('===========================================');
 
       // Don't auto-fill description - user requested to keep it empty
       // The description field will remain blank for user to fill manually
@@ -871,7 +892,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     }
   }
 
-  Future<void> _downloadAndSetImage(String imageUrl) async {
+  Future<File?> _downloadAndSetImage(String imageUrl) async {
     try {
       final response = await WebScraperService.downloadImage(imageUrl);
       if (response != null) {
@@ -880,14 +901,12 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         final fileName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
         final file = File('${tempDir.path}/$fileName');
         await file.writeAsBytes(response.bodyBytes);
-        
-        setState(() {
-          _selectedImage = file;
-        });
+        return file;
       }
     } catch (e) {
       print('Error downloading image: $e');
     }
+    return null;
   }
 
   Future<void> _pickImage() async {
@@ -1210,53 +1229,6 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 ),
               ),
             
-            // Mode indicator and switch button
-            if (_hasAskedMode && _linkController.text.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          _isManualMode ? Icons.edit : Icons.auto_awesome,
-                          size: 16,
-                          color: _isManualMode ? Colors.grey[600] : Colors.pink[700],
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          _isManualMode ? l10n.manualMode : l10n.automaticMode,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: _isManualMode ? Colors.grey[600] : Colors.pink[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                    TextButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _isManualMode = !_isManualMode;
-                        });
-                        if (!_isManualMode) {
-                          // Switched to automatic, fetch data
-                          _fetchProductDetails();
-                        }
-                      },
-                      icon: Icon(
-                        _isManualMode ? Icons.auto_awesome : Icons.edit,
-                        size: 16,
-                      ),
-                      label: Text(
-                        _isManualMode ? l10n.switchToAutomatic : l10n.switchToManual,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
             const SizedBox(height: 12),
 

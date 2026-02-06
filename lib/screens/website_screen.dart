@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/website_model.dart';
 import '../constants/app_colors.dart';
+import '../utils/auth_helper.dart';
 import 'webview_screen.dart';
+import 'add_order_screen.dart';
 
 class WebsiteScreen extends StatefulWidget {
   const WebsiteScreen({super.key});
@@ -80,7 +82,7 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
     return grouped;
   }
 
-  void _openWebsite(Website website) {
+  Future<void> _openWebsite(Website website) async {
     if (website.link.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Website link not available')),
@@ -88,15 +90,87 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
       return;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => WebViewScreen(
-          url: website.link,
-          title: website.name,
+    // Check if it's a Shein link - if so, call API directly
+    if (_isSheinUrl(website.link)) {
+      await _handleSheinLink(website.link);
+    } else {
+      // For non-Shein sites, open webview as normal
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WebViewScreen(
+            url: website.link,
+            title: website.name,
+          ),
         ),
+      );
+    }
+  }
+
+  bool _isSheinUrl(String url) {
+    final lowerUrl = url.toLowerCase();
+    return lowerUrl.contains('shein.com') || 
+           lowerUrl.contains('sheinlink://') || 
+           lowerUrl.startsWith('shein://');
+  }
+
+  Future<void> _handleSheinLink(String url) async {
+    // Check authentication first
+    final isAuthenticated = await AuthHelper.requireAuth(context);
+    if (!isAuthenticated) {
+      return; // User cancelled or not logged in
+    }
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
       ),
     );
+
+    try {
+      // Call Shein API directly
+      final apiResult = await ApiService.getSheinProduct(url);
+      
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        
+        if (apiResult['success'] == true && apiResult['data'] != null) {
+          final extractedData = apiResult['data'] as Map<String, dynamic>;
+          
+          // Navigate directly to Add Order screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddOrderScreen(
+                initialData: extractedData,
+                initialUrl: url,
+              ),
+            ),
+          );
+        } else {
+          // API failed, show error
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(apiResult['message'] ?? 'Failed to fetch product data'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
